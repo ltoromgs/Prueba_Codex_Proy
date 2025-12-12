@@ -8,6 +8,7 @@ using System.Net;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 
 namespace ArellanoCore.Api.Controllers
 {
@@ -66,6 +67,62 @@ namespace ArellanoCore.Api.Controllers
                     Content = ex.Message
                 });
             }
+        }
+
+        [HttpPost("actualizar")]
+        public async Task<ActionResult<ResponseInformation>> Actualizar([FromQuery] string docEntry, [FromQuery] string Empresa, [FromBody] List<MatrizFactorDTO> factores)
+        {
+            if (string.IsNullOrWhiteSpace(docEntry))
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "DocEntry inválido",
+                    Content = string.Empty
+                });
+            }
+
+            if (factores == null || factores.Count == 0)
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No se enviaron factores para actualizar",
+                    Content = string.Empty
+                });
+            }
+
+            var rp = await _documentService.ValidaDatos(Empresa);
+            if (!rp.Registered)
+            {
+                return BadRequest(rp);
+            }
+
+            var token = await _loginService.Login(Empresa);
+            if (string.IsNullOrEmpty(token))
+            {
+                return StatusCode(503, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No fue posible conectarse al Service Layer",
+                    Content = string.Empty
+                });
+            }
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            var requestInformation = new RequestInformation
+            {
+                Route = $"MGS_CL_FACCAB({docEntry})",
+                Token = token,
+                Doc = JsonConvert.SerializeObject(factores, settings)
+            };
+
+            var result = await _documentService.UpdateInfo(requestInformation, "PYP", Empresa);
+            return Ok(result);
         }
 
         [HttpPatch]

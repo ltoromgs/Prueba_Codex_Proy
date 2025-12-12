@@ -56,5 +56,34 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             var lista = JsonConvert.DeserializeObject<List<FactoresModel>>(resp.Content) ?? new List<FactoresModel>();
             return Ok(lista);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Actualizar(string docEntry, [FromBody] List<FactoresModel> factores)
+        {
+            var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            if (string.IsNullOrEmpty(empresa))
+                return BadRequest(new { message = "Empresa no encontrada en sesión." });
+
+            if (string.IsNullOrWhiteSpace(docEntry))
+                return BadRequest(new { message = "DocEntry inválido." });
+
+            if (factores == null || factores.Count == 0)
+                return BadRequest(new { message = "No se recibieron factores para actualizar." });
+
+            var endpoint = QueryHelpers.AddQueryString("/api/factores/actualizar", new Dictionary<string, string?>
+            {
+                ["empresa"] = empresa,
+                ["docEntry"] = docEntry
+            });
+
+            var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, factores);
+
+            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+
+            if (!resp.Registered)
+                return BadRequest(new { message = resp.Message, content = resp.Content });
+
+            return Ok(resp);
+        }
     }
 }

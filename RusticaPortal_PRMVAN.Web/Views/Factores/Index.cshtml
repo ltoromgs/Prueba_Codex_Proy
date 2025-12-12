@@ -417,7 +417,7 @@
             console.log(`fila: ${m.u_MGS_CL_TIENDA} - ${m.u_MGS_CL_NOMTIE}`);
 
             return `
-            <tr data-id="${m.lineId}">
+            <tr data-id="${m.lineId}" data-lineid="${m.lineId ?? ''}" data-docentry="${m.docEntry ?? ''}" data-periodo="${m.u_MGS_CL_PERIODO ?? ''}" data-tienda="${m.u_MGS_CL_TIENDA ?? ''}" data-nomtien="${m.u_MGS_CL_NOMTIE ?? ''}">
     <td>${m.lineId ?? ''}</td> <!-- Codigo Interno / ProductoPlanner -->
     <td class="sticky-col-start fw-semibold">
         ${m.u_MGS_CL_TIENDA ?? ''} - ${m.u_MGS_CL_NOMTIE ?? ''}
@@ -465,6 +465,11 @@
         document.getElementById('btnActualizarTodo')?.addEventListener('click', async () => {
             // Recolectar filas
             const rows = Array.from(document.querySelectorAll('#tablaMatriz tbody tr'));
+            if (!rows.length) {
+                alert('No hay información para actualizar.');
+                return;
+            }
+
             // Validar que no haya celdas con error
             const invalids = document.querySelectorAll('#tablaMatriz td.dec.is-invalid');
             if (invalids.length) {
@@ -473,36 +478,47 @@
                 return;
             }
 
+            const docEntry = rows[0].dataset.docentry;
+            if (!docEntry) {
+                alert('No se encontró el DocEntry de la matriz.');
+                return;
+            }
+
             const payload = rows.map(tr => {
                 const base = {
-                    Id: tr.getAttribute('data-id'),
-                    ProductoPlanner: tr.children[0].innerText.trim(),
-                    CodigoTienda: tr.children[1].innerText.trim(),
-                    Tienda: tr.children[2].innerText.trim(),
+                    docEntry: tr.dataset.docentry || '',
+                    lineId: tr.dataset.lineid || '',
+                    u_MGS_CL_PERIODO: tr.dataset.periodo || '',
+                    u_MGS_CL_TIENDA: tr.dataset.tienda || '',
+                    u_MGS_CL_NOMTIE: tr.dataset.nomtien || ''
                 };
-                // Tomar el resto de celdas dec por data-field
+
                 tr.querySelectorAll('td.dec').forEach(td => {
                     const key = td.getAttribute('data-field');
                     const val = normalizeDecimal(td.innerText.trim());
-                    base[key] = val === '' ? null : Number(val);
+                    base[key] = val === '' ? 0 : Number(val);
                 });
                 return base;
             });
 
-            const periodo = document.getElementById('filtroPeriodo').value; // yyyy-mm
-            const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value);
+            try {
+                const res = await fetch(`/Factores/Actualizar?docEntry=${encodeURIComponent(docEntry)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            console.log('ActualizarTodo =>', { periodo, tiendas, payload });
+                const data = await res.json();
+                if (!res.ok || !data.registered) {
+                    alert(data.message || 'Error al actualizar');
+                    return;
+                }
 
-            // TODO: POST real
-            // const res = await fetch('/api/matriz/actualizar', {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify({ periodo, tiendas, lineas: payload })
-            // });
-            // const out = await res.json();
-            // if (!res.ok) { alert(out.message || 'Error al actualizar'); return; }
-            // alert('Actualizado correctamente');
+                alert(data.message || 'Actualizado correctamente');
+            } catch (err) {
+                console.error('ERROR ACTUALIZAR:', err);
+                alert('No se pudo actualizar la matriz.');
+            }
         });
 
         // Eliminar fila (demo)
