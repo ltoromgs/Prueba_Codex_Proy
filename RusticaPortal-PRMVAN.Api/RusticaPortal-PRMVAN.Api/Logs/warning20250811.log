@@ -1,0 +1,2 @@
+2025-08-11 16:29:50.864 -05:00 [WRN] Menú no disponible para userId: 20600096614 en empresa: 1
+2025-08-11 16:30:48.408 -05:00 [ERR] Usuario: 20600096614 en empresa: 2 mensaje: Error en base de datos. contenido:  invalid schema name: TRADING_PROD2: line 1 col 12 (at pos 11) 

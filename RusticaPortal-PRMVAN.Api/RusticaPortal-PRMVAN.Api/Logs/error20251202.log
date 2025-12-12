@@ -1,0 +1,2 @@
+2025-12-02 16:27:01.608 -05:00 [ERR] Usuario: ADMIN en empresa: 1 mensaje: Credenciales inválidas contenido:   
+2025-12-02 16:27:21.088 -05:00 [ERR] Usuario: JGONZALEZ en empresa: 1 mensaje: Error en base de datos. contenido:  El nombre de archivo, el nombre de directorio o la sintaxis de la etiqueta del volumen no son correctos. : '\\SAPAPP\Attachments\' 

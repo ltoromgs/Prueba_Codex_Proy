@@ -1,0 +1,516 @@
+﻿@model RusticaPortal_PRMVAN.Web.Models.MatrizFactoresViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Matriz factores";
+}
+
+<!-- Header -->
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Matriz de factores</h3>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Matriz de factores</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="row g-2 align-items-end">
+                    <!-- Periodo (month picker) -->
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Periodo</label>
+                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm"  value="@Model.PeriodoActual" />
+                    </div>
+
+                    <!-- Tiendas: multiselección en dropdown, no se cierra al interactuar -->
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Tiendas</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                Seleccionar tiendas
+                            </button>
+                            <div class="dropdown-menu p-3" style="max-height: 280px; overflow: auto; width: 320px;">
+                                <div class="small text-secondary mb-2">Marca una o más tiendas</div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input tienda-check" type="checkbox" value="P0045" id="t_P0045" checked>
+                                    <label class="form-check-label" for="t_P0045">P0045 - Mall Santa Anita</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input tienda-check" type="checkbox" value="P0031" id="t_P0031">
+                                    <label class="form-check-label" for="t_P0031">P0031 - Larcomar</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input tienda-check" type="checkbox" value="P0021" id="t_P0021">
+                                    <label class="form-check-label" for="t_P0021">P0021 - Miraflores</label>
+                                </div>
+
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
+                                    <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
+                                    <a href="#" id="tiendaLimpiar" class="link-secondary small">Limpiar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-auto ms-auto d-flex gap-2">
+                        <button id="btnBuscar" class="btn btn-primary btn-sm">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <button id="btnNuevo" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Nuevo
+                        </button>
+                        <button id="btnActualizarTodo" class="btn btn-success btn-sm">
+                            <i class="bi bi-save"></i> Actualizar todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <!-- Tabla con scroll horizontal y columnas pegajosas -->
+                <div class="table-responsive" style="overflow:auto;">
+                    <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaMatriz" style="white-space:nowrap;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código interno</th>
+                                <th class="sticky-col-start">Tienda</th>                               
+                                <th>Meta (UV)</th>
+                                <th>Renta (%)</th>
+                                <th>VAN (%)</th>
+                                <th>PERS (%)</th>
+                                <th>GastosADM (%)</th>
+                                <th>ComisiónTarjeta (%)</th>
+                                <th>Impuesto (%)</th>
+                                <th>Regalías (%)</th>
+                                <th>AUD. SERV</th>
+                                <th>AUD. OPER</th>
+                                <th>AUD. CC</th>
+                                <th>AUD. ADH</th>
+                                <th>CLIMA LAB</th>
+                                <th>CPTO RUSTICA</th>
+                                <th>META LIDER</th>
+                                <th>ADM. GENERAL</th>
+                                <th>FU. EXC GESTION</th>
+                                <th>FU. EXC SERVICIO</th>
+                                <th>FU. EXC MARCA</th>
+                                @*<th class="sticky-col-end text-center">Acción</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Fila 1 -->
+                            <!--<tr data-id="1">
+                                <td>AUDI</td>
+                                <td class="sticky-col-start fw-semibold">P0045</td>
+                                <td>Mall Santa Anita</td>
+
+                                <td contenteditable="true" class="dec" data-field="MetaUV">24</td>
+                                <td contenteditable="true" class="dec" data-field="Renta">6</td>
+                                <td contenteditable="true" class="dec" data-field="VAN">28</td>
+                                <td contenteditable="true" class="dec" data-field="PERS">10</td>
+                                <td contenteditable="true" class="dec" data-field="GastosADM">8</td>
+                                <td contenteditable="true" class="dec" data-field="ComisionTarjeta">1</td>
+                                <td contenteditable="true" class="dec" data-field="Impuesto">18</td>
+                                <td contenteditable="true" class="dec" data-field="Regalias">5</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_SERV">15</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_OPER">12</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_CC">16</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_ADH">12</td>
+                                <td contenteditable="true" class="dec" data-field="CLIMA_LAB">12</td>
+                                <td contenteditable="true" class="dec" data-field="CPTO_RUSTICA">16</td>
+                                <td contenteditable="true" class="dec" data-field="META_LIDER">15</td>
+                                <td contenteditable="true" class="dec" data-field="ADM_GENERAL">15</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_GESTION">16</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_SERVICIO">15</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_MARCA">16</td>
+
+                                <td class="sticky-col-end text-center">
+                                    <button class="btn btn-outline-secondary btn-xs me-1 btn-editar" disabled title="Edición en línea activa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-xs btn-eliminar"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>-->
+
+                            <!-- Fila 2 -->
+                            <!--<tr data-id="2">
+                                <td>PUW01</td>
+                                <td class="sticky-col-start fw-semibold">P0031</td>
+                                <td>Larcomar</td>
+
+                                <td contenteditable="true" class="dec" data-field="MetaUV">23</td>
+                                <td contenteditable="true" class="dec" data-field="Renta">7</td>
+                                <td contenteditable="true" class="dec" data-field="VAN">27</td>
+                                <td contenteditable="true" class="dec" data-field="PERS">9</td>
+                                <td contenteditable="true" class="dec" data-field="GastosADM">8</td>
+                                <td contenteditable="true" class="dec" data-field="ComisionTarjeta">2</td>
+                                <td contenteditable="true" class="dec" data-field="Impuesto">18</td>
+                                <td contenteditable="true" class="dec" data-field="Regalias">6</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_SERV">16</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_OPER">12</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_CC">16</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_ADH">12</td>
+                                <td contenteditable="true" class="dec" data-field="CLIMA_LAB">12</td>
+                                <td contenteditable="true" class="dec" data-field="CPTO_RUSTICA">16</td>
+                                <td contenteditable="true" class="dec" data-field="META_LIDER">15</td>
+                                <td contenteditable="true" class="dec" data-field="ADM_GENERAL">15</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_GESTION">16</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_SERVICIO">15</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_MARCA">16</td>
+
+                                <td class="sticky-col-end text-center">
+                                    <button class="btn btn-outline-secondary btn-xs me-1 btn-editar" disabled>
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-xs btn-eliminar"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>-->
+
+                            <!-- Fila 3 -->
+                            <!--<tr data-id="3">
+                                <td>PUW02</td>
+                                <td class="sticky-col-start fw-semibold">P0021</td>
+                                <td>Miraflores</td>
+
+                                <td contenteditable="true" class="dec" data-field="MetaUV">26</td>
+                                <td contenteditable="true" class="dec" data-field="Renta">6</td>
+                                <td contenteditable="true" class="dec" data-field="VAN">29</td>
+                                <td contenteditable="true" class="dec" data-field="PERS">11</td>
+                                <td contenteditable="true" class="dec" data-field="GastosADM">9</td>
+                                <td contenteditable="true" class="dec" data-field="ComisionTarjeta">3</td>
+                                <td contenteditable="true" class="dec" data-field="Impuesto">18</td>
+                                <td contenteditable="true" class="dec" data-field="Regalias">5</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_SERV">15</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_OPER">12</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_CC">16</td>
+                                <td contenteditable="true" class="dec" data-field="AUD_ADH">12</td>
+                                <td contenteditable="true" class="dec" data-field="CLIMA_LAB">12</td>
+                                <td contenteditable="true" class="dec" data-field="CPTO_RUSTICA">16</td>
+                                <td contenteditable="true" class="dec" data-field="META_LIDER">15</td>
+                                <td contenteditable="true" class="dec" data-field="ADM_GENERAL">15</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_GESTION">16</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_SERVICIO">15</td>
+                                <td contenteditable="true" class="dec" data-field="FU_EXC_MARCA">16</td>
+
+                                <td class="sticky-col-end text-center">
+                                    <button class="btn btn-outline-secondary btn-xs me-1 btn-editar" disabled>
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-xs btn-eliminar"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>-->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie/acciones inferiores -->
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+                    <small id="lblResumen" class="text-secondary">Mostrando 0 de 0</small>
+                    <a href="/Home/Index" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-left-circle"></i> Regresar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* Columnas pegajosas para scroll horizontal cómodo (tres primeras y última) */
+        .sticky-col-start {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bs-table-bg, #fff);
+        }
+
+        .sticky-col-start-2 {
+            position: sticky;
+            left: 140px;
+            z-index: 3;
+            background: var(--bs-table-bg, #fff);
+        }
+
+        .sticky-col-start-3 {
+            position: sticky;
+            left: 260px;
+            z-index: 3;
+            background: var(--bs-table-bg, #fff);
+        }
+
+        .sticky-col-end {
+            position: sticky;
+            right: 0;
+            z-index: 3;
+            background: var(--bs-table-bg, #fff);
+        }
+        /* Ajusta left de start-2 / start-3 si cambian anchos */
+        th.sticky-col-start, td.sticky-col-start {
+            min-width: 140px;
+        }
+
+        th.sticky-col-start-2, td.sticky-col-start-2 {
+            min-width: 120px;
+        }
+
+        th.sticky-col-start-3, td.sticky-col-start-3 {
+            min-width: 180px;
+        }
+
+        /* Botón XS */
+        .btn-xs {
+            padding: .15rem .35rem;
+            font-size: .75rem;
+            line-height: 1;
+            border-radius: .2rem;
+        }
+
+        /* Validación decimal */
+        td.dec.is-invalid {
+            outline: 2px solid #dc3545;
+            background: #fde2e1;
+        }
+    </style>
+
+    <script>
+        // ---------- Utilidades de Tiendas ----------
+        const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
+        document.getElementById('tiendaSelTodas')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            checks().forEach(ch => ch.checked = true);
+        });
+        document.getElementById('tiendaLimpiar')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            checks().forEach(ch => ch.checked = false);
+        });
+
+        // ---------- Validación / Formato de decimales ----------
+        const DECIMALS = 2;
+        function normalizeDecimal(s) {
+            return s.replace(/[^\d,\.\-]/g, '').replace(',', '.');
+        }
+        function isValidDecimal(s) {
+            return /^-?\d+(\.\d+)?$/.test(s);
+        }
+        function formatDecimal(s) {
+            return Number(s).toFixed(DECIMALS);
+        }
+
+        // Evitar que contenteditable reciba HTML en pegado
+        function stripPaste(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            document.execCommand('insertText', false, text);
+        }
+
+        // Pegar “tipo Excel” (tab para columnas, \n para filas) repartiendo en celdas siguientes
+        function handleGridPaste(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const rows = text.split(/\r?\n/).filter(r => r.length);
+            const start = e.target.closest('td');
+
+            if (!start) return;
+
+            let rowEl = start.parentElement;
+            let cellIndex = Array.from(rowEl.children).indexOf(start);
+
+            rows.forEach((rowStr, r) => {
+                const cols = rowStr.split('\t');
+                // Si no estamos en la primera fila pegada, mover a la siguiente <tr>
+                if (r > 0) rowEl = rowEl.nextElementSibling;
+                if (!rowEl) return;
+
+                let cIndex = cellIndex;
+                cols.forEach((val) => {
+                    const cell = rowEl.children[cIndex];
+                    if (!cell) return;
+                    if (!cell.matches('td.dec')) { cIndex++; return; } // solo celdas dec
+                    cell.innerText = val;
+                    // Disparar validación inmediata
+                    validateCell(cell);
+                    cIndex++;
+                });
+            });
+        }
+
+        function validateCell(td) {
+            const v = normalizeDecimal(td.innerText.trim());
+            if (v === '' || !isValidDecimal(v)) {
+                td.classList.add('is-invalid');
+            } else {
+                td.classList.remove('is-invalid');
+            }
+        }
+
+        // Bind a todas las celdas decimales
+        document.querySelectorAll('#tablaMatriz td.dec').forEach(td => {
+            td.addEventListener('paste', handleGridPaste); // Soporta pegado tipo Excel
+            td.addEventListener('input', () => validateCell(td));
+            td.addEventListener('blur', () => {
+                let v = normalizeDecimal(td.innerText.trim());
+                if (isValidDecimal(v)) td.innerText = formatDecimal(v);
+                validateCell(td);
+            });
+        });
+
+        function wireDecCells() {
+            document.querySelectorAll('#tablaMatriz td.dec').forEach(td => {
+                td.addEventListener('paste', handleGridPaste);
+                td.addEventListener('input', () => validateCell(td));
+                td.addEventListener('blur', () => {
+                    let v = normalizeDecimal(td.innerText.trim());
+                    if (isValidDecimal(v)) td.innerText = formatDecimal(v);
+                    validateCell(td);
+                });
+            });
+        }
+
+        // buscar y llenar tabla
+        document.getElementById('btnBuscar')?.addEventListener('click', async () => {
+            const periodo = document.getElementById('filtroPeriodo').value; // yyyy-mm
+            const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value).join(',');
+
+           
+            try {
+                const url = `/Factores/Buscar?periodo=${encodeURIComponent(periodo)}&tiendas=${encodeURIComponent(tiendas)}`;
+                const res = await fetch(url, { method: 'GET' });
+                const data = await res.json();
+
+               
+                if (!res.ok) { alert(data.message || 'Error al buscar'); return; }
+
+                const tbody = document.querySelector('#tablaMatriz tbody');
+                tbody.innerHTML = (data || []).map(renderFila).join('');
+                wireDecCells();
+                console.log('periodo ' + periodo);
+                console.log('tiendas ' + tiendas);
+                console.log('data ' + data.length);
+                console.log('data JSON:', JSON.stringify(data, null, 2));
+
+                const lbl = document.getElementById('lblResumen');
+                if (lbl) {
+                    lbl.textContent = `Mostrando ${data.length} de ${data.length}`;
+                }
+            } catch (err) {
+                console.error('ERROR FETCH:', err);
+                alert('No se pudo conectar con el servidor.');
+            }
+        });
+        
+
+        function renderFila(m) {
+            console.log(`fila: ${m.u_MGS_CL_TIENDA} - ${m.u_MGS_CL_NOMTIE}`);
+
+            return `
+            <tr data-id="${m.lineId}">
+    <td>${m.lineId ?? ''}</td> <!-- Codigo Interno / ProductoPlanner -->
+    <td class="sticky-col-start fw-semibold">
+        ${m.u_MGS_CL_TIENDA ?? ''} - ${m.u_MGS_CL_NOMTIE ?? ''}
+    </td>
+
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_META">${m.u_MGS_CL_META ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_RENTA">${m.u_MGS_CL_RENTA ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_VAN">${m.u_MGS_CL_VAN ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_ESTPER">${m.u_MGS_CL_ESTPER ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_GASADM">${m.u_MGS_CL_GASADM ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_COMTAR">${m.u_MGS_CL_COMTAR ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_IMPUES">${m.u_MGS_CL_IMPUES ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_REGALI">${m.u_MGS_CL_REGALI ?? ''}</td>
+
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUSER">${m.u_MGS_CL_AUSER ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUOPE">${m.u_MGS_CL_AUOPE ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUCCC">${m.u_MGS_CL_AUCCC ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUADH">${m.u_MGS_CL_AUADH ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_CLIMA">${m.u_MGS_CL_CLIMA ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_RUSTI">${m.u_MGS_CL_RUSTI ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_MELID">${m.u_MGS_CL_MELID ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_ADMGR">${m.u_MGS_CL_ADMGR ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXGES">${m.u_MGS_CL_EXGES ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXSER">${m.u_MGS_CL_EXSER ?? ''}</td>
+    <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXMAR">${m.u_MGS_CL_EXMAR ?? ''}</td>
+
+    
+</tr>`;
+        }
+
+        //<td class="sticky-col-end text-center">
+        //    <button class="btn btn-outline-secondary btn-xs me-1 btn-editar" disabled>
+        //        <i class="bi bi-pencil-square"></i>
+        //    </button>
+        //    <button class="btn btn-outline-danger btn-xs btn-eliminar">
+        //        <i class="bi bi-trash"></i>
+        //    </button>
+        //</td>
+        document.getElementById('btnNuevo')?.addEventListener('click', () => {
+            // TODO: abrir modal / navegar
+            console.log('Nuevo registro');
+        });
+
+        // ---------- Actualizar todo ----------
+        document.getElementById('btnActualizarTodo')?.addEventListener('click', async () => {
+            // Recolectar filas
+            const rows = Array.from(document.querySelectorAll('#tablaMatriz tbody tr'));
+            // Validar que no haya celdas con error
+            const invalids = document.querySelectorAll('#tablaMatriz td.dec.is-invalid');
+            if (invalids.length) {
+                alert('Corrige los valores inválidos antes de actualizar.');
+                invalids[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            const payload = rows.map(tr => {
+                const base = {
+                    Id: tr.getAttribute('data-id'),
+                    ProductoPlanner: tr.children[0].innerText.trim(),
+                    CodigoTienda: tr.children[1].innerText.trim(),
+                    Tienda: tr.children[2].innerText.trim(),
+                };
+                // Tomar el resto de celdas dec por data-field
+                tr.querySelectorAll('td.dec').forEach(td => {
+                    const key = td.getAttribute('data-field');
+                    const val = normalizeDecimal(td.innerText.trim());
+                    base[key] = val === '' ? null : Number(val);
+                });
+                return base;
+            });
+
+            const periodo = document.getElementById('filtroPeriodo').value; // yyyy-mm
+            const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value);
+
+            console.log('ActualizarTodo =>', { periodo, tiendas, payload });
+
+            // TODO: POST real
+            // const res = await fetch('/api/matriz/actualizar', {
+            //   method: 'POST',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify({ periodo, tiendas, lineas: payload })
+            // });
+            // const out = await res.json();
+            // if (!res.ok) { alert(out.message || 'Error al actualizar'); return; }
+            // alert('Actualizado correctamente');
+        });
+
+        // Eliminar fila (demo)
+        document.querySelectorAll('.btn-eliminar').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tr = btn.closest('tr');
+                tr?.remove();
+            });
+        });
+    </script>
+}

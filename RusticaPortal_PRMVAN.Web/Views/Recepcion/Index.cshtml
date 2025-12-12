@@ -1,0 +1,67 @@
+﻿@model List<RusticaPortal_PRMVAN.Web.Models.RecepcionModel>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Fecha de Recepción";
+}
+
+<!--begin::App Content Header-->
+<div class="app-content-header">
+    <!--begin::Container-->
+    <div class="container-fluid">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">Fecha de recepción</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/Home/index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Fecha de recepción</li>
+                </ol>
+            </div>
+        </div>
+        <!--end::Row-->
+    </div>
+    <!--end::Container-->
+</div>
+<!--end::App Content Header-->
+<!--begin::App Content-->
+<div class="app-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col">  <!-- puedes usar col, col-auto, etc. según necesites -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Cierre de periodo anual</h3>
+          </div>
+          <div class="card-body p-0">
+            <!-- contenedor con scroll horizontal si se desborda -->
+            <div class="table-responsive">
+              <table
+                class="table table-bordered text-center mb-0"
+                style="width: auto; table-layout: auto; margin: 0 auto;
+                       white-space: nowrap;"
+              >
+                <thead class="table-secondary">
+                  <tr>
+                    <th>Mes</th>
+                    <th>Fecha de cierre</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach (var item in Model)
+                  {
+                    <tr>
+                      <td>@item.Mes</td>
+                      <td>@item.DiaSemanaNumero</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--end::App Content--> 

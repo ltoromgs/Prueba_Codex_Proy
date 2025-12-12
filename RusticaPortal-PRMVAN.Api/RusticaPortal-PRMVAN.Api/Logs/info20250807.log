@@ -1,0 +1,57 @@
+2025-08-07 16:21:45.622 -05:00 [INF] Now listening on: https://localhost:7287
+2025-08-07 16:21:45.729 -05:00 [INF] Now listening on: http://localhost:5116
+2025-08-07 16:21:47.682 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-08-07 16:21:47.682 -05:00 [INF] Hosting environment: Development
+2025-08-07 16:21:47.682 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-08-07 16:22:04.034 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
+2025-08-07 16:22:06.743 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 2767.9355ms
+2025-08-07 16:22:06.995 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
+2025-08-07 16:22:07.000 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_vs/browserLink - null null
+2025-08-07 16:22:07.018 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - 200 13768 application/javascript; charset=utf-8 23.5661ms
+2025-08-07 16:22:08.533 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_vs/browserLink - 200 null text/javascript; charset=UTF-8 1532.784ms
+2025-08-07 16:22:08.765 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
+2025-08-07 16:22:09.890 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 1125.084ms
+2025-08-07 16:27:00.380 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/api/Empesas - null null
+2025-08-07 16:27:00.405 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api)'
+2025-08-07 16:27:00.479 -05:00 [INF] Route matched with {action = "Get", controller = "Empesas"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation] Get() on controller ArellanoCore.Api.Controllers.EmpesasController (ArellanoCore.Api).
+2025-08-07 16:27:00.568 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api) - Validation state: "Valid"
+2025-08-07 16:27:01.165 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 591.4352ms.
+2025-08-07 16:27:01.174 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-08-07 16:27:01.190 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api) in 626.2015ms
+2025-08-07 16:27:01.190 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api)'
+2025-08-07 16:27:01.190 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/api/Empesas - 200 null application/json; charset=utf-8 810.2918ms
+2025-08-07 18:32:56.328 -05:00 [INF] Now listening on: https://localhost:7287
+2025-08-07 18:32:56.388 -05:00 [INF] Now listening on: http://localhost:5116
+2025-08-07 18:32:57.073 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-08-07 18:32:57.073 -05:00 [INF] Hosting environment: Development
+2025-08-07 18:32:57.073 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-08-07 18:32:59.485 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
+2025-08-07 18:33:01.195 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 1718.2943ms
+2025-08-07 18:33:01.320 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
+2025-08-07 18:33:01.551 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_vs/browserLink - null null
+2025-08-07 18:33:02.148 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - 200 13768 application/javascript; charset=utf-8 828.511ms
+2025-08-07 18:33:03.649 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_vs/browserLink - 200 null text/javascript; charset=UTF-8 2098.2568ms
+2025-08-07 18:33:03.973 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
+2025-08-07 18:33:04.604 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 630.7938ms
+2025-08-07 18:33:19.848 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/api/Empesas - null null
+2025-08-07 18:33:19.892 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api)'
+2025-08-07 18:33:19.933 -05:00 [INF] Route matched with {action = "Get", controller = "Empesas"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation] Get() on controller ArellanoCore.Api.Controllers.EmpesasController (ArellanoCore.Api).
+2025-08-07 18:33:19.961 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api) - Validation state: "Valid"
+2025-08-07 18:33:21.571 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1603.0325ms.
+2025-08-07 18:33:21.581 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-08-07 18:33:21.595 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api) in 1653.3246ms
+2025-08-07 18:33:21.595 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api)'
+2025-08-07 18:33:21.595 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/api/Empesas - 200 null application/json; charset=utf-8 1747.2411ms
+2025-08-07 18:34:14.753 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Empesas - text/plain 55
+2025-08-07 18:34:14.755 -05:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-08-07 18:34:14.755 -05:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-08-07 18:34:15.276 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Empesas - 405 0 null 522.9215ms
+2025-08-07 18:34:23.966 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Empesas - text/plain 55
+2025-08-07 18:34:24.031 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api)'
+2025-08-07 18:34:24.034 -05:00 [INF] Route matched with {action = "Get", controller = "Empesas"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation] Get() on controller ArellanoCore.Api.Controllers.EmpesasController (ArellanoCore.Api).
+2025-08-07 18:34:24.035 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api) - Validation state: "Valid"
+2025-08-07 18:34:24.037 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1.9986ms.
+2025-08-07 18:34:24.037 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-08-07 18:34:24.038 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api) in 3.8289ms
+2025-08-07 18:34:24.038 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.EmpesasController.Get (ArellanoCore.Api)'
+2025-08-07 18:34:24.038 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Empesas - 200 null application/json; charset=utf-8 72.5054ms

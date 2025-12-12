@@ -1,0 +1,16 @@
+2025-12-03 11:01:23.618 -05:00 [WRN] Contacto no disponible en empresa: 1
+2025-12-03 11:01:39.967 -05:00 [WRN] Contacto no disponible en empresa: 1
+2025-12-03 11:07:15.275 -05:00 [WRN] Contacto no disponible en empresa: 1
+2025-12-03 11:07:17.270 -05:00 [WRN] Contacto no disponible en empresa: 1
+2025-12-03 11:08:00.014 -05:00 [ERR] Usuario: JGONZALEZ en empresa: 1 mensaje: Credenciales inválidas contenido:   
+2025-12-03 11:18:47.607 -05:00 [ERR] Usuario: JGONZALEZ en empresa: 1 mensaje: Error en base de datos. contenido:  El nombre de archivo, el nombre de directorio o la sintaxis de la etiqueta del volumen no son correctos. : '\\SAPAPP\Attachments\' 
+2025-12-03 11:19:07.388 -05:00 [ERR] Usuario: JGONZALEZ en empresa: 1 mensaje: Error en base de datos. contenido:  El nombre de archivo, el nombre de directorio o la sintaxis de la etiqueta del volumen no son correctos. : '\\SAPAPP\Attachments\' 
+2025-12-03 11:26:00.592 -05:00 [ERR] Usuario: JGONZALEZ en empresa: 1 mensaje: Error en base de datos. contenido:  El nombre de archivo, el nombre de directorio o la sintaxis de la etiqueta del volumen no son correctos. : '\\SAPAPP\Attachments\' 
+2025-12-03 12:02:49.019 -05:00 [ERR] Usuario: JGONZALEZ en empresa: 1 mensaje: Credenciales inválidas contenido:   
+2025-12-03 12:40:22.606 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1
+2025-12-03 12:40:24.722 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1
+2025-12-03 12:40:25.524 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1
+2025-12-03 12:40:28.506 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1
+2025-12-03 12:40:32.716 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1
+2025-12-03 12:40:38.989 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1
+2025-12-03 14:21:13.318 -05:00 [WRN] Fecha de recepción no disponible para la empresa: 1

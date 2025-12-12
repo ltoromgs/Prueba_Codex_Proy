@@ -1,0 +1,25 @@
+2025-12-01 12:19:52.571 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2025-12-01 12:19:52.788 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2025-12-01 12:19:52.802 -05:00 [INF] Now listening on: https://localhost:7287
+2025-12-01 12:19:52.803 -05:00 [INF] Now listening on: http://localhost:5116
+2025-12-01 12:19:52.804 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-12-01 12:19:52.804 -05:00 [INF] Hosting environment: Development
+2025-12-01 12:19:52.804 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\RUSTICA_PortalWebPRMyVAN\RusticaPRMYVAN.Api\ArellanoCore.Api
+2025-12-01 12:19:54.204 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger - -
+2025-12-01 12:19:54.681 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger - - - 301 0 - 481.9176ms
+2025-12-01 12:19:54.732 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/index.html - -
+2025-12-01 12:19:55.865 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/index.html - - - 200 - text/html;charset=utf-8 1133.1527ms
+2025-12-01 12:19:55.959 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - -
+2025-12-01 12:19:55.961 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - -
+2025-12-01 12:19:55.973 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - -
+2025-12-01 12:19:56.514 -05:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2025-12-01 12:19:56.514 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - - - 200 143943 text/css 541.1349ms
+2025-12-01 12:19:56.567 -05:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2025-12-01 12:19:56.568 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - - - 200 339486 application/javascript 607.6655ms
+2025-12-01 12:19:56.579 -05:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-12-01 12:19:56.579 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - - - 200 1096145 application/javascript 620.1124ms
+2025-12-01 12:19:57.125 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - -
+2025-12-01 12:19:57.572 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/favicon-32x32.png - -
+2025-12-01 12:19:57.573 -05:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-12-01 12:19:57.573 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/favicon-32x32.png - - - 200 628 image/png 0.9286ms
+2025-12-01 12:19:57.652 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 526.9969ms

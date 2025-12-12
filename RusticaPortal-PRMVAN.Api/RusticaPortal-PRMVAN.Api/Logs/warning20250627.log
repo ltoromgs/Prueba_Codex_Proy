@@ -1,0 +1,1 @@
+2025-06-27 10:28:05.956 -05:00 [ERR] Usuario: 7009801232 en empresa: 1 mensaje: Error en base de datos. contenido:  invalid name of function or procedure: no procedure with name MGS_HDB_PE_SP_PORTALWEB found: line 1 col 6 (at pos 5) 

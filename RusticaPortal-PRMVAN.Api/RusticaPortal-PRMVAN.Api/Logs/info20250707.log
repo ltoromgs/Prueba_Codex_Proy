@@ -1,0 +1,325 @@
+2025-07-07 09:25:09.109 -05:00 [INF] Now listening on: https://localhost:7287
+2025-07-07 09:25:10.056 -05:00 [INF] Now listening on: http://localhost:5116
+2025-07-07 09:25:11.001 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-07-07 09:25:11.002 -05:00 [INF] Hosting environment: Development
+2025-07-07 09:25:11.002 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-07-07 09:25:29.584 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger - null null
+2025-07-07 09:25:39.267 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger - 301 0 null 10024.3086ms
+2025-07-07 09:25:39.895 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
+2025-07-07 09:25:41.473 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 1578.9722ms
+2025-07-07 09:25:41.600 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/swagger-ui.css - null null
+2025-07-07 09:25:41.633 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/swagger-ui-bundle.js - null null
+2025-07-07 09:25:41.683 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - null null
+2025-07-07 09:25:41.709 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_vs/browserLink - null null
+2025-07-07 09:25:42.097 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
+2025-07-07 09:25:44.560 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - 200 13768 application/javascript; charset=utf-8 2463.648ms
+2025-07-07 09:25:44.618 -05:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2025-07-07 09:25:44.632 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/swagger-ui.css - 200 143943 text/css 3031.4667ms
+2025-07-07 09:25:45.071 -05:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2025-07-07 09:25:45.079 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - 200 339486 text/javascript 3396.2453ms
+2025-07-07 09:25:45.202 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_vs/browserLink - 200 null text/javascript; charset=UTF-8 3493.0071ms
+2025-07-07 09:25:46.410 -05:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-07-07 09:25:46.412 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/swagger-ui-bundle.js - 200 1096145 text/javascript 4778.6703ms
+2025-07-07 09:25:48.526 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
+2025-07-07 09:25:48.533 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/favicon-32x32.png - null null
+2025-07-07 09:25:48.541 -05:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-07-07 09:25:48.542 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/favicon-32x32.png - 200 628 image/png 9.1776ms
+2025-07-07 09:25:49.030 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 503.8219ms
+2025-07-07 09:32:37.679 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 09:32:37.698 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 09:32:37.736 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 09:32:37.808 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:32:39.087 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1275.6035ms.
+2025-07-07 09:32:39.094 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:32:39.124 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 1381.8588ms
+2025-07-07 09:32:39.125 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 09:32:39.126 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 1448.307ms
+2025-07-07 09:32:50.956 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 09:32:50.958 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:32:50.966 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 09:32:50.968 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:32:51.016 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 48.7016ms.
+2025-07-07 09:32:51.017 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:32:51.018 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 51.8096ms
+2025-07-07 09:32:51.018 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:32:51.018 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 62.0349ms
+2025-07-07 09:35:10.812 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 09:35:10.813 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:35:10.813 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 09:35:10.815 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:35:10.823 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.0901ms.
+2025-07-07 09:35:10.823 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:35:10.823 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 9.8746ms
+2025-07-07 09:35:10.823 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:35:10.823 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 11.0473ms
+2025-07-07 09:35:36.540 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 09:35:36.540 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 09:35:36.540 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 09:35:36.542 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:35:36.556 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.5477ms.
+2025-07-07 09:35:36.556 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:35:36.559 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 18.5806ms
+2025-07-07 09:35:36.559 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 09:35:36.559 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 20.5196ms
+2025-07-07 09:35:39.490 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 09:35:39.491 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:35:39.491 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 09:35:39.491 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:35:39.498 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.8983ms.
+2025-07-07 09:35:39.498 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:35:39.499 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.7908ms
+2025-07-07 09:35:39.499 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:35:39.499 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.8222ms
+2025-07-07 09:40:07.274 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 09:40:07.274 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:40:07.274 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 09:40:07.275 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:40:07.291 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 16.4132ms.
+2025-07-07 09:40:07.292 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:40:07.292 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 17.4831ms
+2025-07-07 09:40:07.292 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:40:07.292 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 18.2785ms
+2025-07-07 09:48:29.866 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 09:48:29.867 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 09:48:29.867 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 09:48:29.867 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:48:29.880 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 12.1968ms.
+2025-07-07 09:48:29.880 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:48:29.892 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 24.7455ms
+2025-07-07 09:48:29.892 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 09:48:29.892 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 25.5393ms
+2025-07-07 09:49:05.121 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 09:49:05.121 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:49:05.121 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 09:49:05.126 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:49:05.135 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 8.0377ms.
+2025-07-07 09:49:05.135 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:49:05.135 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 9.8203ms
+2025-07-07 09:49:05.135 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:49:05.135 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 14.5913ms
+2025-07-07 09:59:30.464 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 09:59:30.464 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:59:30.464 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 09:59:30.464 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 09:59:30.472 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.9526ms.
+2025-07-07 09:59:30.472 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 09:59:30.472 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.7677ms
+2025-07-07 09:59:30.472 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 09:59:30.472 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.5029ms
+2025-07-07 10:04:43.040 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:04:43.040 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:04:43.040 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:04:43.041 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:04:43.261 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 219.7339ms.
+2025-07-07 10:04:43.261 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:04:43.261 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 220.5996ms
+2025-07-07 10:04:43.261 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:04:43.261 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 221.4202ms
+2025-07-07 10:08:04.807 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:08:04.807 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:08:04.807 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:08:04.808 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:08:04.819 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 9.5122ms.
+2025-07-07 10:08:04.819 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:08:04.821 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 13.9655ms
+2025-07-07 10:08:04.821 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:08:04.822 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 14.8636ms
+2025-07-07 10:08:13.593 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:08:13.593 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:08:13.593 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:08:13.594 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:08:13.608 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 14.1337ms.
+2025-07-07 10:08:13.608 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:08:13.608 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 15.0647ms
+2025-07-07 10:08:13.608 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:08:13.608 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 15.7052ms
+2025-07-07 10:12:47.866 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:12:47.866 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:12:47.866 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:12:47.866 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:12:47.873 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.8819ms.
+2025-07-07 10:12:47.874 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:12:47.874 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.7057ms
+2025-07-07 10:12:47.874 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:12:47.874 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.4507ms
+2025-07-07 10:20:56.500 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:20:56.501 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:20:56.501 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:20:56.501 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:20:56.513 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.6866ms.
+2025-07-07 10:20:56.513 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:20:56.515 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 14.5405ms
+2025-07-07 10:20:56.516 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:20:56.516 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 15.2329ms
+2025-07-07 10:21:02.454 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:21:02.454 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:21:02.455 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:21:02.455 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:21:02.461 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.1422ms.
+2025-07-07 10:21:02.461 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:21:02.462 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 6.9606ms
+2025-07-07 10:21:02.462 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:21:02.462 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.4086ms
+2025-07-07 10:21:33.109 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:21:33.112 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:21:33.112 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:21:33.114 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:21:33.121 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.7376ms.
+2025-07-07 10:21:33.121 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:21:33.121 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 8.5611ms
+2025-07-07 10:21:33.121 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:21:33.121 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 12.5488ms
+2025-07-07 10:22:42.223 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:22:42.224 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:22:42.224 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:22:42.224 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:22:42.234 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 9.7962ms.
+2025-07-07 10:22:42.234 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:22:42.235 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 10.744ms
+2025-07-07 10:22:42.235 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:22:42.235 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 11.4702ms
+2025-07-07 10:23:19.131 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 42
+2025-07-07 10:23:19.132 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:23:19.132 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:23:19.132 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:23:19.140 -05:00 [ERR] Usuario: 7009801232 en empresa: 1 mensaje: Credenciales inválidas contenido:   
+2025-07-07 10:23:19.155 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 22.9153ms.
+2025-07-07 10:23:19.155 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:23:19.156 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 23.9376ms
+2025-07-07 10:23:19.156 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:23:19.156 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 27.6971ms
+2025-07-07 10:23:25.991 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:23:25.991 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:23:25.991 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:23:25.992 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:23:26.006 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.9774ms.
+2025-07-07 10:23:26.006 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:23:26.019 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 26.9589ms
+2025-07-07 10:23:26.019 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:23:26.019 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 28.1914ms
+2025-07-07 10:23:32.798 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:23:32.829 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:23:32.829 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:23:32.830 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:23:32.842 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.7929ms.
+2025-07-07 10:23:32.842 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:23:32.842 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 12.6552ms
+2025-07-07 10:23:32.842 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:23:32.842 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 44.9662ms
+2025-07-07 10:25:42.166 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:25:42.167 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:25:42.167 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:25:42.167 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:25:42.175 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.8545ms.
+2025-07-07 10:25:42.175 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:25:42.176 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 8.5365ms
+2025-07-07 10:25:42.176 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:25:42.176 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 9.2032ms
+2025-07-07 10:27:59.909 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:27:59.910 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:27:59.910 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:27:59.910 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:27:59.917 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.0275ms.
+2025-07-07 10:27:59.917 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:27:59.917 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.7047ms
+2025-07-07 10:27:59.917 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:27:59.917 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.276ms
+2025-07-07 10:28:57.526 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:28:57.527 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:28:57.527 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:28:57.531 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:28:57.543 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 12.0533ms.
+2025-07-07 10:28:57.543 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:28:57.548 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 17.7436ms
+2025-07-07 10:28:57.548 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:28:57.548 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 22.0314ms
+2025-07-07 10:29:04.531 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:29:04.532 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:29:04.532 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:29:04.533 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:29:04.539 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.683ms.
+2025-07-07 10:29:04.540 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:29:04.540 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.5693ms
+2025-07-07 10:29:04.540 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:29:04.540 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.9363ms
+2025-07-07 10:32:14.710 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:32:14.711 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:32:14.711 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:32:14.712 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:32:14.719 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.5285ms.
+2025-07-07 10:32:14.719 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:32:14.720 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 8.463ms
+2025-07-07 10:32:14.720 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:32:14.720 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 9.7537ms
+2025-07-07 10:32:48.174 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:32:48.178 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:32:48.178 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:32:48.179 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:32:48.219 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 40.1068ms.
+2025-07-07 10:32:48.219 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:32:48.221 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 42.4129ms
+2025-07-07 10:32:48.221 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:32:48.221 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 47.0463ms
+2025-07-07 10:32:50.871 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:32:50.872 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:32:50.872 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:32:50.872 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:32:50.879 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.7631ms.
+2025-07-07 10:32:50.879 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:32:50.879 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.357ms
+2025-07-07 10:32:50.879 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:32:50.879 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.6567ms
+2025-07-07 10:33:03.874 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:33:03.874 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:33:03.875 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:33:03.875 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:33:03.885 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 10.036ms.
+2025-07-07 10:33:03.886 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:33:03.887 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 12.7458ms
+2025-07-07 10:33:03.887 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:33:03.888 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 13.5572ms
+2025-07-07 10:33:07.709 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:33:07.709 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:07.709 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:33:07.709 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:33:07.719 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 9.6575ms.
+2025-07-07 10:33:07.719 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:33:07.721 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 11.5754ms
+2025-07-07 10:33:07.721 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:07.721 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 12.1688ms
+2025-07-07 10:33:20.825 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
+2025-07-07 10:33:20.826 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:33:20.826 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
+2025-07-07 10:33:20.826 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:33:20.847 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 20.2658ms.
+2025-07-07 10:33:20.847 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:33:20.849 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 22.857ms
+2025-07-07 10:33:20.849 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-07 10:33:20.849 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 23.8045ms
+2025-07-07 10:33:21.032 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:33:21.032 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:21.033 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:33:21.033 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:33:21.040 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.7412ms.
+2025-07-07 10:33:21.040 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:33:21.041 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.7212ms
+2025-07-07 10:33:21.041 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:21.041 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.9057ms
+2025-07-07 10:33:27.291 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:33:27.292 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:27.292 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:33:27.293 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:33:27.301 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 8.3101ms.
+2025-07-07 10:33:27.301 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:33:27.302 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 9.0999ms
+2025-07-07 10:33:27.302 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:27.302 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 10.6ms
+2025-07-07 10:33:39.155 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
+2025-07-07 10:33:39.156 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:39.156 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-07-07 10:33:39.157 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-07-07 10:33:39.164 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.0714ms.
+2025-07-07 10:33:39.165 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
+2025-07-07 10:33:39.165 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 8.7875ms
+2025-07-07 10:33:39.165 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-07 10:33:39.165 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 9.6683ms

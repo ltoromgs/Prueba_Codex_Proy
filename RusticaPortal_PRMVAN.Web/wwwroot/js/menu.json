@@ -1,0 +1,48 @@
+{
+  "menu": [
+    {
+      "id": 1,
+      "nombre": "Proveedores",
+      "ruta": null,
+      "hijos": [
+        {
+          "id": 2,
+          "nombre": "Fecha de Recepción",
+          "ruta": "/proveedores/fecha-recepcion"
+        },
+        {
+          "id": 3,
+          "nombre": "Datos del Proveedor",
+          "ruta": "/proveedores/datos"
+        },
+        {
+          "id": 4,
+          "nombre": "Agregar Documentos",
+          "ruta": "/proveedores/agregar-documentos"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "nombre": "Rendiciones",
+      "ruta": null,
+      "hijos": [
+        {
+          "id": 11,
+          "nombre": "Registrar Rendición",
+          "ruta": "/rendiciones/registrar"
+        },
+        {
+          "id": 12,
+          "nombre": "Consultar Estados",
+          "ruta": "/rendiciones/estados"
+        },
+        {
+          "id": 13,
+          "nombre": "Aprobar Documentos",
+          "ruta": "/rendiciones/aprobar-documentos"
+        }
+      ]
+    }
+  ]
+}
