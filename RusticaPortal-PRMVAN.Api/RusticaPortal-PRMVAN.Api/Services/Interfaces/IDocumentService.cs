@@ -21,10 +21,11 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         public Task<List<string>> GetOVByContract(string contract, string BaseDatos);
         public Task<ResponseInformation> DeleteInfo(RequestInformation requestInformation, string nomSistem, EmpresaConfig BaseDatos, string docEntry);
         public Task<ResponseInformation> ValidaDatos(string baseDatos);
-        Task<ResponseInformation> ValidaRUC(string empresa, string ruc, RequestInformation requestInformation);        
+        Task<ResponseInformation> ValidaRUC(string empresa, string ruc, RequestInformation requestInformation);
         Task<ResponseInformation> GetMenuDB(string empresa, string userId);
         Task<ResponseInformation> GetRecepcionDB(string empresa);
         Task<ResponseInformation> GetFactoresDB(string empresa, string periodo, string tiendas);
+        Task<ResponseInformation> GetFactoresNuevoDB(string empresa, string tiendas);
         Task<ResponseInformation> GetTiendasActivas(string empresa);
         Task<ResponseInformation> GetContactoDB(string empresa);
     }
