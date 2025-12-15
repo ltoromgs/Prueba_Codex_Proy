@@ -146,8 +146,63 @@ BEGIN
     EXECUTE IMMEDIATE :lvSql;
 
 
+    ELSEIF vTipo = 'Get_MatrizFactoresNuevo' THEN
 
-    
+        DECLARE lvTiendas NVARCHAR(5000);
+        DECLARE lvSql     NVARCHAR(8000);
+        DECLARE lvPeriodoBase NVARCHAR(10);
+        DECLARE lvPeriodoDestino NVARCHAR(10);
+
+        -- Determinar el último periodo registrado y el siguiente (periodo destino)
+        SELECT TO_VARCHAR(MAX("U_MGS_CL_PERIODO"), 'YYYY-MM')
+             , TO_VARCHAR(ADD_MONTHS(MAX("U_MGS_CL_PERIODO"), 1), 'YYYY-MM')
+          INTO lvPeriodoBase, lvPeriodoDestino
+          FROM "@MGS_CL_FACCAB";
+
+        -- Construir filtro opcional de tiendas solo para la vista previa
+        IF :vParam2 IS NULL OR :vParam2 = '' THEN
+            lvTiendas := '';
+        ELSE
+            lvTiendas := ' AND D."U_MGS_CL_TIENDA" IN (''' || REPLACE(:vParam2, ',', ''',''') || ''')';
+        END IF;
+
+        lvSql := '
+            SELECT
+                TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'')  AS "U_MGS_CL_PERIODO",
+                ''' || lvPeriodoDestino || '''                  AS "U_MGS_CL_PERIODO_DEST",
+                D."U_MGS_CL_TIENDA"   AS "U_MGS_CL_TIENDA",
+                D."U_MGS_CL_NOMTIE"   AS "U_MGS_CL_NOMTIE",
+                C."DocEntry"          AS "DocEntry",
+                D."LineId"            AS "LineId",
+                D."U_MGS_CL_META"     AS "U_MGS_CL_META",
+                D."U_MGS_CL_RENTA"    AS "U_MGS_CL_RENTA",
+                D."U_MGS_CL_VAN"      AS "U_MGS_CL_VAN",
+                D."U_MGS_CL_ESTPER"   AS "U_MGS_CL_ESTPER",
+                D."U_MGS_CL_GASADM"   AS "U_MGS_CL_GASADM",
+                D."U_MGS_CL_COMTAR"   AS "U_MGS_CL_COMTAR",
+                D."U_MGS_CL_IMPUES"   AS "U_MGS_CL_IMPUES",
+                D."U_MGS_CL_REGALI"   AS "U_MGS_CL_REGALI",
+                D."U_MGS_CL_AUSER"    AS "U_MGS_CL_AUSER",
+                D."U_MGS_CL_AUOPE"    AS "U_MGS_CL_AUOPE",
+                D."U_MGS_CL_AUCCC"    AS "U_MGS_CL_AUCCC",
+                D."U_MGS_CL_AUADH"    AS "U_MGS_CL_AUADH",
+                D."U_MGS_CL_CLIMA"    AS "U_MGS_CL_CLIMA",
+                D."U_MGS_CL_RUSTI"    AS "U_MGS_CL_RUSTI",
+                D."U_MGS_CL_MELID"    AS "U_MGS_CL_MELID",
+                D."U_MGS_CL_ADMGR"    AS "U_MGS_CL_ADMGR",
+                D."U_MGS_CL_EXGES"    AS "U_MGS_CL_EXGES",
+                D."U_MGS_CL_EXSER"    AS "U_MGS_CL_EXSER",
+                D."U_MGS_CL_EXMAR"    AS "U_MGS_CL_EXMAR",
+                D."U_MGS_CL_PRIMARY"  AS "U_MGS_CL_PRIMARY"
+            FROM "@MGS_CL_FACCAB" C
+            JOIN "@MGS_CL_FACDET" D
+              ON D."DocEntry" = C."DocEntry"
+            WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'') = ''' || lvPeriodoBase || ''''
+            || lvTiendas ||
+            ' ORDER BY D."LineId", D."U_MGS_CL_TIENDA", D."U_MGS_CL_NOMTIE"';
+
+        EXECUTE IMMEDIATE :lvSql;
+
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN
     
         /*SELECT 

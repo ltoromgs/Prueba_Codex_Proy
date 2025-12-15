@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class MatrizFactorDTO
 {
     public string U_MGS_CL_PERIODO { get; set; } = "";
+    public string U_MGS_CL_PERIODO_DEST { get; set; } = "";
     public string U_MGS_CL_TIENDA { get; set; } = "";
     public string U_MGS_CL_NOMTIE { get; set; } = "";
     public string DocEntry { get; set; } = "";
