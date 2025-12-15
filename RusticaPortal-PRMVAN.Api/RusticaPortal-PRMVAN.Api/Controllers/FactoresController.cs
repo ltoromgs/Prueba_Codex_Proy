@@ -100,32 +100,6 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             }
         }
 
-        [HttpGet("periodo-siguiente")]
-        public async Task<ActionResult<ResponseInformation>> GetPeriodoSiguiente([FromQuery] string Empresa)
-        {
-            try
-            {
-                var rp = await _documentService.GetPeriodoSiguienteFactores(Empresa);
-
-                if (!rp.Registered)
-                {
-                    _logger.LogWarning("No se pudo obtener el periodo sugerido para la empresa: {Empresa}", Empresa);
-                }
-
-                return Ok(rp);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener el periodo sugerido para la empresa: {Empresa}", Empresa);
-                return StatusCode(500, new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "Error inesperado en el servidor",
-                    Content = ex.Message
-                });
-            }
-        }
-
         [HttpGet("nuevo")]
         public async Task<ActionResult<ResponseInformation>> GetFactoresPrevios([FromQuery] string Empresa,
                                                                                [FromQuery] string periodo,

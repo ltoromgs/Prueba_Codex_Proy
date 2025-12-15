@@ -80,30 +80,6 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PeriodoSiguiente()
-        {
-            var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
-            if (string.IsNullOrEmpty(empresa))
-                return BadRequest(new { message = "Empresa no encontrada en sesión." });
-
-            var endpoint = QueryHelpers.AddQueryString("/api/factores/periodo-siguiente", new Dictionary<string, string?>
-            {
-                ["empresa"] = empresa
-            });
-
-            var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
-            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
-            if (!resp.Registered || string.IsNullOrEmpty(resp.Content))
-                return BadRequest(new { message = resp?.Message ?? "No fue posible obtener el periodo siguiente." });
-
-            var data = JsonConvert.DeserializeObject<PeriodoSiguienteModel>(resp.Content) ?? new PeriodoSiguienteModel();
-            if (string.IsNullOrWhiteSpace(data.PeriodoSiguiente))
-                return BadRequest(new { message = "No fue posible obtener el periodo siguiente." });
-
-            return Ok(data);
-        }
-
-        [HttpGet]
         public async Task<IActionResult> Previsualizar(string periodoOrigen, string tiendas)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;

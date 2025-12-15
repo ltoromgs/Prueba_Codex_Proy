@@ -30,7 +30,7 @@
                     <!-- Periodo (month picker) -->
                     <div class="col-auto">
                         <label class="form-label mb-1">Periodo</label>
-                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.PeriodoActual" readonly />
+                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm"  value="@Model.PeriodoActual" />
                     </div>
 
                     <!-- Tiendas: multiselección en dropdown, no se cierra al interactuar -->
@@ -227,51 +227,26 @@
             </div>
             <div class="modal-body">
                 <p class="mb-2 text-muted" id="nuevoDescripcion"></p>
-                <div class="row g-2 mb-3 align-items-end">
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Periodo base</label>
-                        <input type="month" class="form-control form-control-sm" id="periodoBaseModal" readonly />
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Periodo a crear</label>
-                        <input type="month" class="form-control form-control-sm" id="periodoDestinoModal" readonly />
-                    </div>
-                    <div class="col-auto ms-auto">
-                        <label class="form-label mb-1">Filtrar tienda</label>
-                        <input type="text" class="form-control form-control-sm" id="filtroTiendaModal" placeholder="Ej: P0045 o nombre" />
-                    </div>
-                </div>
                 <div id="nuevoEstado" class="alert alert-info d-none" role="alert"></div>
-                <div class="table-responsive modal-table-wrapper" style="max-height:60vh; overflow:auto;">
-                    <table class="table table-sm table-bordered align-middle" id="tablaPreviewNuevo" style="white-space:nowrap;">
+                <div class="table-responsive" style="max-height:60vh;">
+                    <table class="table table-sm table-striped" id="tablaPreviewNuevo">
                         <thead class="table-light">
                             <tr>
-                                <th class="sticky-col-start">Tienda<br />Nombre</th>
-                                <th>Meta<br />UV</th>
-                                <th>Renta<br />(%)</th>
-                                <th>VAN<br />(%)</th>
-                                <th>Pers<br />(%)</th>
-                                <th>Gtos<br />ADM (%)</th>
-                                <th>Comisión<br />Tarjeta (%)</th>
-                                <th>Impuesto<br />(%)</th>
-                                <th>Regalías<br />(%)</th>
-                                <th>AUD.<br />SERV</th>
-                                <th>AUD.<br />OPER</th>
-                                <th>AUD.<br />CC</th>
-                                <th>AUD.<br />ADH</th>
-                                <th>CLIMA<br />LAB</th>
-                                <th>CPTO<br />RUSTICA</th>
-                                <th>META<br />LIDER</th>
-                                <th>ADM.<br />GENERAL</th>
-                                <th>FU. EXC<br />GESTION</th>
-                                <th>FU. EXC<br />SERVICIO</th>
-                                <th>FU. EXC<br />MARCA</th>
+                                <th style="min-width:120px;">Tienda</th>
+                                <th style="min-width:220px;">Nombre</th>
+                                <th class="text-end">Meta UV</th>
+                                <th class="text-end">Renta %</th>
+                                <th class="text-end">VAN %</th>
+                                <th class="text-end">Gtos ADM %</th>
+                                <th class="text-end">Comisión %</th>
+                                <th class="text-end">Impuesto %</th>
+                                <th class="text-end">Regalías %</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                <small class="text-secondary d-block mt-2">Los valores provienen del periodo base. El filtro de tienda solo oculta filas, pero al cargar se enviarán todas.</small>
+                <small class="text-secondary d-block mt-2">Los valores provienen del periodo anterior; las tiendas nuevas aparecerán con montos en cero.</small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -357,9 +332,6 @@
         const tiendasListado = document.getElementById('tiendasListado');
         let tiendasCache = [];
         let previewData = [];
-        let previewDataFull = [];
-        let periodoBaseAuto = '';
-        let periodoSiguienteAuto = '';
         let modalNuevo;
 
         function showAlert(message, type = 'success') {
@@ -367,41 +339,13 @@
 
             alertContainer.innerHTML = '';
             const wrapper = document.createElement('div');
-            wrapper.className = `alert alert-${type} alert-dismissible fade show`;
+            wrapper.className = `alert alert-${type} alert-dismissible fade show`;            
             wrapper.role = 'alert';
             wrapper.innerHTML = `
                 <div>${message}</div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
             alertContainer.appendChild(wrapper);
-        }
-
-        async function cargarPeriodoSiguiente() {
-            try {
-                const res = await fetch('/Factores/PeriodoSiguiente');
-                const data = await res.json();
-
-                if (!res.ok) {
-                    showAlert(data.message || 'No se pudo obtener el periodo siguiente.', 'danger');
-                    return;
-                }
-
-                periodoBaseAuto = data.periodoBase ?? '';
-                periodoSiguienteAuto = data.periodoSiguiente ?? '';
-
-                const periodoFiltro = document.getElementById('filtroPeriodo');
-                if (periodoFiltro && periodoSiguienteAuto) {
-                    periodoFiltro.value = periodoSiguienteAuto;
-                }
-
-                const periodoBaseModal = document.getElementById('periodoBaseModal');
-                const periodoDestinoModal = document.getElementById('periodoDestinoModal');
-                if (periodoBaseModal) periodoBaseModal.value = periodoBaseAuto;
-                if (periodoDestinoModal) periodoDestinoModal.value = periodoSiguienteAuto;
-            } catch (err) {
-                console.error('ERROR PERIODO SIGUIENTE:', err);
-                showAlert('No se pudo obtener el periodo siguiente.', 'danger');
-            }
         }
 
         function clearAlert() {
@@ -505,23 +449,22 @@
             let cellIndex = Array.from(rowEl.children).indexOf(start);
 
             rows.forEach((rowStr, r) => {
-                    const cols = rowStr.split('\t');
-                    // Si no estamos en la primera fila pegada, mover a la siguiente <tr>
-                    if (r > 0) rowEl = rowEl.nextElementSibling;
-                    if (!rowEl) return;
+                const cols = rowStr.split('\t');
+                // Si no estamos en la primera fila pegada, mover a la siguiente <tr>
+                if (r > 0) rowEl = rowEl.nextElementSibling;
+                if (!rowEl) return;
 
                 let cIndex = cellIndex;
-                        cols.forEach((val) => {
-                            const cell = rowEl.children[cIndex];
-                            if (!cell) return;
-                            if (!cell.matches('td.dec')) { cIndex++; return; } // solo celdas dec
-                            cell.innerText = val;
-                            // Disparar validación inmediata
-                            validateCell(cell);
-                            syncPreviewCell(cell);
-                            cIndex++;
-                        });
-                    });
+                cols.forEach((val) => {
+                    const cell = rowEl.children[cIndex];
+                    if (!cell) return;
+                    if (!cell.matches('td.dec')) { cIndex++; return; } // solo celdas dec
+                    cell.innerText = val;
+                    // Disparar validación inmediata
+                    validateCell(cell);
+                    cIndex++;
+                });
+            });
         }
 
         function validateCell(td) {
@@ -533,15 +476,25 @@
             }
         }
 
-        function wireDecCells(selector = '#tablaMatriz td.dec') {
-            document.querySelectorAll(selector).forEach(td => {
+        // Bind a todas las celdas decimales
+        document.querySelectorAll('#tablaMatriz td.dec').forEach(td => {
+            td.addEventListener('paste', handleGridPaste); // Soporta pegado tipo Excel
+            td.addEventListener('input', () => validateCell(td));
+            td.addEventListener('blur', () => {
+                let v = normalizeDecimal(td.innerText.trim());
+                if (isValidDecimal(v)) td.innerText = formatDecimal(v);
+                validateCell(td);
+            });
+        });
+
+        function wireDecCells() {
+            document.querySelectorAll('#tablaMatriz td.dec').forEach(td => {
                 td.addEventListener('paste', handleGridPaste);
                 td.addEventListener('input', () => validateCell(td));
                 td.addEventListener('blur', () => {
                     let v = normalizeDecimal(td.innerText.trim());
                     if (isValidDecimal(v)) td.innerText = formatDecimal(v);
                     validateCell(td);
-                    syncPreviewCell(td);
                 });
             });
         }
@@ -664,124 +617,67 @@
             return found ? (found.nombre ?? found.Nombre ?? '') : '';
         }
 
-        function construirPreview(data) {
-            let idx = 0;
-            previewDataFull = (data || []).map(d => {
-                const tienda = (d.u_MGS_CL_TIENDA ?? d.U_MGS_CL_TIENDA ?? '').trim();
-                const nombre = (d.u_MGS_CL_NOMTIE ?? d.U_MGS_CL_NOMTIE ?? obtenerNombreTienda(tienda)).trim();
-
+        function armarPreview(tiendasSel, data) {
+            previewData = tiendasSel.map(code => {
+                const previo = (data || []).find(d => (d.u_MGS_CL_TIENDA ?? d.U_MGS_CL_TIENDA ?? '').trim() === code) || {};
                 return {
-                    rowId: `${idx++}`,
-                    U_MGS_CL_TIENDA: tienda,
-                    U_MGS_CL_NOMTIE: nombre,
-                    U_MGS_CL_META: toNumberOrZero(d.u_MGS_CL_META ?? d.U_MGS_CL_META),
-                    U_MGS_CL_RENTA: toNumberOrZero(d.u_MGS_CL_RENTA ?? d.U_MGS_CL_RENTA),
-                    U_MGS_CL_VAN: toNumberOrZero(d.u_MGS_CL_VAN ?? d.U_MGS_CL_VAN),
-                    U_MGS_CL_ESTPER: toNumberOrZero(d.u_MGS_CL_ESTPER ?? d.U_MGS_CL_ESTPER),
-                    U_MGS_CL_GASADM: toNumberOrZero(d.u_MGS_CL_GASADM ?? d.U_MGS_CL_GASADM),
-                    U_MGS_CL_COMTAR: toNumberOrZero(d.u_MGS_CL_COMTAR ?? d.U_MGS_CL_COMTAR),
-                    U_MGS_CL_IMPUES: toNumberOrZero(d.u_MGS_CL_IMPUES ?? d.U_MGS_CL_IMPUES),
-                    U_MGS_CL_REGALI: toNumberOrZero(d.u_MGS_CL_REGALI ?? d.U_MGS_CL_REGALI),
-                    U_MGS_CL_AUSER: toNumberOrZero(d.u_MGS_CL_AUSER ?? d.U_MGS_CL_AUSER),
-                    U_MGS_CL_AUOPE: toNumberOrZero(d.u_MGS_CL_AUOPE ?? d.U_MGS_CL_AUOPE),
-                    U_MGS_CL_AUCCC: toNumberOrZero(d.u_MGS_CL_AUCCC ?? d.U_MGS_CL_AUCCC),
-                    U_MGS_CL_AUADH: toNumberOrZero(d.u_MGS_CL_AUADH ?? d.U_MGS_CL_AUADH),
-                    U_MGS_CL_CLIMA: toNumberOrZero(d.u_MGS_CL_CLIMA ?? d.U_MGS_CL_CLIMA),
-                    U_MGS_CL_RUSTI: toNumberOrZero(d.u_MGS_CL_RUSTI ?? d.U_MGS_CL_RUSTI),
-                    U_MGS_CL_MELID: toNumberOrZero(d.u_MGS_CL_MELID ?? d.U_MGS_CL_MELID),
-                    U_MGS_CL_ADMGR: toNumberOrZero(d.u_MGS_CL_ADMGR ?? d.U_MGS_CL_ADMGR),
-                    U_MGS_CL_EXGES: toNumberOrZero(d.u_MGS_CL_EXGES ?? d.U_MGS_CL_EXGES),
-                    U_MGS_CL_EXSER: toNumberOrZero(d.u_MGS_CL_EXSER ?? d.U_MGS_CL_EXSER),
-                    U_MGS_CL_EXMAR: toNumberOrZero(d.u_MGS_CL_EXMAR ?? d.U_MGS_CL_EXMAR),
-                    U_MGS_CL_PRIMARY: d.u_MGS_CL_PRIMARY ?? d.U_MGS_CL_PRIMARY ?? ''
+                    tienda: code,
+                    nombre: previo.u_MGS_CL_NOMTIE ?? previo.U_MGS_CL_NOMTIE ?? obtenerNombreTienda(code),
+                    U_MGS_CL_META: toNumberOrZero(previo.u_MGS_CL_META ?? previo.U_MGS_CL_META),
+                    U_MGS_CL_RENTA: toNumberOrZero(previo.u_MGS_CL_RENTA ?? previo.U_MGS_CL_RENTA),
+                    U_MGS_CL_VAN: toNumberOrZero(previo.u_MGS_CL_VAN ?? previo.U_MGS_CL_VAN),
+                    U_MGS_CL_ESTPER: toNumberOrZero(previo.u_MGS_CL_ESTPER ?? previo.U_MGS_CL_ESTPER),
+                    U_MGS_CL_GASADM: toNumberOrZero(previo.u_MGS_CL_GASADM ?? previo.U_MGS_CL_GASADM),
+                    U_MGS_CL_COMTAR: toNumberOrZero(previo.u_MGS_CL_COMTAR ?? previo.U_MGS_CL_COMTAR),
+                    U_MGS_CL_IMPUES: toNumberOrZero(previo.u_MGS_CL_IMPUES ?? previo.U_MGS_CL_IMPUES),
+                    U_MGS_CL_REGALI: toNumberOrZero(previo.u_MGS_CL_REGALI ?? previo.U_MGS_CL_REGALI),
+                    U_MGS_CL_PRIMARY: previo.u_MGS_CL_PRIMARY ?? previo.U_MGS_CL_PRIMARY ?? ''
                 };
             });
-
-            previewData = [...previewDataFull];
         }
 
-        function renderPreviewTabla(lista = previewDataFull) {
+        function renderPreviewTabla() {
             if (!tablaPreviewNuevoBody) return;
-            if (!lista.length) {
-                tablaPreviewNuevoBody.innerHTML = '<tr><td colspan="20" class="text-center text-muted">Sin información para mostrar.</td></tr>';
+            if (!previewData.length) {
+                tablaPreviewNuevoBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Sin información para mostrar.</td></tr>';
                 return;
             }
 
-            tablaPreviewNuevoBody.innerHTML = lista.map(item => `
-                <tr data-rowid="${item.rowId}">
-                    <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA} - ${item.U_MGS_CL_NOMTIE}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_META">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_RENTA">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_VAN">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_ESTPER">${formatDecimal(String(item.U_MGS_CL_ESTPER ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_GASADM">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_COMTAR">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_IMPUES">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_REGALI">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_AUSER">${formatDecimal(String(item.U_MGS_CL_AUSER ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_AUOPE">${formatDecimal(String(item.U_MGS_CL_AUOPE ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_AUCCC">${formatDecimal(String(item.U_MGS_CL_AUCCC ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_AUADH">${formatDecimal(String(item.U_MGS_CL_AUADH ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_CLIMA">${formatDecimal(String(item.U_MGS_CL_CLIMA ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_RUSTI">${formatDecimal(String(item.U_MGS_CL_RUSTI ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_MELID">${formatDecimal(String(item.U_MGS_CL_MELID ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_ADMGR">${formatDecimal(String(item.U_MGS_CL_ADMGR ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_EXGES">${formatDecimal(String(item.U_MGS_CL_EXGES ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_EXSER">${formatDecimal(String(item.U_MGS_CL_EXSER ?? '0'))}</td>
-                    <td contenteditable="true" class="dec dec-preview" data-field="U_MGS_CL_EXMAR">${formatDecimal(String(item.U_MGS_CL_EXMAR ?? '0'))}</td>
+            tablaPreviewNuevoBody.innerHTML = previewData.map(item => `
+                <tr>
+                    <td class="fw-semibold">${item.tienda}</td>
+                    <td>${item.nombre ?? ''}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
                 </tr>
             `).join('');
-
-            wireDecCells('#tablaPreviewNuevo td.dec-preview');
-        }
-
-        function filtrarPreview(term) {
-            const criterio = (term || '').toLowerCase().trim();
-            if (!criterio) {
-                previewData = [...previewDataFull];
-            } else {
-                previewData = previewDataFull.filter(p =>
-                    (p.U_MGS_CL_TIENDA || '').toLowerCase().includes(criterio) ||
-                    (p.U_MGS_CL_NOMTIE || '').toLowerCase().includes(criterio)
-                );
-            }
-
-            renderPreviewTabla(previewData);
-        }
-
-        function syncPreviewCell(td) {
-            if (!td || !td.dataset.field) return;
-            const row = td.closest('tr');
-            const rowId = row?.dataset.rowid;
-            const record = previewDataFull.find(p => String(p.rowId) === String(rowId));
-            if (!record) return;
-
-            record[td.dataset.field] = toNumberOrZero(normalizeDecimal(td.innerText.trim()));
         }
 
         async function abrirModalNuevo() {
             clearAlert();
-            if (!periodoBaseAuto || !periodoSiguienteAuto) {
-                await cargarPeriodoSiguiente();
-            }
+            const periodoDestino = document.getElementById('filtroPeriodo').value;
+            const periodoOrigen = periodoAnterior(periodoDestino);
+            const tiendasSeleccionadas = checks().filter(ch => ch.checked).map(ch => ch.value);
 
-            if (!periodoBaseAuto || !periodoSiguienteAuto) {
-                showAlert('No se pudo determinar el periodo siguiente automáticamente.', 'danger');
+            if (!tiendasSeleccionadas.length) {
+                showAlert('Selecciona al menos una tienda antes de cargar el periodo anterior.', 'warning');
                 return;
             }
 
             if (nuevoDescripcion) {
-                nuevoDescripcion.textContent = `Se copiarán los valores del periodo ${periodoBaseAuto} hacia ${periodoSiguienteAuto}.`;
+                nuevoDescripcion.textContent = `Se copiarán los valores del periodo ${periodoOrigen} hacia ${periodoDestino}.`;
             }
 
-            const filtroModal = document.getElementById('filtroTiendaModal');
-            if (filtroModal) filtroModal.value = '';
-
-            setNuevoEstado('Consultando información del periodo base...', 'info');
+            setNuevoEstado('Consultando información del periodo anterior...', 'info');
             if (tablaPreviewNuevoBody) tablaPreviewNuevoBody.innerHTML = '';
 
             try {
-                const url = `/Factores/Previsualizar?periodoOrigen=${encodeURIComponent(periodoBaseAuto)}&tiendas=`;
+                const url = `/Factores/Previsualizar?periodoOrigen=${encodeURIComponent(periodoOrigen)}&tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
                 const res = await fetch(url);
                 const data = await res.json();
 
@@ -790,8 +686,8 @@
                     return;
                 }
 
-                construirPreview(Array.isArray(data) ? data : []);
-                filtrarPreview('');
+                armarPreview(tiendasSeleccionadas, Array.isArray(data) ? data : []);
+                renderPreviewTabla();
                 clearNuevoEstado();
 
                 modalNuevo = modalNuevo ?? new bootstrap.Modal(document.getElementById('modalNuevo'));
@@ -803,21 +699,17 @@
         }
 
         async function crearMatrizDesdeModal() {
-            if (!previewDataFull.length) {
+            if (!previewData.length) {
                 setNuevoEstado('No hay información para registrar.', 'warning');
                 return;
             }
 
-            const periodoDestino = periodoSiguienteAuto || document.getElementById('filtroPeriodo').value;
-            if (!periodoDestino) {
-                setNuevoEstado('No se pudo determinar el periodo de destino.', 'danger');
-                return;
-            }
+            const periodoDestino = document.getElementById('filtroPeriodo').value;
             const payload = {
                 U_MGS_CL_PERIODO: `${periodoDestino}-01`,
-                MGS_CL_FACDETCollection: previewDataFull.map(p => ({
-                    U_MGS_CL_TIENDA: p.U_MGS_CL_TIENDA,
-                    U_MGS_CL_NOMTIE: p.U_MGS_CL_NOMTIE ?? '',
+                MGS_CL_FACDETCollection: previewData.map(p => ({
+                    U_MGS_CL_TIENDA: p.tienda,
+                    U_MGS_CL_NOMTIE: p.nombre ?? '',
                     U_MGS_CL_META: toNumberOrZero(p.U_MGS_CL_META),
                     U_MGS_CL_RENTA: toNumberOrZero(p.U_MGS_CL_RENTA),
                     U_MGS_CL_VAN: toNumberOrZero(p.U_MGS_CL_VAN),
@@ -826,17 +718,17 @@
                     U_MGS_CL_COMTAR: toNumberOrZero(p.U_MGS_CL_COMTAR),
                     U_MGS_CL_IMPUES: toNumberOrZero(p.U_MGS_CL_IMPUES),
                     U_MGS_CL_REGALI: toNumberOrZero(p.U_MGS_CL_REGALI),
-                    U_MGS_CL_AUSER: toNumberOrZero(p.U_MGS_CL_AUSER),
-                    U_MGS_CL_AUOPE: toNumberOrZero(p.U_MGS_CL_AUOPE),
-                    U_MGS_CL_AUCCC: toNumberOrZero(p.U_MGS_CL_AUCCC),
-                    U_MGS_CL_AUADH: toNumberOrZero(p.U_MGS_CL_AUADH),
-                    U_MGS_CL_CLIMA: toNumberOrZero(p.U_MGS_CL_CLIMA),
-                    U_MGS_CL_RUSTI: toNumberOrZero(p.U_MGS_CL_RUSTI),
-                    U_MGS_CL_MELID: toNumberOrZero(p.U_MGS_CL_MELID),
-                    U_MGS_CL_ADMGR: toNumberOrZero(p.U_MGS_CL_ADMGR),
-                    U_MGS_CL_EXGES: toNumberOrZero(p.U_MGS_CL_EXGES),
-                    U_MGS_CL_EXSER: toNumberOrZero(p.U_MGS_CL_EXSER),
-                    U_MGS_CL_EXMAR: toNumberOrZero(p.U_MGS_CL_EXMAR),
+                    U_MGS_CL_AUSER: 0,
+                    U_MGS_CL_AUOPE: 0,
+                    U_MGS_CL_AUCCC: 0,
+                    U_MGS_CL_AUADH: 0,
+                    U_MGS_CL_CLIMA: 0,
+                    U_MGS_CL_RUSTI: 0,
+                    U_MGS_CL_MELID: 0,
+                    U_MGS_CL_ADMGR: 0,
+                    U_MGS_CL_EXGES: 0,
+                    U_MGS_CL_EXSER: 0,
+                    U_MGS_CL_EXMAR: 0,
                     U_MGS_CL_PRIMARY: p.U_MGS_CL_PRIMARY ?? ''
                 }))
             };
@@ -867,7 +759,6 @@
 
         document.getElementById('btnNuevo')?.addEventListener('click', abrirModalNuevo);
         document.getElementById('btnConfirmarNuevo')?.addEventListener('click', crearMatrizDesdeModal);
-        document.getElementById('filtroTiendaModal')?.addEventListener('input', (e) => filtrarPreview(e.target.value));
 
         const FIELD_MAP = {
             'u_MGS_CL_META': 'U_MGS_CL_META',
@@ -963,7 +854,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderEmptyRows();
             cargarTiendas();
-            cargarPeriodoSiguiente();
             if (window.bootstrap && document.getElementById('modalNuevo')) {
                 modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
             }
