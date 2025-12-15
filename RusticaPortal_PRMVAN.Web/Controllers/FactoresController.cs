@@ -80,7 +80,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Previsualizar(string periodoOrigen, string tiendas)
+        public async Task<IActionResult> Previsualizar(string? periodoOrigen, string tiendas)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(empresa))
@@ -89,7 +89,6 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             var endpoint = QueryHelpers.AddQueryString("/api/factores/nuevo", new Dictionary<string, string?>
             {
                 ["empresa"] = empresa,
-                ["periodo"] = periodoOrigen,
                 ["tiendas"] = tiendas
             });
 
