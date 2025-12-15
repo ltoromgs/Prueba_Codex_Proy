@@ -63,4 +63,10 @@ namespace RusticaPortal_PRMVAN.Web.Models
         public string Codigo { get; set; } = string.Empty;
         public string Nombre { get; set; } = string.Empty;
     }
+
+    public class PeriodoSiguienteModel
+    {
+        public string PeriodoBase { get; set; } = string.Empty;
+        public string PeriodoSiguiente { get; set; } = string.Empty;
+    }
 }

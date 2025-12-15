@@ -99,21 +99,55 @@ BEGIN
 
     DECLARE lvTiendas NVARCHAR(5000);
     DECLARE lvSql     NVARCHAR(5000);
-    
+
 -- vParam2 = 'P0045,P0031'
     lvTiendas := '''' || REPLACE(:vParam2, ',', ''',''') || '''';
-    --select :vParam1 from DUMMY;
-    --select :lvTiendas from DUMMY;
-    
+
 -- Resultado:  'P0045','P0031'
 
- lvSql := '
+ IF LENGTH(:vParam2) = 0 THEN
+    lvSql := '
         SELECT
             TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'')  AS "U_MGS_CL_PERIODO",
             D."U_MGS_CL_TIENDA"   AS "U_MGS_CL_TIENDA",
             D."U_MGS_CL_NOMTIE"   AS "U_MGS_CL_NOMTIE",
             C."DocEntry"          AS "DocEntry",
-            D."LineId"          AS "LineId", 
+            D."LineId"          AS "LineId",
+            D."U_MGS_CL_META"     AS "U_MGS_CL_META",
+            D."U_MGS_CL_RENTA"    AS "U_MGS_CL_RENTA",
+            D."U_MGS_CL_VAN"      AS "U_MGS_CL_VAN",
+            D."U_MGS_CL_ESTPER"   AS "U_MGS_CL_ESTPER",
+            D."U_MGS_CL_GASADM"   AS "U_MGS_CL_GASADM",
+            D."U_MGS_CL_COMTAR"   AS "U_MGS_CL_COMTAR",
+            D."U_MGS_CL_IMPUES"   AS "U_MGS_CL_IMPUES",
+            D."U_MGS_CL_REGALI"   AS "U_MGS_CL_REGALI",
+            D."U_MGS_CL_AUSER"    AS "U_MGS_CL_AUSER",
+            D."U_MGS_CL_AUOPE"    AS "U_MGS_CL_AUOPE",
+            D."U_MGS_CL_AUCCC"    AS "U_MGS_CL_AUCCC",
+            D."U_MGS_CL_AUADH"    AS "U_MGS_CL_AUADH",
+            D."U_MGS_CL_CLIMA"    AS "U_MGS_CL_CLIMA",
+            D."U_MGS_CL_RUSTI"    AS "U_MGS_CL_RUSTI",
+            D."U_MGS_CL_MELID"    AS "U_MGS_CL_MELID",
+            D."U_MGS_CL_ADMGR"    AS "U_MGS_CL_ADMGR",
+            D."U_MGS_CL_EXGES"    AS "U_MGS_CL_EXGES",
+            D."U_MGS_CL_EXSER"    AS "U_MGS_CL_EXSER",
+            D."U_MGS_CL_EXMAR"    AS "U_MGS_CL_EXMAR",
+            D."U_MGS_CL_PRIMARY"  AS "U_MGS_CL_PRIMARY"
+        FROM "@MGS_CL_FACCAB" C
+        JOIN "@MGS_CL_FACDET" D
+          ON D."DocEntry" = C."DocEntry"
+        WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'') = ''' || :vParam1 || '''
+        ORDER BY
+            D."LineId", D."U_MGS_CL_TIENDA", D."U_MGS_CL_NOMTIE"
+    ';
+ ELSE
+    lvSql := '
+        SELECT
+            TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'')  AS "U_MGS_CL_PERIODO",
+            D."U_MGS_CL_TIENDA"   AS "U_MGS_CL_TIENDA",
+            D."U_MGS_CL_NOMTIE"   AS "U_MGS_CL_NOMTIE",
+            C."DocEntry"          AS "DocEntry",
+            D."LineId"          AS "LineId",
             D."U_MGS_CL_META"     AS "U_MGS_CL_META",
             D."U_MGS_CL_RENTA"    AS "U_MGS_CL_RENTA",
             D."U_MGS_CL_VAN"      AS "U_MGS_CL_VAN",
@@ -142,8 +176,27 @@ BEGIN
         ORDER BY
             D."LineId", D."U_MGS_CL_TIENDA", D."U_MGS_CL_NOMTIE"
     ';
+ END IF;
 
     EXECUTE IMMEDIATE :lvSql;
+
+  ELSEIF vTipo = 'Get_SiguientePeriodoFactores' THEN
+
+    DECLARE lvPeriodoActual NVARCHAR(7);
+    DECLARE lvPeriodoSiguiente NVARCHAR(7);
+
+    SELECT IFNULL(MAX(TO_VARCHAR("U_MGS_CL_PERIODO", 'YYYY-MM')), '') INTO lvPeriodoActual FROM "@MGS_CL_FACCAB";
+
+    IF :lvPeriodoActual = '' THEN
+        lvPeriodoActual := TO_VARCHAR(CURRENT_DATE, 'YYYY-MM');
+        lvPeriodoSiguiente := TO_VARCHAR(ADD_MONTHS(CURRENT_DATE, 1), 'YYYY-MM');
+    ELSE
+        SELECT TO_VARCHAR(ADD_MONTHS(TO_DATE(:lvPeriodoActual || '-01'), 1), 'YYYY-MM') INTO lvPeriodoSiguiente FROM DUMMY;
+    END IF;
+
+    SELECT :lvPeriodoActual AS "PeriodoBase",
+           :lvPeriodoSiguiente AS "PeriodoSiguiente"
+    FROM DUMMY;
 
 
 
