@@ -785,10 +785,18 @@
 
             try {
                 const res = await fetch(urlPrevisualizar);
-                const data = await res.json();
+                let data = [];
+
+                try {
+                    const raw = await res.text();
+                    data = raw ? JSON.parse(raw) : [];
+                } catch (parseErr) {
+                    console.error('ERROR PREVIA NUEVO: parse JSON', parseErr);
+                }
 
                 if (!res.ok) {
-                    setNuevoEstado(data.message || 'No se pudo obtener la información.', 'danger');
+                    const msg = (data && data.message) ? data.message : `No se pudo obtener la información (HTTP ${res.status}).`;
+                    setNuevoEstado(msg, 'danger');
                     return;
                 }
 
