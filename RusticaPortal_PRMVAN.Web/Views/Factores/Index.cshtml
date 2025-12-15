@@ -780,9 +780,11 @@
             setNuevoEstado('Consultando información del último periodo...', 'info');
             if (tablaPreviewNuevoBody) tablaPreviewNuevoBody.innerHTML = '';
 
+            // Construir URL de consulta antes de invocar fetch para evitar referencias indefinidas
+            const urlPrevisualizar = `/Factores/Previsualizar?tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
+
             try {
-                const url = `/Factores/Previsualizar?tiendas=`;
-                const res = await fetch(url);
+                const res = await fetch(urlPrevisualizar);
                 const data = await res.json();
 
                 if (!res.ok) {
