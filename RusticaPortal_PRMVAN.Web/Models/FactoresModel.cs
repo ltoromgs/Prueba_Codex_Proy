@@ -49,4 +49,10 @@ namespace RusticaPortal_PRMVAN.Web.Models
         [JsonProperty("MGS_CL_FACDETCollection")]
         public List<FactoresModel> MGS_CL_FACDETCollection { get; set; } = new();
     }
+
+    public class TiendaModel
+    {
+        public string Codigo { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+    }
 }

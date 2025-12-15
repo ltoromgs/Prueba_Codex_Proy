@@ -73,6 +73,33 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             }
         }
 
+        [HttpGet("tiendas")]
+        public async Task<ActionResult<ResponseInformation>> GetTiendas([FromQuery] string Empresa)
+        {
+            try
+            {
+                var rp = await _documentService.GetTiendasActivas(Empresa);
+
+                if (!rp.Registered)
+                {
+                    _logger.LogWarning("No se encontraron tiendas activas para la empresa: {Empresa}", Empresa);
+                    return Ok(rp);
+                }
+
+                return Ok(rp);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener las tiendas activas para la empresa: {Empresa}", Empresa);
+                return StatusCode(500, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error inesperado en el servidor",
+                    Content = ex.Message
+                });
+            }
+        }
+
         [HttpPost("actualizar")]
         public async Task<ActionResult<ResponseInformation>> Actualizar([FromQuery] string docEntry, [FromQuery] string Empresa, [FromBody] MatrizFactorUpdateRequest request)
         {

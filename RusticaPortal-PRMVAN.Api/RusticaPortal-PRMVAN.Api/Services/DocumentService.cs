@@ -1830,6 +1830,82 @@ namespace RusticaPortal_PRMVAN.Api.Services
            => r.IsDBNull(r.GetOrdinal(col)) ? 0m : Convert.ToDecimal(r[col]);
 
         }
+
+        public async Task<ResponseInformation> GetTiendasActivas(string empresa)
+        {
+            if (!int.TryParse(empresa, out var idEmpresa))
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error: Parámetro 'empresa' debe ser un número válido.",
+                    Content = string.Empty,
+                };
+            }
+
+            var cfg = _empresaConfigService.GetEmpresa(idEmpresa);
+            if (cfg == null)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = $"Error: No existe configuración para la empresa con ID = {idEmpresa}.",
+                    Content = string.Empty,
+                };
+            }
+
+            var tiendas = new List<TiendaActivaDTO>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                const string query = "SELECT \"PrjCode\" AS \"Codigo\", \"PrjName\" AS \"Nombre\" FROM \"OPRJ\" WHERE \"Active\" = 'Y' ORDER BY \"PrjCode\"";
+                using var cmd = new HanaCommand(query, conn);
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tiendas.Add(new TiendaActivaDTO
+                    {
+                        Codigo = reader["Codigo"]?.ToString() ?? string.Empty,
+                        Nombre = reader["Nombre"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!tiendas.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron tiendas activas.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tiendas)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
         public async Task<ResponseInformation> GetContactoDB(string empresa)
         {
           //  public async Task<ResponseInformation> GetContactoDB(RequestInformation requestInformation, string nomSistem, string empresa)
