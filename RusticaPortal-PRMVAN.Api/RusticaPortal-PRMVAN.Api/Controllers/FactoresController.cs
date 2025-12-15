@@ -73,6 +73,62 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             }
         }
 
+        [HttpGet("tiendas")]
+        public async Task<ActionResult<ResponseInformation>> GetTiendas([FromQuery] string Empresa)
+        {
+            try
+            {
+                var rp = await _documentService.GetTiendasActivas(Empresa);
+
+                if (!rp.Registered)
+                {
+                    _logger.LogWarning("No se encontraron tiendas activas para la empresa: {Empresa}", Empresa);
+                    return Ok(rp);
+                }
+
+                return Ok(rp);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener las tiendas activas para la empresa: {Empresa}", Empresa);
+                return StatusCode(500, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error inesperado en el servidor",
+                    Content = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("nuevo")]
+        public async Task<ActionResult<ResponseInformation>> GetFactoresPrevios([FromQuery] string Empresa,
+                                                                               [FromQuery] string periodo,
+                                                                               [FromQuery] string tiendas)
+        {
+            try
+            {
+                var rp = await _documentService.GetFactoresDB(Empresa, periodo, tiendas);
+
+                if (!rp.Registered)
+                {
+                    _logger.LogWarning("No hay información previa para la empresa: {Empresa}", Empresa);
+                    return Ok(rp);
+                }
+
+                return Ok(rp);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener información previa para la empresa: {Empresa}", Empresa);
+                return StatusCode(500, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error inesperado en el servidor",
+                    Content = ex.Message
+                });
+            }
+        }
+
         [HttpPost("actualizar")]
         public async Task<ActionResult<ResponseInformation>> Actualizar([FromQuery] string docEntry, [FromQuery] string Empresa, [FromBody] MatrizFactorUpdateRequest request)
         {
@@ -220,5 +276,57 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         //    return BadRequest(rp);
 
         //}
+
+        [HttpPost("crear")]
+        public async Task<ActionResult<ResponseInformation>> Crear([FromQuery] string Empresa, [FromBody] MatrizFactorCreateRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(Empresa))
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Parámetros incompletos para crear la matriz.",
+                    Content = string.Empty
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.U_MGS_CL_PERIODO))
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "El periodo de destino es obligatorio.",
+                    Content = string.Empty
+                });
+            }
+
+            if (request.MGS_CL_FACDETCollection == null || request.MGS_CL_FACDETCollection.Count == 0)
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No se enviaron registros de tiendas para crear la matriz.",
+                    Content = string.Empty
+                });
+            }
+
+            var prep = await _empresaRuntime.ResolveAndLoginAsync(Empresa);
+            if (!prep.Ok) return BadRequest(prep.Error);
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            var requestInformation = new RequestInformation
+            {
+                Route = "MGS_CL_FACCAB",
+                Token = prep.Token,
+                Doc = JsonConvert.SerializeObject(request, settings)
+            };
+
+            var rp = await _documentService.PostInfo(requestInformation, "PYP", prep.Cfg);
+            return Ok(rp);
+        }
     }
 }

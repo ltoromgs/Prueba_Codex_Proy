@@ -1830,6 +1830,90 @@ namespace RusticaPortal_PRMVAN.Api.Services
            => r.IsDBNull(r.GetOrdinal(col)) ? 0m : Convert.ToDecimal(r[col]);
 
         }
+
+        public async Task<ResponseInformation> GetTiendasActivas(string empresa)
+        {
+            if (!int.TryParse(empresa, out var idEmpresa))
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error: Parámetro 'empresa' debe ser un número válido.",
+                    Content = string.Empty,
+                };
+            }
+
+            var cfg = _empresaConfigService.GetEmpresa(idEmpresa);
+            if (cfg == null)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = $"Error: No existe configuración para la empresa con ID = {idEmpresa}.",
+                    Content = string.Empty,
+                };
+            }
+
+            var tiendas = new List<TiendaActivaDTO>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_TiendasActivas";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tiendas.Add(new TiendaActivaDTO
+                    {
+                        Codigo = reader[nameof(TiendaActivaDTO.Codigo)]?.ToString() ?? string.Empty,
+                        Nombre = reader[nameof(TiendaActivaDTO.Nombre)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!tiendas.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron tiendas activas.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tiendas)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
         public async Task<ResponseInformation> GetContactoDB(string empresa)
         {
           //  public async Task<ResponseInformation> GetContactoDB(RequestInformation requestInformation, string nomSistem, string empresa)

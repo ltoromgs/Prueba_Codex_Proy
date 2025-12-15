@@ -42,20 +42,8 @@
                                 Seleccionar tiendas
                             </button>
                             <div class="dropdown-menu p-3" style="max-height: 280px; overflow: auto; width: 320px;">
-                                <div class="small text-secondary mb-2">Marca una o más tiendas</div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input tienda-check" type="checkbox" value="P0045" id="t_P0045" checked>
-                                    <label class="form-check-label" for="t_P0045">P0045 - Mall Santa Anita</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input tienda-check" type="checkbox" value="P0031" id="t_P0031">
-                                    <label class="form-check-label" for="t_P0031">P0031 - Larcomar</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input tienda-check" type="checkbox" value="P0021" id="t_P0021">
-                                    <label class="form-check-label" for="t_P0021">P0021 - Miraflores</label>
-                                </div>
+                                <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
+                                <div id="tiendasListado" class="d-grid gap-1"></div>
 
                                 <div class="border-top pt-2 mt-2 d-flex justify-content-between">
                                     <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
@@ -81,32 +69,33 @@
             </div>
 
             <div class="card-body p-0">
+                <div id="alertContainer" class="px-3 pt-3"></div>
                 <!-- Tabla con scroll horizontal y columnas pegajosas -->
                 <div class="table-responsive" style="overflow:auto;">
                     <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaMatriz" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th>Código interno</th>
-                                <th class="sticky-col-start">Tienda</th>                               
-                                <th>Meta (UV)</th>
-                                <th>Renta (%)</th>
-                                <th>VAN (%)</th>
-                                <th>PERS (%)</th>
-                                <th>GastosADM (%)</th>
-                                <th>ComisiónTarjeta (%)</th>
-                                <th>Impuesto (%)</th>
-                                <th>Regalías (%)</th>
-                                <th>AUD. SERV</th>
-                                <th>AUD. OPER</th>
-                                <th>AUD. CC</th>
-                                <th>AUD. ADH</th>
-                                <th>CLIMA LAB</th>
-                                <th>CPTO RUSTICA</th>
-                                <th>META LIDER</th>
-                                <th>ADM. GENERAL</th>
-                                <th>FU. EXC GESTION</th>
-                                <th>FU. EXC SERVICIO</th>
-                                <th>FU. EXC MARCA</th>
+                                <th>Cód.<br />interno</th>
+                                <th class="sticky-col-start">Tienda</th>
+                                <th>Meta<br />(UV)</th>
+                                <th>Renta<br />(%)</th>
+                                <th>VAN<br />(%)</th>
+                                <th>PERS<br />(%)</th>
+                                <th>Gtos<br />ADM (%)</th>
+                                <th>Comisión<br />Tarjeta (%)</th>
+                                <th>Impuesto<br />(%)</th>
+                                <th>Regalías<br />(%)</th>
+                                <th>AUD.<br />SERV</th>
+                                <th>AUD.<br />OPER</th>
+                                <th>AUD.<br />CC</th>
+                                <th>AUD.<br />ADH</th>
+                                <th>CLIMA<br />LAB</th>
+                                <th>CPTO<br />RUSTICA</th>
+                                <th>META<br />LIDER</th>
+                                <th>ADM.<br />GENERAL</th>
+                                <th>FU. EXC<br />GESTION</th>
+                                <th>FU. EXC<br />SERVICIO</th>
+                                <th>FU. EXC<br />MARCA</th>
                                 @*<th class="sticky-col-end text-center">Acción</th>*@
                             </tr>
                         </thead>
@@ -228,6 +217,47 @@
     </div>
 </div>
 
+<!-- Modal: Cargar periodo anterior -->
+<div class="modal fade" id="modalNuevo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Cargar información del periodo anterior</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2 text-muted" id="nuevoDescripcion"></p>
+                <div id="nuevoEstado" class="alert alert-info d-none" role="alert"></div>
+                <div class="table-responsive" style="max-height:60vh;">
+                    <table class="table table-sm table-striped" id="tablaPreviewNuevo">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="min-width:120px;">Tienda</th>
+                                <th style="min-width:220px;">Nombre</th>
+                                <th class="text-end">Meta UV</th>
+                                <th class="text-end">Renta %</th>
+                                <th class="text-end">VAN %</th>
+                                <th class="text-end">Gtos ADM %</th>
+                                <th class="text-end">Comisión %</th>
+                                <th class="text-end">Impuesto %</th>
+                                <th class="text-end">Regalías %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <small class="text-secondary d-block mt-2">Los valores provienen del periodo anterior; las tiendas nuevas aparecerán con montos en cero.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarNuevo">
+                    <i class="bi bi-cloud-arrow-down"></i> Cargar información
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <style>
         /* Columnas pegajosas para scroll horizontal cómodo (tres primeras y última) */
@@ -271,6 +301,16 @@
             min-width: 180px;
         }
 
+        .placeholder-row td {
+            height: 36px;
+            min-height: 36px;
+            background-color: #f8f9fa;
+        }
+
+        .placeholder-cell {
+            color: transparent;
+        }
+
         /* Botón XS */
         .btn-xs {
             padding: .15rem .35rem;
@@ -287,8 +327,82 @@
     </style>
 
     <script>
+        const alertContainer = document.getElementById('alertContainer');
+        const tiendasEstado = document.getElementById('tiendasEstado');
+        const tiendasListado = document.getElementById('tiendasListado');
+        let tiendasCache = [];
+        let previewData = [];
+        let modalNuevo;
+
+        function showAlert(message, type = 'success') {
+            if (!alertContainer) { alert(message); return; }
+
+            alertContainer.innerHTML = '';
+            const wrapper = document.createElement('div');
+            wrapper.className = `alert alert-${type} alert-dismissible fade show`;            
+            wrapper.role = 'alert';
+            wrapper.innerHTML = `
+                <div>${message}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+            alertContainer.appendChild(wrapper);
+        }
+
+        function clearAlert() {
+            if (alertContainer) alertContainer.innerHTML = '';
+        }
+
+        function periodoAnterior(periodo) {
+            if (!periodo) return '';
+            const [anio, mes] = periodo.split('-').map(Number);
+            const fecha = new Date(anio, (mes ?? 1) - 1, 1);
+            fecha.setMonth(fecha.getMonth() - 1);
+            return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+        }
+
         // ---------- Utilidades de Tiendas ----------
         const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
+
+        async function cargarTiendas() {
+            if (tiendasEstado) tiendasEstado.textContent = 'Cargando tiendas...';
+
+            try {
+                const res = await fetch('/Factores/Tiendas');
+                if (!res.ok) throw new Error('Error al obtener tiendas');
+
+                const data = await res.json();
+                renderTiendas(data);
+            } catch (err) {
+                console.error('ERROR TIENDAS:', err);
+                if (tiendasEstado) tiendasEstado.textContent = 'No se pudieron cargar las tiendas.';
+                if (tiendasListado) tiendasListado.innerHTML = '';
+            }
+        }
+
+        function renderTiendas(lista) {
+            if (!tiendasListado || !tiendasEstado) return;
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                tiendasEstado.textContent = 'No hay tiendas activas disponibles.';
+                tiendasListado.innerHTML = '';
+                return;
+            }
+
+            tiendasCache = lista;
+            tiendasEstado.textContent = 'Marca una o más tiendas';
+            tiendasListado.innerHTML = lista.map(t => {
+                const codigo = t.codigo ?? t.Codigo ?? '';
+                const nombre = t.nombre ?? t.Nombre ?? '';
+                const id = `t_${codigo}`;
+
+                return `
+                    <div class="form-check">
+                        <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
+                        <label class="form-check-label" for="${id}">${codigo} - ${nombre}</label>
+                    </div>`;
+            }).join('');
+        }
+
         document.getElementById('tiendaSelTodas')?.addEventListener('click', (e) => {
             e.preventDefault();
             checks().forEach(ch => ch.checked = true);
@@ -308,6 +422,11 @@
         }
         function formatDecimal(s) {
             return Number(s).toFixed(DECIMALS);
+        }
+
+        function toNumberOrZero(val) {
+            const num = Number(normalizeDecimal(String(val ?? '')));
+            return isNaN(num) ? 0 : num;
         }
 
         // Evitar que contenteditable reciba HTML en pegado
@@ -380,6 +499,20 @@
             });
         }
 
+        function renderEmptyRows(count = 10, tbodyEl) {
+            const tbody = tbodyEl ?? document.querySelector('#tablaMatriz tbody');
+            if (!tbody) return;
+
+            const placeholder = `
+                <tr class="placeholder-row">
+                    <td>&nbsp;</td>
+                    <td class="sticky-col-start fw-semibold">&nbsp;</td>
+                    ${Array.from({ length: 19 }).map(() => '<td class="placeholder-cell">&nbsp;</td>').join('')}
+                </tr>`;
+
+            tbody.innerHTML = Array.from({ length: count }).map(() => placeholder).join('');
+        }
+
         // buscar y llenar tabla
         document.getElementById('btnBuscar')?.addEventListener('click', async () => {
             const periodo = document.getElementById('filtroPeriodo').value; // yyyy-mm
@@ -392,11 +525,15 @@
                 const data = await res.json();
 
 
-                if (!res.ok) { alert(data.message || 'Error al buscar'); return; }
+                if (!res.ok) { showAlert(data.message || 'Error al buscar', 'danger'); return; }
 
                 const tbody = document.querySelector('#tablaMatriz tbody');
-                tbody.innerHTML = (data || []).map(renderFila).join('');
-                wireDecCells();
+                if (Array.isArray(data) && data.length > 0) {
+                    tbody.innerHTML = data.map(renderFila).join('');
+                    wireDecCells();
+                } else {
+                    renderEmptyRows(10, tbody);
+                }
                 console.log('periodo ' + periodo);
                 console.log('tiendas ' + tiendas);
                 console.log('data ' + data.length);
@@ -404,11 +541,12 @@
 
                 const lbl = document.getElementById('lblResumen');
                 if (lbl) {
-                    lbl.textContent = `Mostrando ${data.length} de ${data.length}`;
+                    const total = Array.isArray(data) ? data.length : 0;
+                    lbl.textContent = `Mostrando ${total} de ${total}`;
                 }
             } catch (err) {
                 console.error('ERROR FETCH:', err);
-                alert('No se pudo conectar con el servidor.');
+                showAlert('No se pudo conectar con el servidor.', 'danger');
             }
         });
 
@@ -456,10 +594,171 @@
         //        <i class="bi bi-trash"></i>
         //    </button>
         //</td>
-        document.getElementById('btnNuevo')?.addEventListener('click', () => {
-            // TODO: abrir modal / navegar
-            console.log('Nuevo registro');
-        });
+
+        const nuevoEstado = document.getElementById('nuevoEstado');
+        const nuevoDescripcion = document.getElementById('nuevoDescripcion');
+        const tablaPreviewNuevoBody = document.querySelector('#tablaPreviewNuevo tbody');
+
+        function setNuevoEstado(msg, type = 'info') {
+            if (!nuevoEstado) return;
+            nuevoEstado.textContent = msg;
+            nuevoEstado.className = `alert alert-${type}`;
+            nuevoEstado.classList.remove('d-none');
+        }
+
+        function clearNuevoEstado() {
+            if (!nuevoEstado) return;
+            nuevoEstado.classList.add('d-none');
+            nuevoEstado.textContent = '';
+        }
+
+        function obtenerNombreTienda(codigo) {
+            const found = tiendasCache.find(t => (t.codigo ?? t.Codigo ?? '').trim() === codigo);
+            return found ? (found.nombre ?? found.Nombre ?? '') : '';
+        }
+
+        function armarPreview(tiendasSel, data) {
+            previewData = tiendasSel.map(code => {
+                const previo = (data || []).find(d => (d.u_MGS_CL_TIENDA ?? d.U_MGS_CL_TIENDA ?? '').trim() === code) || {};
+                return {
+                    tienda: code,
+                    nombre: previo.u_MGS_CL_NOMTIE ?? previo.U_MGS_CL_NOMTIE ?? obtenerNombreTienda(code),
+                    U_MGS_CL_META: toNumberOrZero(previo.u_MGS_CL_META ?? previo.U_MGS_CL_META),
+                    U_MGS_CL_RENTA: toNumberOrZero(previo.u_MGS_CL_RENTA ?? previo.U_MGS_CL_RENTA),
+                    U_MGS_CL_VAN: toNumberOrZero(previo.u_MGS_CL_VAN ?? previo.U_MGS_CL_VAN),
+                    U_MGS_CL_ESTPER: toNumberOrZero(previo.u_MGS_CL_ESTPER ?? previo.U_MGS_CL_ESTPER),
+                    U_MGS_CL_GASADM: toNumberOrZero(previo.u_MGS_CL_GASADM ?? previo.U_MGS_CL_GASADM),
+                    U_MGS_CL_COMTAR: toNumberOrZero(previo.u_MGS_CL_COMTAR ?? previo.U_MGS_CL_COMTAR),
+                    U_MGS_CL_IMPUES: toNumberOrZero(previo.u_MGS_CL_IMPUES ?? previo.U_MGS_CL_IMPUES),
+                    U_MGS_CL_REGALI: toNumberOrZero(previo.u_MGS_CL_REGALI ?? previo.U_MGS_CL_REGALI),
+                    U_MGS_CL_PRIMARY: previo.u_MGS_CL_PRIMARY ?? previo.U_MGS_CL_PRIMARY ?? ''
+                };
+            });
+        }
+
+        function renderPreviewTabla() {
+            if (!tablaPreviewNuevoBody) return;
+            if (!previewData.length) {
+                tablaPreviewNuevoBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Sin información para mostrar.</td></tr>';
+                return;
+            }
+
+            tablaPreviewNuevoBody.innerHTML = previewData.map(item => `
+                <tr>
+                    <td class="fw-semibold">${item.tienda}</td>
+                    <td>${item.nombre ?? ''}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
+                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function abrirModalNuevo() {
+            clearAlert();
+            const periodoDestino = document.getElementById('filtroPeriodo').value;
+            const periodoOrigen = periodoAnterior(periodoDestino);
+            const tiendasSeleccionadas = checks().filter(ch => ch.checked).map(ch => ch.value);
+
+            if (!tiendasSeleccionadas.length) {
+                showAlert('Selecciona al menos una tienda antes de cargar el periodo anterior.', 'warning');
+                return;
+            }
+
+            if (nuevoDescripcion) {
+                nuevoDescripcion.textContent = `Se copiarán los valores del periodo ${periodoOrigen} hacia ${periodoDestino}.`;
+            }
+
+            setNuevoEstado('Consultando información del periodo anterior...', 'info');
+            if (tablaPreviewNuevoBody) tablaPreviewNuevoBody.innerHTML = '';
+
+            try {
+                const url = `/Factores/Previsualizar?periodoOrigen=${encodeURIComponent(periodoOrigen)}&tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    setNuevoEstado(data.message || 'No se pudo obtener la información.', 'danger');
+                    return;
+                }
+
+                armarPreview(tiendasSeleccionadas, Array.isArray(data) ? data : []);
+                renderPreviewTabla();
+                clearNuevoEstado();
+
+                modalNuevo = modalNuevo ?? new bootstrap.Modal(document.getElementById('modalNuevo'));
+                modalNuevo.show();
+            } catch (err) {
+                console.error('ERROR PREVIA NUEVO:', err);
+                setNuevoEstado('No se pudo conectar con el servidor.', 'danger');
+            }
+        }
+
+        async function crearMatrizDesdeModal() {
+            if (!previewData.length) {
+                setNuevoEstado('No hay información para registrar.', 'warning');
+                return;
+            }
+
+            const periodoDestino = document.getElementById('filtroPeriodo').value;
+            const payload = {
+                U_MGS_CL_PERIODO: `${periodoDestino}-01`,
+                MGS_CL_FACDETCollection: previewData.map(p => ({
+                    U_MGS_CL_TIENDA: p.tienda,
+                    U_MGS_CL_NOMTIE: p.nombre ?? '',
+                    U_MGS_CL_META: toNumberOrZero(p.U_MGS_CL_META),
+                    U_MGS_CL_RENTA: toNumberOrZero(p.U_MGS_CL_RENTA),
+                    U_MGS_CL_VAN: toNumberOrZero(p.U_MGS_CL_VAN),
+                    U_MGS_CL_ESTPER: toNumberOrZero(p.U_MGS_CL_ESTPER),
+                    U_MGS_CL_GASADM: toNumberOrZero(p.U_MGS_CL_GASADM),
+                    U_MGS_CL_COMTAR: toNumberOrZero(p.U_MGS_CL_COMTAR),
+                    U_MGS_CL_IMPUES: toNumberOrZero(p.U_MGS_CL_IMPUES),
+                    U_MGS_CL_REGALI: toNumberOrZero(p.U_MGS_CL_REGALI),
+                    U_MGS_CL_AUSER: 0,
+                    U_MGS_CL_AUOPE: 0,
+                    U_MGS_CL_AUCCC: 0,
+                    U_MGS_CL_AUADH: 0,
+                    U_MGS_CL_CLIMA: 0,
+                    U_MGS_CL_RUSTI: 0,
+                    U_MGS_CL_MELID: 0,
+                    U_MGS_CL_ADMGR: 0,
+                    U_MGS_CL_EXGES: 0,
+                    U_MGS_CL_EXSER: 0,
+                    U_MGS_CL_EXMAR: 0,
+                    U_MGS_CL_PRIMARY: p.U_MGS_CL_PRIMARY ?? ''
+                }))
+            };
+
+            try {
+                setNuevoEstado('Guardando información...', 'info');
+                const res = await fetch('/Factores/Crear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.registered) {
+                    setNuevoEstado(data.message || 'No se pudo crear la matriz.', 'danger');
+                    return;
+                }
+
+                clearNuevoEstado();
+                modalNuevo?.hide();
+                showAlert(data.message || 'Información cargada correctamente.', 'success');
+                document.getElementById('btnBuscar')?.click();
+            } catch (err) {
+                console.error('ERROR CREAR:', err);
+                setNuevoEstado('No se pudo crear la matriz.', 'danger');
+            }
+        }
+
+        document.getElementById('btnNuevo')?.addEventListener('click', abrirModalNuevo);
+        document.getElementById('btnConfirmarNuevo')?.addEventListener('click', crearMatrizDesdeModal);
 
         const FIELD_MAP = {
             'u_MGS_CL_META': 'U_MGS_CL_META',
@@ -489,21 +788,21 @@
             // Recolectar filas
             const rows = Array.from(document.querySelectorAll('#tablaMatriz tbody tr'));
             if (!rows.length) {
-                alert('No hay información para actualizar.');
+                showAlert('No hay información para actualizar.', 'warning');
                 return;
             }
 
             // Validar que no haya celdas con error
             const invalids = document.querySelectorAll('#tablaMatriz td.dec.is-invalid');
             if (invalids.length) {
-                alert('Corrige los valores inválidos antes de actualizar.');
+                showAlert('Corrige los valores inválidos antes de actualizar.', 'warning');
                 invalids[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
 
             const docEntry = rows[0].dataset.docentry;
             if (!docEntry) {
-                alert('No se encontró el DocEntry de la matriz.');
+                showAlert('No se encontró el DocEntry de la matriz.', 'danger');
                 return;
             }
 
@@ -533,14 +832,14 @@
                     body: JSON.stringify(payload)
                 }); const data = await res.json();
                 if (!res.ok || !data.registered) {
-                    alert(data.message || 'Error al actualizar');
+                    showAlert(data.message || 'Error al actualizar', 'danger');
                     return;
                 }
 
-                alert(data.message || 'Actualizado correctamente');
+                showAlert(data.message || 'Actualizado correctamente', 'success');
             } catch (err) {
                 console.error('ERROR ACTUALIZAR:', err);
-                alert('No se pudo actualizar la matriz.');
+                showAlert('No se pudo actualizar la matriz.', 'danger');
             }
         });
 
@@ -550,6 +849,14 @@
                 const tr = btn.closest('tr');
                 tr?.remove();
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEmptyRows();
+            cargarTiendas();
+            if (window.bootstrap && document.getElementById('modalNuevo')) {
+                modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
+            }
         });
     </script>
 }
