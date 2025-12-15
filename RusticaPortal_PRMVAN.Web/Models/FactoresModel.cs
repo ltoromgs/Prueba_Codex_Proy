@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace RusticaPortal_PRMVAN.Web.Models
@@ -41,5 +42,17 @@ namespace RusticaPortal_PRMVAN.Web.Models
         public string U_MGS_CL_PRIMARY { get; set; } = "";
 
 
+    }
+
+    public class FactorUpdateRequest
+    {
+        [JsonProperty("MGS_CL_FACDETCollection")]
+        public List<FactoresModel> MGS_CL_FACDETCollection { get; set; } = new();
+    }
+
+    public class TiendaModel
+    {
+        public string Codigo { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
     }
 }

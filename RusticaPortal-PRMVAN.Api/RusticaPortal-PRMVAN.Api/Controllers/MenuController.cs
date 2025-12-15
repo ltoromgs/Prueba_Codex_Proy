@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using ArellanoCore.Api.Entities.Information;
-using ArellanoCore.Api.Entities.ObjectSAP;
-using ArellanoCore.Api.Services.Interfaces;
+using RusticaPortal_PRMVAN.Api.Entities.Information;
+using RusticaPortal_PRMVAN.Api.Entities.ObjectSAP;
+using RusticaPortal_PRMVAN.Api.Services.Interfaces;
 using SAPbobsCOM;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System;
 
-namespace ArellanoCore.Api.Controllers
+namespace RusticaPortal_PRMVAN.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

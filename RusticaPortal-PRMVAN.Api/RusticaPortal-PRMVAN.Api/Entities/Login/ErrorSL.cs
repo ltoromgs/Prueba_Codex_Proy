@@ -1,4 +1,4 @@
-﻿namespace ArellanoCore.Api.Entities.Login
+﻿namespace RusticaPortal_PRMVAN.Api.Entities.Login
 {
     public class Message
     {

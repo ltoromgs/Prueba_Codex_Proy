@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using RusticaPortal_PRMVAN.Api.Entities.Dto;
+using System.Threading.Tasks;
 
-namespace ArellanoCore.Api.Services.Interfaces
+namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
 {
     public interface ILoginService
     {
-        public Task<string> Login(string baseDatos);
+        //public Task<string> Login(string baseDatos);
+        public Task<string> Login(EmpresaConfig cfg);
     }
 }

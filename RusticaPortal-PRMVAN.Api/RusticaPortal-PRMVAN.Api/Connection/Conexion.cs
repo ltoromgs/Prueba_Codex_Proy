@@ -1,11 +1,11 @@
-﻿using ArellanoCore.Api.Entities.Information;
-using ArellanoCore.Api.Entities.Login;
+﻿using RusticaPortal_PRMVAN.Api.Entities.Information;
+using RusticaPortal_PRMVAN.Api.Entities.Login;
 using SAPbobsCOM;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-namespace ArellanoCore.Api.Connection
+namespace RusticaPortal_PRMVAN.Api.Connection
 {
     static class Conexion
     {

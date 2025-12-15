@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ArellanoCore.Api.Swagger
+namespace RusticaPortal_PRMVAN.Api.Swagger
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class SwaggerIgnoreAttribute : Attribute

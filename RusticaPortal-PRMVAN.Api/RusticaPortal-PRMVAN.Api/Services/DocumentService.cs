@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using ArellanoCore.Api.Entities.Information;
-using ArellanoCore.Api.Services.Interfaces;
+using RusticaPortal_PRMVAN.Api.Entities.Information;
+using RusticaPortal_PRMVAN.Api.Services.Interfaces;
 using System.Net;
-using ArellanoCore.Api.Entities.Login;
-using ArellanoCore.Api.Entities.ObjectSAP;
+using RusticaPortal_PRMVAN.Api.Entities.Login;
+using RusticaPortal_PRMVAN.Api.Entities.ObjectSAP;
 using System.Data;
 using Sap.Data.Hana;
 using System.Collections.Generic;
@@ -13,8 +13,9 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
+using RusticaPortal_PRMVAN.Api.Entities.Dto;
 
-namespace ArellanoCore.Api.Services
+namespace RusticaPortal_PRMVAN.Api.Services
 {
 
 
@@ -83,8 +84,8 @@ namespace ArellanoCore.Api.Services
         {
             string result = "";
             string HANAConnectionString = "";
-            HANAConnectionString = BaseDatos == "1" ? _configuration["ConnectionStringsSAP"] : _configuration["ConnectionStringsSAP2"];
-         
+            HANAConnectionString = BaseDatos;
+
             HanaConnection conn = new HanaConnection(HANAConnectionString);
             AditionalInfomation ai = new AditionalInfomation();
             try
@@ -132,7 +133,6 @@ namespace ArellanoCore.Api.Services
             }
             return result;
         }
-
         public async Task<List<string>> GetOVByContract(string contract, string BaseDatos)
         {
             List<string> result = new List<string>();
@@ -176,26 +176,29 @@ namespace ArellanoCore.Api.Services
             return result;
         }
 
-       
 
-        public async Task<ResponseInformation> PostInfo(RequestInformation requestInformation, string nomSistem, string BaseDatos)
+
+        public async Task<ResponseInformation> PostInfo(RequestInformation requestInformation, string nomSistem, EmpresaConfig BaseDatos)
         {
             OrderAddDTO asd = new OrderAddDTO();
-            HttpWebRequest httpWebGetRequest = null; 
+            HttpWebRequest httpWebGetRequest = null;
 
             ResponseInformation ri = new ResponseInformation();
             try
             {
                 string route = "";
 
-                if (BaseDatos == "1") {
+                //ltoro 02/10/2025
+                route = BaseDatos.ServiceLayer.sl_route + requestInformation.Route;
+
+                /*if (BaseDatos == "1") {
                     route = _configuration["ServiceLayer:sl_route"].ToString() + requestInformation.Route;
                 }
                 else
                 {
                     route = _configuration["ServiceLayer2:sl_route"].ToString() + requestInformation.Route;
-                }
-                
+                }*/
+
 
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
@@ -203,12 +206,12 @@ namespace ArellanoCore.Api.Services
 
                 httpWebGetRequest = (HttpWebRequest)WebRequest.Create(route);
 
-                
+
 
                 httpWebGetRequest.ContentType = "application/json";
                 httpWebGetRequest.Method = "POST";
                 CookieContainer cookies = new CookieContainer();
-                cookies.Add(new Cookie("B1SESSION", requestInformation.Token.ToString()) { Domain = BaseDatos == "1" ? _configuration["ServiceLayer:sl_value"].ToString(): _configuration["ServiceLayer2:sl_value"].ToString() });
+                cookies.Add(new Cookie("B1SESSION", requestInformation.Token.ToString()) { Domain = BaseDatos.ServiceLayer.sl_value.ToString() });
                 //cookies.Add(new Cookie("ROUTEID", ".node1") { Domain = _configuration["ServiceLayer:ip_value"].ToString() });
                 httpWebGetRequest.CookieContainer = cookies;
 
@@ -218,7 +221,7 @@ namespace ArellanoCore.Api.Services
                 {
                     dynamic json = JsonConvert.DeserializeObject(requestInformation.Doc);
                     var ruc = Convert.ToString(json.U_MGS_CL_RUCPRO);
-                    ri = await ValidaRUC(BaseDatos, ruc, requestInformation);
+                    ri = await ValidaRUC(BaseDatos.ConnectionString.ToString(), ruc, requestInformation);
                     if (!ri.Registered)
                     {
                         return ri;
@@ -246,10 +249,12 @@ namespace ArellanoCore.Api.Services
                 ri.Registered = false;
                 ri.Message = errorMessage.error.message.ToString();
 
-                if (requestInformation.Route == "JournalEntries") {
+                if (requestInformation.Route == "JournalEntries")
+                {
                     string searchTerm = "Código de cuenta no válido";
                     bool found = ContainsString(ri.Message, searchTerm);
-                    if (found) {
+                    if (found)
+                    {
                         JournalEntriesAddDTO JournalEntries = JsonConvert.DeserializeObject<JournalEntriesAddDTO>(requestInformation.Doc);
                         // Comprueba si JournalEntryLines no es null y tiene elementos
                         if (JournalEntries.JournalEntryLines != null && JournalEntries.JournalEntryLines.Count > 0)
@@ -257,12 +262,12 @@ namespace ArellanoCore.Api.Services
                             int j = 0;
                             while (j < JournalEntries.JournalEntryLines.Count)
                             {
-                                ri = await ValidaRUC(BaseDatos, JournalEntries.JournalEntryLines[j].Account.ToString(), requestInformation);
+                                ri = await ValidaRUC(BaseDatos.ConnectionString, JournalEntries.JournalEntryLines[j].Account.ToString(), requestInformation);
                                 if (!ri.Registered)
                                 {
                                     return ri;
                                 }
-                                
+
                                 j++;
                             }
                         }
@@ -275,7 +280,8 @@ namespace ArellanoCore.Api.Services
                 ri.Registered = false;
                 ri.Message = "Ocurrio error al registrar ";
             }
-            finally {
+            finally
+            {
                 AditionalInfomation ai = await InserLog(ri, requestInformation, httpWebGetRequest, nomSistem, BaseDatos);
             }
 
@@ -284,6 +290,7 @@ namespace ArellanoCore.Api.Services
 
 
         }
+
 
         public static bool ContainsString(string text, string searchTerm)
         {
@@ -454,14 +461,15 @@ namespace ArellanoCore.Api.Services
 
         }
 
-        async Task<AditionalInfomation> InserLog(ResponseInformation ri, RequestInformation requestInformation, HttpWebRequest httpWebGetRequest, string nomSistem,  string BaseDatos)
-{
+        async Task<AditionalInfomation> InserLog(ResponseInformation ri, RequestInformation requestInformation, HttpWebRequest httpWebGetRequest, string nomSistem, EmpresaConfig BaseDatos)
+        {
             string result = "";
             string estado = "E";
             string usuario = "";
-            usuario = BaseDatos == "1" ?  _configuration["ServiceLayer:UserName"].ToString() : _configuration["ServiceLayer2:UserName"].ToString();
+            usuario = BaseDatos.ServiceLayer.UserName.ToString(); ;
+            //usuario = BaseDatos == "1" ?  _configuration["ServiceLayer:UserName"].ToString() : _configuration["ServiceLayer2:UserName"].ToString();
             string HANAConnectionString = "";
-            HANAConnectionString = BaseDatos == "1" ? _configuration["ConnectionStringsSAP"] : _configuration["ConnectionStringsSAP2"];
+            HANAConnectionString = BaseDatos.ConnectionString.ToString();
             HanaConnection conn = new HanaConnection(HANAConnectionString);
             AditionalInfomation ai = new AditionalInfomation();
             try
@@ -482,41 +490,41 @@ namespace ArellanoCore.Api.Services
                     // Formatear la hora con el formato hora:minuto:segundo
                     string horaFormateada = fecha.ToString("HH:mm");
 
-                    if (httpWebGetRequest.Method != "DELETE") 
-                    ri.Message = estado == "R" ? ri.Message.Replace("'", "") + " con el codigo: " + requestInformation.CodGenerado : ri.Message.Replace("'", "");
+                    if (httpWebGetRequest.Method != "DELETE")
+                        ri.Message = estado == "R" ? ri.Message.Replace("'", "") + " con el codigo: " + requestInformation.CodGenerado : ri.Message.Replace("'", "");
 
-                    string query =" INSERT INTO \"@MGS_CL_WEBLOG\"(                                            ";
-                        query +="       \"Code\", \"Name\", \"U_DocEntry\",                                      ";
-                        query +="       \"U_MGS_CL_USUARIO\",                                                  ";
-                        query +="       \"U_MGS_CL_FECHA\",                                                    ";
-                        query +="       \"U_MGS_CL_HORA\",                                                     ";
-                        query +="       \"U_MGS_CL_JSON\",                                                     ";
-                        query +="       \"U_MGS_CL_ESTADO\",                                                   ";
-                        query +="       \"U_MGS_CL_URL\",                                                      ";
-                        query +="       \"U_MGS_CL_METHOD\",                                                   ";
-                        query +="       \"U_MGS_CL_SISTEM\",                                                   ";
-                        query +="       \"U_MGS_CL_MENSAJ\")                                                   ";
-                        query +="   SELECT                                                                     ";
-                        query += "       CAST((IFNULL(MAX(\"U_DocEntry\"),0) + 1) AS VARCHAR),                                  ";
-                        query += "       CAST((IFNULL(MAX(\"U_DocEntry\"),0) + 1) AS VARCHAR),                                  ";
-                        query += "       IFNULL(MAX(\"U_DocEntry\"),0) + 1,                                                     ";
-                        query +="       '"+ usuario + "',    ";
-                        query +="       '"+ fechaFormateada + "',     ";
-                        query +="       '"+ horaFormateada + "',     ";
-                        query +="       '"+requestInformation.Doc+"',     ";
-                        query +="       '"+ estado + "',   ";
-                        query +="       '"+ httpWebGetRequest.Address+"',      ";
-                        query += "       '"+httpWebGetRequest.Method + "',   ";
-                        query +="       '"+ nomSistem + "',  ";
-                        query += "       '"+ ri.Message + "' ";
-                        query +=" FROM \"@MGS_CL_WEBLOG\"";
+                    string query = " INSERT INTO \"@MGS_CL_WEBLOG\"(                                            ";
+                    query += "       \"Code\", \"Name\", \"U_DocEntry\",                                      ";
+                    query += "       \"U_MGS_CL_USUARIO\",                                                  ";
+                    query += "       \"U_MGS_CL_FECHA\",                                                    ";
+                    query += "       \"U_MGS_CL_HORA\",                                                     ";
+                    query += "       \"U_MGS_CL_JSON\",                                                     ";
+                    query += "       \"U_MGS_CL_ESTADO\",                                                   ";
+                    query += "       \"U_MGS_CL_URL\",                                                      ";
+                    query += "       \"U_MGS_CL_METHOD\",                                                   ";
+                    query += "       \"U_MGS_CL_SISTEM\",                                                   ";
+                    query += "       \"U_MGS_CL_MENSAJ\")                                                   ";
+                    query += "   SELECT                                                                     ";
+                    query += "       CAST((IFNULL(MAX(\"U_DocEntry\"),0) + 1) AS VARCHAR),                                  ";
+                    query += "       CAST((IFNULL(MAX(\"U_DocEntry\"),0) + 1) AS VARCHAR),                                  ";
+                    query += "       IFNULL(MAX(\"U_DocEntry\"),0) + 1,                                                     ";
+                    query += "       '" + usuario + "',    ";
+                    query += "       '" + fechaFormateada + "',     ";
+                    query += "       '" + horaFormateada + "',     ";
+                    query += "       '" + requestInformation.Doc + "',     ";
+                    query += "       '" + estado + "',   ";
+                    query += "       '" + httpWebGetRequest.Address + "',      ";
+                    query += "       '" + httpWebGetRequest.Method + "',   ";
+                    query += "       '" + nomSistem + "',  ";
+                    query += "       '" + ri.Message + "' ";
+                    query += " FROM \"@MGS_CL_WEBLOG\"";
 
                     HanaCommand cmd = new HanaCommand(query, conn);
                     HanaDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
-                       
+
                     }
 
                     reader.Close();
@@ -534,24 +542,24 @@ namespace ArellanoCore.Api.Services
             }
             return ai;
         }
-
-    public async Task<ResponseInformation> UpdateInfo(RequestInformation requestInformation, string nomSistem, string BaseDatos)
+        public async Task<ResponseInformation> UpdateInfo(RequestInformation requestInformation, string nomSistem, EmpresaConfig BaseDatos)
         {
             ResponseInformation ri = new ResponseInformation();
             HttpWebRequest httpWebGetRequest = null;
 
             try
             {
-                string route = "";
 
-                if (BaseDatos == "1")
+                string route = BaseDatos.ServiceLayer.sl_route + requestInformation.Route;
+
+                /*if (BaseDatos == "1")
                 {
                     route = _configuration["ServiceLayer:sl_route"].ToString() + requestInformation.Route;
                 }
                 else
                 {
                     route = _configuration["ServiceLayer2:sl_route"].ToString() + requestInformation.Route;
-                }
+                }*/
 
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
@@ -561,7 +569,9 @@ namespace ArellanoCore.Api.Services
                 httpWebGetRequest.ContentType = "application/json";
                 httpWebGetRequest.Method = "PATCH";
                 CookieContainer cookies = new CookieContainer();
-                cookies.Add(new Cookie("B1SESSION", requestInformation.Token.ToString()) { Domain = BaseDatos == "1" ? _configuration["ServiceLayer:sl_value"].ToString() : _configuration["ServiceLayer2:sl_value"].ToString() });
+
+                cookies.Add(new Cookie("B1SESSION", requestInformation.Token.ToString()) { Domain = BaseDatos.ServiceLayer.sl_value.ToString() });
+                //  cookies.Add(new Cookie("B1SESSION", requestInformation.Token.ToString()) { Domain = BaseDatos == "1" ? _configuration["ServiceLayer:sl_value"].ToString() : _configuration["ServiceLayer2:sl_value"].ToString() });
                 //cookies.Add(new Cookie("ROUTEID", ".node1") { Domain = _configuration["ServiceLayer:ip_value"].ToString() });
                 httpWebGetRequest.CookieContainer = cookies;
 
@@ -598,11 +608,11 @@ namespace ArellanoCore.Api.Services
             return ri;
         }
 
-        public async Task<ResponseInformation> DeleteInfo(RequestInformation requestInformation, string nomSistem, string BaseDatos, string docEntry)
+        public async Task<ResponseInformation> DeleteInfo(RequestInformation requestInformation, string nomSistem, EmpresaConfig BaseDatos, string docEntry)
         {
             ResponseInformation ri = new ResponseInformation();
             HttpWebRequest httpWebGetRequest = null;
-            
+
             try
             {
                 //OrderUpdateDTO objetoDeserializado = JsonSerializer.Deserialize<OrderUpdateDTO>();
@@ -611,7 +621,7 @@ namespace ArellanoCore.Api.Services
 
 
                 List<ListaDelete> lista1 = new List<ListaDelete>();
-               
+
 
                 //List<int> lista = new List<int>();
 
@@ -630,8 +640,12 @@ namespace ArellanoCore.Api.Services
                 {
 
                     LoginDIAPI loginDIAPI = new LoginDIAPI();
-
-                    if (BaseDatos == "1")
+                    loginDIAPI.Server = BaseDatos.ServiceLayer.Server.ToString();
+                    loginDIAPI.Licencia = BaseDatos.ServiceLayer.ServerLicencia.ToString();
+                    loginDIAPI.Db = BaseDatos.ServiceLayer.CompanyDB.ToString();
+                    loginDIAPI.User = BaseDatos.ServiceLayer.UserName.ToString();
+                    loginDIAPI.Password = BaseDatos.ServiceLayer.Password.ToString();
+                    /*if (BaseDatos == "1")
                     {
                         loginDIAPI.Server = _configuration["ServiceLayer:Server"].ToString();
                         loginDIAPI.Licencia = _configuration["ServiceLayer:ServerLicencia"].ToString();
@@ -647,12 +661,13 @@ namespace ArellanoCore.Api.Services
                         loginDIAPI.User = _configuration["ServiceLayer2:UserName"].ToString();
                         loginDIAPI.Password = _configuration["ServiceLayer2:Password"].ToString();
                     }
+                    */
 
-                    httpWebGetRequest = (HttpWebRequest)WebRequest.Create("https://conexionDIAPI/" + requestInformation.Route +"/DataBase:"+ loginDIAPI.Db);
-                    // httpWebGetRequest.Address = "application/json";
+                    httpWebGetRequest = (HttpWebRequest)WebRequest.Create("https://conexionDIAPI/" + requestInformation.Route + "/DataBase:" + loginDIAPI.Db);
+                    //httpWebGetRequest.Address = "application/json";
                     httpWebGetRequest.Method = "DELETE";
 
-                    
+
                     var result = Connection.Conexion.MainConnection(int.Parse(docEntry.ToString()), lista1, loginDIAPI);
                     ri.Registered = result.Item1;
                     ri.Message = result.Item2;
@@ -662,7 +677,7 @@ namespace ArellanoCore.Api.Services
                     ri.Registered = false;
                     ri.Message = "No ha especificado lineas a eliminar del documento.";
                 }
-                    
+
 
             }
             catch (Exception ex)
@@ -1814,6 +1829,82 @@ namespace ArellanoCore.Api.Services
             static decimal ToDec(HanaDataReader r, string col)
            => r.IsDBNull(r.GetOrdinal(col)) ? 0m : Convert.ToDecimal(r[col]);
 
+        }
+
+        public async Task<ResponseInformation> GetTiendasActivas(string empresa)
+        {
+            if (!int.TryParse(empresa, out var idEmpresa))
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error: Parámetro 'empresa' debe ser un número válido.",
+                    Content = string.Empty,
+                };
+            }
+
+            var cfg = _empresaConfigService.GetEmpresa(idEmpresa);
+            if (cfg == null)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = $"Error: No existe configuración para la empresa con ID = {idEmpresa}.",
+                    Content = string.Empty,
+                };
+            }
+
+            var tiendas = new List<TiendaActivaDTO>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                const string query = "SELECT \"PrjCode\" AS \"Codigo\", \"PrjName\" AS \"Nombre\" FROM \"OPRJ\" WHERE \"Active\" = 'Y' ORDER BY \"PrjCode\"";
+                using var cmd = new HanaCommand(query, conn);
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tiendas.Add(new TiendaActivaDTO
+                    {
+                        Codigo = reader["Codigo"]?.ToString() ?? string.Empty,
+                        Nombre = reader["Nombre"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!tiendas.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron tiendas activas.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tiendas)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
         }
         public async Task<ResponseInformation> GetContactoDB(string empresa)
         {

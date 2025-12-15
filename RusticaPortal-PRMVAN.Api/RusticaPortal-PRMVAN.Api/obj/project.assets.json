@@ -2599,11 +2599,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api.csproj",
+      "projectUniqueName": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api.csproj",
       "projectName": "RusticaPortal-PRMVAN.Api",
-      "projectPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api.csproj",
+      "projectPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api.csproj",
       "packagesPath": "C:\\Users\\leidy.toro\\.nuget\\packages\\",
-      "outputPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\obj\\",
+      "outputPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

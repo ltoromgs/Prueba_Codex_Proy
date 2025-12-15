@@ -1,4 +1,4 @@
-﻿namespace ArellanoCore.Api.Entities.ObjectSAP
+﻿namespace RusticaPortal_PRMVAN.Api.Entities.ObjectSAP
 {
     public class ContactoInfoDto
     {

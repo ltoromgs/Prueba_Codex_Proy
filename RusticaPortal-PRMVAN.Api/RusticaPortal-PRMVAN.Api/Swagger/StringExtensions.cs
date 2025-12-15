@@ -1,4 +1,4 @@
-﻿namespace ArellanoCore.Api.Swagger
+﻿namespace RusticaPortal_PRMVAN.Api.Swagger
 {
     public static class StringExtensions
     {

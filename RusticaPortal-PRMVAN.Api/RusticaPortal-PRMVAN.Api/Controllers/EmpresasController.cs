@@ -3,12 +3,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using ArellanoCore.Api.Entities.Information;
+using RusticaPortal_PRMVAN.Api.Entities.Information;
 using System.Collections.Generic;
 using System.Linq;
-using ArellanoCore.Api.Entities.Dto;
+using RusticaPortal_PRMVAN.Api.Entities.Dto;
 
-namespace ArellanoCore.Api.Controllers
+namespace RusticaPortal_PRMVAN.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

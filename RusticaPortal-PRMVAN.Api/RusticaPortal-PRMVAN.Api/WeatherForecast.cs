@@ -1,6 +1,6 @@
 using System;
 
-namespace ArellanoCore.Api
+namespace RusticaPortal_PRMVAN.Api
 {
     public class WeatherForecast
     {

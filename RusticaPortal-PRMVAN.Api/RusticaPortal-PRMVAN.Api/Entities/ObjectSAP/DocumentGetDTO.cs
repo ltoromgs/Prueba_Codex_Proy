@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ArellanoCore.Api.Swagger;
+using RusticaPortal_PRMVAN.Api.Swagger;
 using System.Collections.Generic;
 
-namespace ArellanoCore.Api.Entities.ObjectSAP
+namespace RusticaPortal_PRMVAN.Api.Entities.ObjectSAP
 {
     public class DocumentGetDTO
     {

@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <Reference Include="Sap.Data.Hana.v4.5">
-      <HintPath>..\..\..\..\..\Program Files\SAP\hdbclient\ado.net\v4.5\Sap.Data.Hana.v4.5.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\SAP\hdbclient\ado.net\v4.5\Sap.Data.Hana.v4.5.dll</HintPath>
     </Reference>
     <Reference Include="SAPBusinessOneSDK">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\SAP\SAP Business One SDK\Lib\SAPBusinessOneSDK.dll</HintPath>

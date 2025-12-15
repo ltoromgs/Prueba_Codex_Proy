@@ -1,4 +1,4 @@
-﻿namespace ArellanoCore.Api.Entities.Dto
+﻿namespace RusticaPortal_PRMVAN.Api.Entities.Dto
 {
     public class EmpresaModel
     {

@@ -7,4 +7,4 @@ build_property.PublishSingleFile =
 build_property.IncludeAllContentForSelfExtract = 
 build_property._SupportedPlatformList = Android,iOS,Linux,macOS,Windows
 build_property.RootNamespace = RusticaPortal_PRMVAN.Web
-build_property.ProjectDir = C:\Desarrollos Rustica\PRM Y VAN\RUSTICA_PortalWebPRMyVAN\RusticaPortal_PRMVAN.Web\
+build_property.ProjectDir = C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal_PRMVAN.Web\

@@ -2,7 +2,7 @@
 2025-07-15 17:44:40.667 -05:00 [INF] Now listening on: http://localhost:5116
 2025-07-15 17:44:43.515 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-07-15 17:44:43.516 -05:00 [INF] Hosting environment: Development
-2025-07-15 17:44:43.516 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-07-15 17:44:43.516 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api
 2025-07-15 17:45:12.098 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger - null null
 2025-07-15 17:45:21.035 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger - 301 0 null 8951.4872ms
 2025-07-15 17:45:21.409 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
@@ -26,60 +26,60 @@
 2025-07-15 17:46:20.909 -05:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
 2025-07-15 17:46:20.909 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/favicon-32x32.png - 200 628 image/png 0.9663ms
 2025-07-15 18:24:56.093 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 44
-2025-07-15 18:24:56.109 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-07-15 18:24:56.145 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-07-15 18:24:56.255 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-07-15 18:24:57.942 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api\popup2.png'. 
-2025-07-15 18:24:57.970 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1708.5328ms.
-2025-07-15 18:24:57.976 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-07-15 18:24:57.993 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 1843.1233ms
-2025-07-15 18:24:57.993 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-15 18:24:56.109 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-07-15 18:24:56.145 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-07-15 18:24:56.255 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-07-15 18:24:57.942 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api\popup2.png'. 
+2025-07-15 18:24:57.970 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1708.5328ms.
+2025-07-15 18:24:57.976 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-07-15 18:24:57.993 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 1843.1233ms
+2025-07-15 18:24:57.993 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-07-15 18:24:57.994 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 1902.5133ms
 2025-07-15 18:25:05.143 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 44
-2025-07-15 18:25:05.145 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-07-15 18:25:05.145 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-07-15 18:25:05.147 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-07-15 18:25:05.242 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api\popup2.png'. 
-2025-07-15 18:25:05.242 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 94.5101ms.
-2025-07-15 18:25:05.243 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-07-15 18:25:05.243 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 97.435ms
-2025-07-15 18:25:05.243 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-15 18:25:05.145 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-07-15 18:25:05.145 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-07-15 18:25:05.147 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-07-15 18:25:05.242 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api\popup2.png'. 
+2025-07-15 18:25:05.242 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 94.5101ms.
+2025-07-15 18:25:05.243 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-07-15 18:25:05.243 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 97.435ms
+2025-07-15 18:25:05.243 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-07-15 18:25:05.243 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 99.8077ms
 2025-07-15 18:29:12.436 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 44
-2025-07-15 18:29:12.437 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-07-15 18:29:12.437 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-07-15 18:29:12.441 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-07-15 18:29:12.522 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api\popup2.png'. 
-2025-07-15 18:29:12.524 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 82.8633ms.
-2025-07-15 18:29:12.524 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-07-15 18:29:12.525 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 87.3651ms
-2025-07-15 18:29:12.525 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-15 18:29:12.437 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-07-15 18:29:12.437 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-07-15 18:29:12.441 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-07-15 18:29:12.522 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api\popup2.png'. 
+2025-07-15 18:29:12.524 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 82.8633ms.
+2025-07-15 18:29:12.524 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-07-15 18:29:12.525 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 87.3651ms
+2025-07-15 18:29:12.525 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-07-15 18:29:12.525 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 88.5206ms
 2025-07-15 18:30:11.609 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 44
-2025-07-15 18:30:11.609 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-07-15 18:30:11.609 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-07-15 18:30:11.610 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-07-15 18:38:16.675 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api\popup2.png'. 
-2025-07-15 18:38:16.676 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 485054.6116ms.
-2025-07-15 18:38:16.676 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-07-15 18:38:16.677 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 485056.1325ms
-2025-07-15 18:38:16.677 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-15 18:30:11.609 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-07-15 18:30:11.609 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-07-15 18:30:11.610 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-07-15 18:38:16.675 -05:00 [ERR] Usuario: 20600096614 en empresa: 1 mensaje: Error en base de datos. contenido:  Could not find file 'C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api\popup2.png'. 
+2025-07-15 18:38:16.676 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 485054.6116ms.
+2025-07-15 18:38:16.676 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-07-15 18:38:16.677 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 485056.1325ms
+2025-07-15 18:38:16.677 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-07-15 18:38:16.677 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 485057.3548ms
 2025-07-15 18:38:20.897 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 44
-2025-07-15 18:38:20.898 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-07-15 18:38:20.898 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-07-15 18:38:20.898 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-07-15 18:38:28.151 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7251.9899ms.
-2025-07-15 18:38:28.152 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-07-15 18:38:28.283 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 7385.1034ms
-2025-07-15 18:38:28.284 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-07-15 18:38:20.898 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-07-15 18:38:20.898 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-07-15 18:38:20.898 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-07-15 18:38:28.151 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7251.9899ms.
+2025-07-15 18:38:28.152 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-07-15 18:38:28.283 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 7385.1034ms
+2025-07-15 18:38:28.284 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-07-15 18:38:28.284 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 7386.8082ms
 2025-07-15 18:38:28.655 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=20600096614 - null null
-2025-07-15 18:38:28.655 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-07-15 18:38:28.660 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-07-15 18:38:28.662 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-07-15 18:38:28.770 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 108.3308ms.
-2025-07-15 18:38:28.770 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-07-15 18:38:28.771 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 110.2792ms
-2025-07-15 18:38:28.771 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-07-15 18:38:28.655 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-07-15 18:38:28.660 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-07-15 18:38:28.662 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-07-15 18:38:28.770 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 108.3308ms.
+2025-07-15 18:38:28.770 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-07-15 18:38:28.771 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 110.2792ms
+2025-07-15 18:38:28.771 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-07-15 18:38:28.771 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=20600096614 - 200 null application/json; charset=utf-8 116.3433ms

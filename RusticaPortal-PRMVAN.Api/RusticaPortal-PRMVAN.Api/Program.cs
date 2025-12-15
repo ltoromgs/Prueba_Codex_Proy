@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace ArellanoCore.Api
+namespace RusticaPortal_PRMVAN.Api
 {
     public class Program
     {
@@ -39,12 +39,12 @@ namespace ArellanoCore.Api
 }
 
 
-//using ArellanoCore.Api.Automapper;
-//using ArellanoCore.Api.Entities.Dto;
-//using ArellanoCore.Api.Entities.ObjectSAP;
-//using ArellanoCore.Api.Services;
-//using ArellanoCore.Api.Services.Interfaces;
-//using ArellanoCore.Api.Swagger;
+//using RusticaPortal_PRMVAN.Api.Automapper;
+//using RusticaPortal_PRMVAN.Api.Entities.Dto;
+//using RusticaPortal_PRMVAN.Api.Entities.ObjectSAP;
+//using RusticaPortal_PRMVAN.Api.Services;
+//using RusticaPortal_PRMVAN.Api.Services.Interfaces;
+//using RusticaPortal_PRMVAN.Api.Swagger;
 //using Microsoft.Extensions.Options;
 //using Serilog;
 
