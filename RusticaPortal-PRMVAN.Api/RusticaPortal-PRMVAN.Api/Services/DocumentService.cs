@@ -1861,24 +1861,16 @@ namespace RusticaPortal_PRMVAN.Api.Services
             {
                 await conn.OpenAsync();
 
-                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_TiendasActivas";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+                const string query = "SELECT \"PrjCode\" AS \"Codigo\", \"PrjName\" AS \"Nombre\" FROM \"OPRJ\" WHERE \"Active\" = 'Y' ORDER BY \"PrjCode\"";
+                using var cmd = new HanaCommand(query, conn);
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
                     tiendas.Add(new TiendaActivaDTO
                     {
-                        Codigo = reader[nameof(TiendaActivaDTO.Codigo)]?.ToString() ?? string.Empty,
-                        Nombre = reader[nameof(TiendaActivaDTO.Nombre)]?.ToString() ?? string.Empty
+                        Codigo = reader["Codigo"]?.ToString() ?? string.Empty,
+                        Nombre = reader["Nombre"]?.ToString() ?? string.Empty
                     });
                 }
 

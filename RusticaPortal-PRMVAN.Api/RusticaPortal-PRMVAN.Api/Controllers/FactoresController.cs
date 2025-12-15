@@ -100,35 +100,6 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             }
         }
 
-        [HttpGet("nuevo")]
-        public async Task<ActionResult<ResponseInformation>> GetFactoresPrevios([FromQuery] string Empresa,
-                                                                               [FromQuery] string periodo,
-                                                                               [FromQuery] string tiendas)
-        {
-            try
-            {
-                var rp = await _documentService.GetFactoresDB(Empresa, periodo, tiendas);
-
-                if (!rp.Registered)
-                {
-                    _logger.LogWarning("No hay información previa para la empresa: {Empresa}", Empresa);
-                    return Ok(rp);
-                }
-
-                return Ok(rp);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener información previa para la empresa: {Empresa}", Empresa);
-                return StatusCode(500, new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "Error inesperado en el servidor",
-                    Content = ex.Message
-                });
-            }
-        }
-
         [HttpPost("actualizar")]
         public async Task<ActionResult<ResponseInformation>> Actualizar([FromQuery] string docEntry, [FromQuery] string Empresa, [FromBody] MatrizFactorUpdateRequest request)
         {

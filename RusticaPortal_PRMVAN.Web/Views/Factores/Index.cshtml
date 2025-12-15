@@ -362,6 +362,8 @@
 
         // ---------- Utilidades de Tiendas ----------
         const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
+        const tiendasEstado = document.getElementById('tiendasEstado');
+        const tiendasListado = document.getElementById('tiendasListado');
 
         async function cargarTiendas() {
             if (tiendasEstado) tiendasEstado.textContent = 'Cargando tiendas...';
@@ -388,7 +390,6 @@
                 return;
             }
 
-            tiendasCache = lista;
             tiendasEstado.textContent = 'Marca una o más tiendas';
             tiendasListado.innerHTML = lista.map(t => {
                 const codigo = t.codigo ?? t.Codigo ?? '';
@@ -854,9 +855,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderEmptyRows();
             cargarTiendas();
-            if (window.bootstrap && document.getElementById('modalNuevo')) {
-                modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
-            }
         });
     </script>
 }
