@@ -107,32 +107,5 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             return Ok(resp);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] FactorCreateRequest payload)
-        {
-            var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
-            if (string.IsNullOrEmpty(empresa))
-                return BadRequest(new { message = "Empresa no encontrada en sesión." });
-
-            if (payload == null || string.IsNullOrWhiteSpace(payload.U_MGS_CL_PERIODO))
-                return BadRequest(new { message = "El periodo es obligatorio." });
-
-            if (payload.MGS_CL_FACDETCollection == null || payload.MGS_CL_FACDETCollection.Count == 0)
-                return BadRequest(new { message = "No se recibieron registros para crear." });
-
-            var endpoint = QueryHelpers.AddQueryString("/api/factores/crear", new Dictionary<string, string?>
-            {
-                ["empresa"] = empresa
-            });
-
-            var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, payload);
-            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
-
-            if (!resp.Registered)
-                return BadRequest(new { message = resp.Message, content = resp.Content });
-
-            return Ok(resp);
-        }
     }
 }
