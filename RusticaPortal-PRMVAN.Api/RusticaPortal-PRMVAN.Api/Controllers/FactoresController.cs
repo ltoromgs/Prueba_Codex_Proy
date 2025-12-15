@@ -247,5 +247,57 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         //    return BadRequest(rp);
 
         //}
+
+        [HttpPost("crear")]
+        public async Task<ActionResult<ResponseInformation>> Crear([FromQuery] string Empresa, [FromBody] MatrizFactorCreateRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(Empresa))
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Parámetros incompletos para crear la matriz.",
+                    Content = string.Empty
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.U_MGS_CL_PERIODO))
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "El periodo de destino es obligatorio.",
+                    Content = string.Empty
+                });
+            }
+
+            if (request.MGS_CL_FACDETCollection == null || request.MGS_CL_FACDETCollection.Count == 0)
+            {
+                return BadRequest(new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No se enviaron registros de tiendas para crear la matriz.",
+                    Content = string.Empty
+                });
+            }
+
+            var prep = await _empresaRuntime.ResolveAndLoginAsync(Empresa);
+            if (!prep.Ok) return BadRequest(prep.Error);
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            var requestInformation = new RequestInformation
+            {
+                Route = "MGS_CL_FACCAB",
+                Token = prep.Token,
+                Doc = JsonConvert.SerializeObject(request, settings)
+            };
+
+            var rp = await _documentService.PostInfo(requestInformation, "PYP", prep.Cfg);
+            return Ok(rp);
+        }
     }
 }
