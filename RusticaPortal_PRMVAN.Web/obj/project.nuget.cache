@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OD9k71OslMd84vmyLXDWUYrao74LVu5nM7HUHMAmKL9UbILnpFbRxf9jfb1CCQNdqE87auzF3DkpCz0Zmn/Crw==",
+  "dgSpecHash": "9K9ph596vONbsj9gcLFt7Pv0jkBOhDb32j3RGgPzPlQGTBGDnYrBcLNUZWVBVvETOxncYpX/T7uh6G1qrUKynQ==",
   "success": true,
-  "projectFilePath": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj",
+  "projectFilePath": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\leidy.toro\\.nuget\\packages\\microsoft.aspnet.webapi.client\\5.2.7\\microsoft.aspnet.webapi.client.5.2.7.nupkg.sha512",
     "C:\\Users\\leidy.toro\\.nuget\\packages\\microsoft.aspnet.webapi.core\\5.2.7\\microsoft.aspnet.webapi.core.5.2.7.nupkg.sha512",

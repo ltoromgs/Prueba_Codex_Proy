@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj": {}
+    "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj": {}
   },
   "projects": {
-    "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj": {
+    "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj",
+        "projectUniqueName": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj",
         "projectName": "RusticaPortal_PRMVAN.Web",
-        "projectPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj",
+        "projectPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal_PRMVAN.Web\\RusticaPortal_PRMVAN.Web.csproj",
         "packagesPath": "C:\\Users\\leidy.toro\\.nuget\\packages\\",
-        "outputPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal_PRMVAN.Web\\obj\\",
+        "outputPath": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal_PRMVAN.Web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

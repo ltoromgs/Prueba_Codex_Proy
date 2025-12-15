@@ -1,11 +1,11 @@
-﻿// ArellanoCore.Api/Swagger/SwaggerIgnoreFilter.cs
+﻿// RusticaPortal_PRMVAN.Api/Swagger/SwaggerIgnoreFilter.cs
 using System.Linq;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArellanoCore.Api.Swagger
+namespace RusticaPortal_PRMVAN.Api.Swagger
 {
     public class SwaggerIgnoreFilter : ISchemaFilter
     {

@@ -4,7 +4,7 @@
 2025-12-01 12:19:52.803 -05:00 [INF] Now listening on: http://localhost:5116
 2025-12-01 12:19:52.804 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-12-01 12:19:52.804 -05:00 [INF] Hosting environment: Development
-2025-12-01 12:19:52.804 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\RUSTICA_PortalWebPRMyVAN\RusticaPRMYVAN.Api\ArellanoCore.Api
+2025-12-01 12:19:52.804 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\RUSTICA_PortalWebPRMyVAN\RusticaPRMYVAN.Api\RusticaPortal_PRMVAN.Api
 2025-12-01 12:19:54.204 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger - -
 2025-12-01 12:19:54.681 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger - - - 301 0 - 481.9176ms
 2025-12-01 12:19:54.732 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/index.html - -

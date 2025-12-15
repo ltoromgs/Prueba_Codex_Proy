@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace ArellanoCore.Api.Entities.ObjectSAP
+namespace RusticaPortal_PRMVAN.Api.Entities.ObjectSAP
 {
     public class AmountAvailableGetDTO
     {

@@ -1,6 +1,6 @@
-﻿using ArellanoCore.Api.Swagger;
+﻿using RusticaPortal_PRMVAN.Api.Swagger;
 
-namespace ArellanoCore.Api.Entities.Information
+namespace RusticaPortal_PRMVAN.Api.Entities.Information
 {
     public class AditionalInfomation
     {

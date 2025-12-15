@@ -1,10 +1,10 @@
-﻿using ArellanoCore.Api.Entities.Dto;
-using ArellanoCore.Api.Services.Interfaces;
+﻿using RusticaPortal_PRMVAN.Api.Entities.Dto;
+using RusticaPortal_PRMVAN.Api.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ArellanoCore.Api.Services
+namespace RusticaPortal_PRMVAN.Api.Services
 {
     public class EmpresaConfigService : IEmpresaConfigService
     {

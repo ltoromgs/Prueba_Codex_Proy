@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8hyinXQA5FvDBb4jXrqqA4iaMrDUV6VHleLEqPmVesXw5jAvKP0oRL3OiRK1Q4GN90VK5TVZ8MTpN+aOoaf3jQ==",
+  "dgSpecHash": "haSuSUxyHbSv7DD/ClcCwxMKf0jHnexERd2eFhSeyU8G3bhunNQn2AdxttCfQrSD00aXiTRxwJlVuoyzJNDnGQ==",
   "success": true,
-  "projectFilePath": "C:\\Desarrollos Rustica\\PRM Y VAN\\RUSTICA_PortalWebPRMyVAN\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api.csproj",
+  "projectFilePath": "C:\\Desarrollos Rustica\\PRM Y VAN\\CODEX\\Prueba_Codex_Proy\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api\\RusticaPortal-PRMVAN.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\leidy.toro\\.nuget\\packages\\automapper\\15.1.0\\automapper.15.1.0.nupkg.sha512",
     "C:\\Users\\leidy.toro\\.nuget\\packages\\microsoft.aspnetcore.hosting.abstractions\\2.2.0\\microsoft.aspnetcore.hosting.abstractions.2.2.0.nupkg.sha512",

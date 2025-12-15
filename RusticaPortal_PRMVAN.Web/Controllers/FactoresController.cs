@@ -58,7 +58,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Actualizar(string docEntry, [FromBody] List<FactoresModel> factores)
+        public async Task<IActionResult> Actualizar(string docEntry, [FromBody] FactorUpdateRequest payload)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(empresa))
@@ -67,7 +67,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             if (string.IsNullOrWhiteSpace(docEntry))
                 return BadRequest(new { message = "DocEntry inválido." });
 
-            if (factores == null || factores.Count == 0)
+            if (payload?.MGS_CL_FACDETCollection == null || payload.MGS_CL_FACDETCollection.Count == 0)
                 return BadRequest(new { message = "No se recibieron factores para actualizar." });
 
             var endpoint = QueryHelpers.AddQueryString("/api/factores/actualizar", new Dictionary<string, string?>
@@ -76,7 +76,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
                 ["docEntry"] = docEntry
             });
 
-            var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, factores);
+            var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, payload);
 
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
 

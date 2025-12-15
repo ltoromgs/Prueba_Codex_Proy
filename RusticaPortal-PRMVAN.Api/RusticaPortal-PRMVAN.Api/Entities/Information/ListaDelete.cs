@@ -1,4 +1,4 @@
-﻿namespace ArellanoCore.Api.Entities.Information
+﻿namespace RusticaPortal_PRMVAN.Api.Entities.Information
 {
     public class ListaDelete
     {

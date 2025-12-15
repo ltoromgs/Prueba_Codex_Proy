@@ -4,7 +4,7 @@ using RestSharp;
 using System;
 using System.Net;
 
-namespace ArellanoCore.Api.Helpers
+namespace RusticaPortal_PRMVAN.Api.Helpers
 {
 
     public class ApiHelper

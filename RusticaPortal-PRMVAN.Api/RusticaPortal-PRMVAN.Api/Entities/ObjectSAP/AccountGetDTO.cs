@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using ArellanoCore.Api.Swagger;
+using RusticaPortal_PRMVAN.Api.Swagger;
 using System.ComponentModel.DataAnnotations;
 
-namespace ArellanoCore.Api.Entities.ObjectSAP
+namespace RusticaPortal_PRMVAN.Api.Entities.ObjectSAP
 {
     public class AccountGetDTO
     {      

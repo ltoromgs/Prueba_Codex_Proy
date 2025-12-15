@@ -1,4 +1,4 @@
-﻿namespace ArellanoCore.Api.Entities.Dto.Information
+﻿namespace RusticaPortal_PRMVAN.Api.Entities.Dto.Information
 {
     public class AditionInformationDTO
     {

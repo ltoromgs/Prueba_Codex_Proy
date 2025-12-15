@@ -1,6 +1,6 @@
-﻿using ArellanoCore.Api.Entities.Dto;
+﻿using RusticaPortal_PRMVAN.Api.Entities.Dto;
 
-namespace ArellanoCore.Api.Services.Interfaces
+namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
 {
     public interface IEmpresaConfigService
     {

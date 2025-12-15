@@ -2,17 +2,17 @@
 2025-06-30 17:10:47.595 -05:00 [INF] Now listening on: http://localhost:5116
 2025-06-30 17:10:52.322 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-06-30 17:10:52.328 -05:00 [INF] Hosting environment: Development
-2025-06-30 17:10:52.328 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-06-30 17:10:52.328 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api
 2025-06-30 17:10:58.116 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 55
-2025-06-30 17:10:59.867 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:11:00.081 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:11:00.652 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 17:10:59.867 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:11:00.081 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:11:00.652 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 17:21:59.624 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
 2025-06-30 17:22:01.362 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 1737.1635ms
-2025-06-30 17:22:01.420 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 660752.4573ms.
-2025-06-30 17:22:01.428 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:22:01.831 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 661724.6065ms
-2025-06-30 17:22:01.831 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:22:01.420 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 660752.4573ms.
+2025-06-30 17:22:01.428 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:22:01.831 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 661724.6065ms
+2025-06-30 17:22:01.831 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:22:01.832 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 499 null application/json; charset=utf-8 663776.0952ms
 2025-06-30 17:22:01.994 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
 2025-06-30 17:22:01.996 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_vs/browserLink - null null
@@ -21,23 +21,23 @@
 2025-06-30 17:22:02.684 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
 2025-06-30 17:22:03.041 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 357.2028ms
 2025-06-30 17:22:07.453 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 55
-2025-06-30 17:22:07.456 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:22:07.457 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:22:07.459 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:22:07.465 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.2541ms.
-2025-06-30 17:22:07.466 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:22:07.468 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 11.0085ms
-2025-06-30 17:22:07.468 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:22:07.456 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:22:07.457 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:22:07.459 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:22:07.465 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.2541ms.
+2025-06-30 17:22:07.466 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:22:07.468 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 11.0085ms
+2025-06-30 17:22:07.468 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:22:07.468 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 200 null application/json; charset=utf-8 15.3333ms
 2025-06-30 17:22:27.381 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 55
-2025-06-30 17:22:27.382 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:22:27.382 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:22:27.454 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 17:22:27.382 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:22:27.382 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:22:27.454 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 17:23:49.139 -05:00 [INF] Now listening on: https://localhost:7287
 2025-06-30 17:23:49.197 -05:00 [INF] Now listening on: http://localhost:5116
 2025-06-30 17:23:50.287 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-06-30 17:23:50.288 -05:00 [INF] Hosting environment: Development
-2025-06-30 17:23:50.288 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-06-30 17:23:50.288 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api
 2025-06-30 17:23:56.062 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
 2025-06-30 17:23:58.481 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 2427.3227ms
 2025-06-30 17:23:59.147 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
@@ -46,119 +46,119 @@
 2025-06-30 17:23:59.711 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/_vs/browserLink - 200 null text/javascript; charset=UTF-8 302.5808ms
 2025-06-30 17:24:03.095 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
 2025-06-30 17:24:04.791 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 55
-2025-06-30 17:24:05.392 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:24:05.432 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
+2025-06-30 17:24:05.392 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:24:05.432 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
 2025-06-30 17:24:05.437 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 2341.5447ms
-2025-06-30 17:24:05.980 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:25:58.624 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 112632.3941ms.
-2025-06-30 17:25:58.632 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:26:02.213 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 116768.2966ms
-2025-06-30 17:26:02.213 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:24:05.980 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:25:58.624 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 112632.3941ms.
+2025-06-30 17:25:58.632 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:26:02.213 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 116768.2966ms
+2025-06-30 17:26:02.213 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:26:02.213 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 200 null application/json; charset=utf-8 117416.7114ms
 2025-06-30 17:38:07.910 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 17:38:07.912 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 17:38:07.917 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 17:38:07.950 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:38:08.112 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 162.1367ms.
-2025-06-30 17:38:08.113 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:38:08.114 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 196.0519ms
-2025-06-30 17:38:08.114 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 17:38:07.912 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:38:07.917 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:38:07.950 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:38:08.112 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 162.1367ms.
+2025-06-30 17:38:08.113 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:38:08.114 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 196.0519ms
+2025-06-30 17:38:08.114 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:38:08.114 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 205.7451ms
 2025-06-30 17:38:28.666 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 17:38:28.667 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:38:28.667 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:38:28.670 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:38:45.739 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 17069.1571ms.
-2025-06-30 17:38:45.740 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:38:45.740 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 17072.8779ms
-2025-06-30 17:38:45.740 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:38:28.667 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:38:28.667 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:38:28.670 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:38:45.739 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 17069.1571ms.
+2025-06-30 17:38:45.740 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:38:45.740 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 17072.8779ms
+2025-06-30 17:38:45.740 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:38:45.741 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 17074.2444ms
 2025-06-30 17:43:33.913 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json 61
-2025-06-30 17:43:33.914 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 17:43:33.914 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 17:43:33.915 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:43:33.922 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.8011ms.
-2025-06-30 17:43:33.922 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:43:33.923 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 8.5411ms
-2025-06-30 17:43:33.923 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 17:43:33.914 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:43:33.914 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:43:33.915 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:43:33.922 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.8011ms.
+2025-06-30 17:43:33.922 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:43:33.923 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 8.5411ms
+2025-06-30 17:43:33.923 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:43:33.923 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 9.6396ms
 2025-06-30 17:45:45.483 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 293
-2025-06-30 17:45:45.484 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:45:45.484 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:45:45.484 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:45:50.109 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 4624.7228ms.
-2025-06-30 17:45:50.110 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:45:50.110 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 4625.9391ms
-2025-06-30 17:45:50.110 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:45:45.484 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:45:45.484 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:45:45.484 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:45:50.109 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 4624.7228ms.
+2025-06-30 17:45:50.110 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:45:50.110 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 4625.9391ms
+2025-06-30 17:45:50.110 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:45:50.110 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 200 null application/json; charset=utf-8 4626.8578ms
 2025-06-30 17:45:59.556 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 293
-2025-06-30 17:45:59.557 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:45:59.557 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:45:59.557 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:45:59.570 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 12.7126ms.
-2025-06-30 17:45:59.570 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:45:59.570 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 13.5782ms
-2025-06-30 17:45:59.570 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:45:59.557 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:45:59.557 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:45:59.557 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:45:59.570 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 12.7126ms.
+2025-06-30 17:45:59.570 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:45:59.570 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 13.5782ms
+2025-06-30 17:45:59.570 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:45:59.571 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 200 null application/json; charset=utf-8 14.6353ms
 2025-06-30 17:46:18.481 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=7009801232 - application/json 293
-2025-06-30 17:46:18.482 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:46:18.482 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:46:18.482 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:46:18.511 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 28.9212ms.
-2025-06-30 17:46:18.512 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:46:18.512 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 29.8745ms
-2025-06-30 17:46:18.512 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:46:18.482 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:46:18.482 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:46:18.482 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:46:18.511 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 28.9212ms.
+2025-06-30 17:46:18.512 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:46:18.512 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 29.8745ms
+2025-06-30 17:46:18.512 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:46:18.512 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 36.4416ms
 2025-06-30 17:46:30.929 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=70098012328 - application/json 293
-2025-06-30 17:46:30.930 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:46:30.930 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:46:31.061 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:46:31.121 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 59.9285ms.
-2025-06-30 17:46:31.121 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:46:31.122 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 191.6415ms
-2025-06-30 17:46:31.122 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:46:30.930 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:46:30.930 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:46:31.061 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:46:31.121 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 59.9285ms.
+2025-06-30 17:46:31.121 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:46:31.122 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 191.6415ms
+2025-06-30 17:46:31.122 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:46:31.122 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=70098012328 - 200 null application/json; charset=utf-8 192.5664ms
 2025-06-30 17:46:39.211 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=7009801232 - application/json 293
-2025-06-30 17:46:39.211 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:46:39.211 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:46:39.212 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:46:39.232 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 20.7321ms.
-2025-06-30 17:46:39.233 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:46:39.233 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 21.5084ms
-2025-06-30 17:46:39.233 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:46:39.211 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:46:39.211 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:46:39.212 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:46:39.232 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 20.7321ms.
+2025-06-30 17:46:39.233 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:46:39.233 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 21.5084ms
+2025-06-30 17:46:39.233 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:46:39.233 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 22.2719ms
 2025-06-30 17:48:55.592 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 293
-2025-06-30 17:48:55.592 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:48:55.593 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:48:55.593 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:48:55.672 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 78.3812ms.
-2025-06-30 17:48:55.672 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:48:55.672 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 79.6918ms
-2025-06-30 17:48:55.672 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:48:55.592 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:48:55.593 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:48:55.593 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:48:55.672 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 78.3812ms.
+2025-06-30 17:48:55.672 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:48:55.672 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 79.6918ms
+2025-06-30 17:48:55.672 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:48:55.672 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 200 null application/json; charset=utf-8 80.4438ms
 2025-06-30 17:49:20.274 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 17:49:20.274 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 17:49:20.274 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 17:49:20.275 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:49:20.287 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.8116ms.
-2025-06-30 17:49:20.288 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:49:20.288 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 13.2805ms
-2025-06-30 17:49:20.288 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 17:49:20.274 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:49:20.274 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:49:20.275 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:49:20.287 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.8116ms.
+2025-06-30 17:49:20.288 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:49:20.288 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 13.2805ms
+2025-06-30 17:49:20.288 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:49:20.288 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 14.1302ms
 2025-06-30 17:49:23.977 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 17:49:23.977 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:49:23.977 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:49:23.978 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 17:49:23.986 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 8.3694ms.
-2025-06-30 17:49:23.986 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:49:23.987 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 9.2534ms
-2025-06-30 17:49:23.987 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:49:23.977 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:49:23.977 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:49:23.978 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 17:49:23.986 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 8.3694ms.
+2025-06-30 17:49:23.986 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:49:23.987 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 9.2534ms
+2025-06-30 17:49:23.987 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:49:23.987 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 10.1449ms
 2025-06-30 17:53:16.676 -05:00 [INF] Now listening on: https://localhost:7287
 2025-06-30 17:53:17.240 -05:00 [INF] Now listening on: http://localhost:5116
 2025-06-30 17:53:18.337 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-06-30 17:53:18.338 -05:00 [INF] Hosting environment: Development
-2025-06-30 17:53:18.338 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-06-30 17:53:18.338 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api
 2025-06-30 17:53:18.438 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
 2025-06-30 17:53:19.210 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 760.0037ms
 2025-06-30 17:53:19.599 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
@@ -168,114 +168,114 @@
 2025-06-30 17:53:20.714 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
 2025-06-30 17:53:21.304 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 589.8114ms
 2025-06-30 17:53:27.408 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - application/json 293
-2025-06-30 17:53:27.426 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 17:53:27.480 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 17:53:27.763 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 17:53:27.426 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 17:53:27.480 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 17:53:27.763 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 17:53:30.007 -05:00 [WRN] Menú no disponible para userId: PZOOM1234567 en empresa: 1
-2025-06-30 17:53:30.019 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 2251.7316ms.
-2025-06-30 17:53:30.024 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 17:53:30.033 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 2544.6669ms
-2025-06-30 17:53:30.033 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 17:53:30.019 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 2251.7316ms.
+2025-06-30 17:53:30.024 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 17:53:30.033 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 2544.6669ms
+2025-06-30 17:53:30.033 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 17:53:30.033 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Menu?Empresa=1&userId=PZOOM1234567 - 200 null application/json; charset=utf-8 2626.3576ms
 2025-06-30 18:02:50.807 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:02:50.808 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:02:50.808 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:02:50.810 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:02:52.300 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1488.8846ms.
-2025-06-30 18:02:52.302 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:02:52.306 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 1497.1033ms
-2025-06-30 18:02:52.306 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:02:50.808 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:02:50.808 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:02:50.810 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:02:52.300 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1488.8846ms.
+2025-06-30 18:02:52.302 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:02:52.306 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 1497.1033ms
+2025-06-30 18:02:52.306 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:02:52.306 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 1500.9958ms
 2025-06-30 18:02:59.104 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 18:02:59.104 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 18:02:59.111 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 18:02:59.152 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:02:59.419 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 266.5187ms.
-2025-06-30 18:02:59.419 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:02:59.419 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 308.2423ms
-2025-06-30 18:02:59.420 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 18:02:59.104 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:02:59.111 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:02:59.152 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:02:59.419 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 266.5187ms.
+2025-06-30 18:02:59.419 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:02:59.419 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 308.2423ms
+2025-06-30 18:02:59.420 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:02:59.420 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 316.2715ms
 2025-06-30 18:02:59.537 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:02:59.539 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:02:59.539 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:02:59.539 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:02:59.546 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.5648ms.
-2025-06-30 18:02:59.546 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:02:59.547 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.7379ms
-2025-06-30 18:02:59.547 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:02:59.539 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:02:59.539 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:02:59.539 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:02:59.546 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.5648ms.
+2025-06-30 18:02:59.546 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:02:59.547 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 7.7379ms
+2025-06-30 18:02:59.547 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:02:59.547 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 9.9192ms
 2025-06-30 18:03:25.816 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:03:25.817 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:03:25.817 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:03:25.818 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 18:03:25.817 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:03:25.817 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:03:25.818 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 18:03:25.884 -05:00 [WRN] Menú no disponible para userId: 7009801232 en empresa: 1
-2025-06-30 18:03:25.884 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 65.406ms.
-2025-06-30 18:03:25.884 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:03:25.884 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 67.2248ms
-2025-06-30 18:03:25.885 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:03:25.884 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 65.406ms.
+2025-06-30 18:03:25.884 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:03:25.884 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 67.2248ms
+2025-06-30 18:03:25.885 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:03:25.885 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 68.6622ms
 2025-06-30 18:04:38.393 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 18:04:38.394 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 18:04:38.394 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 18:04:38.395 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:04:38.673 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 277.7791ms.
-2025-06-30 18:04:38.673 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:04:38.674 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 279.5492ms
-2025-06-30 18:04:38.674 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 18:04:38.394 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:04:38.394 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:04:38.395 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:04:38.673 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 277.7791ms.
+2025-06-30 18:04:38.673 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:04:38.674 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 279.5492ms
+2025-06-30 18:04:38.674 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:04:38.674 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 280.8876ms
 2025-06-30 18:04:39.864 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:04:39.865 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:04:39.866 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:04:39.866 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 18:04:39.865 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:04:39.866 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:04:39.866 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 18:04:39.874 -05:00 [WRN] Menú no disponible para userId: 7009801232 en empresa: 1
-2025-06-30 18:04:39.874 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.3743ms.
-2025-06-30 18:04:39.874 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:04:39.874 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 8.1693ms
-2025-06-30 18:04:39.874 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:04:39.874 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 7.3743ms.
+2025-06-30 18:04:39.874 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:04:39.874 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 8.1693ms
+2025-06-30 18:04:39.874 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:04:39.874 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 10.2815ms
 2025-06-30 18:05:38.941 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 18:05:38.941 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 18:05:38.941 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 18:05:38.942 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:05:38.954 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.9916ms.
-2025-06-30 18:05:38.954 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:05:38.955 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 13.0044ms
-2025-06-30 18:05:38.955 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 18:05:38.941 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:05:38.941 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:05:38.942 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:05:38.954 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.9916ms.
+2025-06-30 18:05:38.954 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:05:38.955 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 13.0044ms
+2025-06-30 18:05:38.955 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:05:38.955 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 13.8406ms
 2025-06-30 18:05:43.125 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:05:43.125 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:05:43.125 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:05:43.126 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 18:05:43.125 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:05:43.125 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:05:43.126 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 18:05:43.132 -05:00 [WRN] Menú no disponible para userId: 7009801232 en empresa: 1
-2025-06-30 18:05:43.133 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.7449ms.
-2025-06-30 18:05:43.133 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:05:43.133 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 7.4834ms
-2025-06-30 18:05:43.133 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:05:43.133 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 6.7449ms.
+2025-06-30 18:05:43.133 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:05:43.133 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 7.4834ms
+2025-06-30 18:05:43.133 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:05:43.133 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 8.4774ms
 2025-06-30 18:06:14.744 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 18:06:14.744 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 18:06:14.744 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 18:06:14.745 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:06:14.764 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 19.4674ms.
-2025-06-30 18:06:14.766 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:06:14.766 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 21.9873ms
-2025-06-30 18:06:14.766 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 18:06:14.744 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:06:14.744 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:06:14.745 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:06:14.764 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 19.4674ms.
+2025-06-30 18:06:14.766 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:06:14.766 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 21.9873ms
+2025-06-30 18:06:14.766 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:06:14.766 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 22.8695ms
 2025-06-30 18:06:19.816 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:06:19.816 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:06:19.816 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:06:19.816 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 18:06:19.816 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:06:19.816 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:06:19.816 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 18:06:19.822 -05:00 [WRN] Menú no disponible para userId: 7009801232 en empresa: 1
-2025-06-30 18:06:19.822 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 5.9066ms.
-2025-06-30 18:06:19.822 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:06:19.823 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 6.5989ms
-2025-06-30 18:06:19.823 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:06:19.822 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 5.9066ms.
+2025-06-30 18:06:19.822 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:06:19.823 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 6.5989ms
+2025-06-30 18:06:19.823 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:06:19.823 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 7.265ms
 2025-06-30 18:08:00.402 -05:00 [INF] Now listening on: https://localhost:7287
 2025-06-30 18:08:00.469 -05:00 [INF] Now listening on: http://localhost:5116
 2025-06-30 18:08:01.164 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-06-30 18:08:01.164 -05:00 [INF] Hosting environment: Development
-2025-06-30 18:08:01.165 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-06-30 18:08:01.165 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api
 2025-06-30 18:08:03.092 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
 2025-06-30 18:08:06.126 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 3044.7117ms
 2025-06-30 18:08:06.331 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
@@ -288,7 +288,7 @@
 2025-06-30 18:11:20.924 -05:00 [INF] Now listening on: http://localhost:5116
 2025-06-30 18:11:23.910 -05:00 [INF] Application started. Press Ctrl+C to shut down.
 2025-06-30 18:11:23.910 -05:00 [INF] Hosting environment: Development
-2025-06-30 18:11:23.911 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\ArellanoCore.Api\ArellanoCore.Api
+2025-06-30 18:11:23.911 -05:00 [INF] Content root path: C:\Users\MGS004\source\repos\Arellano_PortalWebProveedores\codigo_fuente\RusticaPortal_PRMVAN.Api\RusticaPortal_PRMVAN.Api
 2025-06-30 18:11:42.740 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/index.html - null null
 2025-06-30 18:11:48.598 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/index.html - 200 null text/html;charset=utf-8 5863.487ms
 2025-06-30 18:11:49.308 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/_framework/aspnetcore-browser-refresh.js - null null
@@ -298,30 +298,30 @@
 2025-06-30 18:11:51.837 -05:00 [INF] Request starting HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - null null
 2025-06-30 18:11:52.618 -05:00 [INF] Request finished HTTP/2 GET https://localhost:7287/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 780.9436ms
 2025-06-30 18:14:03.296 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - application/json; charset=utf-8 43
-2025-06-30 18:14:03.314 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
-2025-06-30 18:14:03.353 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] Post(ArellanoCore.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller ArellanoCore.Api.Controllers.AccountController (ArellanoCore.Api).
-2025-06-30 18:14:03.429 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:14:06.391 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 2957.1767ms.
-2025-06-30 18:14:06.397 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:14:06.405 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api) in 3045.6341ms
-2025-06-30 18:14:06.406 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.AccountController.Post (ArellanoCore.Api)'
+2025-06-30 18:14:03.314 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:14:03.353 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:14:03.429 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:14:06.391 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 2957.1767ms.
+2025-06-30 18:14:06.397 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:14:06.405 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api) in 3045.6341ms
+2025-06-30 18:14:06.406 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:14:06.406 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 - 200 null application/json; charset=utf-8 3111.5765ms
 2025-06-30 18:14:17.803 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:14:17.806 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:14:17.810 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:14:17.812 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
+2025-06-30 18:14:17.806 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:14:17.810 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:14:17.812 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
 2025-06-30 18:14:17.829 -05:00 [WRN] Menú no disponible para userId: 7009801232 en empresa: 1
-2025-06-30 18:14:17.840 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 27.6648ms.
-2025-06-30 18:14:17.840 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:14:17.841 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 30.6137ms
-2025-06-30 18:14:17.841 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:14:17.840 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 27.6648ms.
+2025-06-30 18:14:17.840 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:14:17.841 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 30.6137ms
+2025-06-30 18:14:17.841 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:14:17.841 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 38.4379ms
 2025-06-30 18:15:14.509 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - null null
-2025-06-30 18:15:14.509 -05:00 [INF] Executing endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
-2025-06-30 18:15:14.509 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ArellanoCore.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller ArellanoCore.Api.Controllers.MenuController (ArellanoCore.Api).
-2025-06-30 18:15:14.519 -05:00 [INF] Executing action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) - Validation state: "Valid"
-2025-06-30 18:15:14.579 -05:00 [INF] Executed action method ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 59.1573ms.
-2025-06-30 18:15:14.579 -05:00 [INF] Executing OkObjectResult, writing value of type 'ArellanoCore.Api.Entities.Information.ResponseInformation'.
-2025-06-30 18:15:14.581 -05:00 [INF] Executed action ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api) in 71.7868ms
-2025-06-30 18:15:14.582 -05:00 [INF] Executed endpoint 'ArellanoCore.Api.Controllers.MenuController.GetMenu (ArellanoCore.Api)'
+2025-06-30 18:15:14.509 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
+2025-06-30 18:15:14.509 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal_PRMVAN.Api).
+2025-06-30 18:15:14.519 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) - Validation state: "Valid"
+2025-06-30 18:15:14.579 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 59.1573ms.
+2025-06-30 18:15:14.579 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2025-06-30 18:15:14.581 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api) in 71.7868ms
+2025-06-30 18:15:14.582 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal_PRMVAN.Api)'
 2025-06-30 18:15:14.582 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=7009801232 - 200 null application/json; charset=utf-8 73.0378ms

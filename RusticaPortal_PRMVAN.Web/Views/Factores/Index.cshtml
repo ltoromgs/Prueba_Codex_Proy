@@ -385,13 +385,13 @@
             const periodo = document.getElementById('filtroPeriodo').value; // yyyy-mm
             const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value).join(',');
 
-           
+
             try {
                 const url = `/Factores/Buscar?periodo=${encodeURIComponent(periodo)}&tiendas=${encodeURIComponent(tiendas)}`;
                 const res = await fetch(url, { method: 'GET' });
                 const data = await res.json();
 
-               
+
                 if (!res.ok) { alert(data.message || 'Error al buscar'); return; }
 
                 const tbody = document.querySelector('#tablaMatriz tbody');
@@ -411,40 +411,40 @@
                 alert('No se pudo conectar con el servidor.');
             }
         });
-        
+
 
         function renderFila(m) {
             console.log(`fila: ${m.u_MGS_CL_TIENDA} - ${m.u_MGS_CL_NOMTIE}`);
 
             return `
-            <tr data-id="${m.lineId}" data-lineid="${m.lineId ?? ''}" data-docentry="${m.docEntry ?? ''}" data-periodo="${m.u_MGS_CL_PERIODO ?? ''}" data-tienda="${m.u_MGS_CL_TIENDA ?? ''}" data-nomtien="${m.u_MGS_CL_NOMTIE ?? ''}">
-    <td>${m.lineId ?? ''}</td> <!-- Codigo Interno / ProductoPlanner -->
-    <td class="sticky-col-start fw-semibold">
-        ${m.u_MGS_CL_TIENDA ?? ''} - ${m.u_MGS_CL_NOMTIE ?? ''}
-    </td>
+                <tr data-id="${m.lineId}" data-lineid="${m.lineId ?? ''}" data-docentry="${m.docEntry ?? ''}" data-periodo="${m.u_MGS_CL_PERIODO ?? ''}" data-tienda="${m.u_MGS_CL_TIENDA ?? ''}" data-nomtien="${m.u_MGS_CL_NOMTIE ?? ''}">
+        <td>${m.lineId ?? ''}</td> <!-- Codigo Interno / ProductoPlanner -->
+        <td class="sticky-col-start fw-semibold">
+            ${m.u_MGS_CL_TIENDA ?? ''} - ${m.u_MGS_CL_NOMTIE ?? ''}
+        </td>
 
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_META">${m.u_MGS_CL_META ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_RENTA">${m.u_MGS_CL_RENTA ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_VAN">${m.u_MGS_CL_VAN ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_ESTPER">${m.u_MGS_CL_ESTPER ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_GASADM">${m.u_MGS_CL_GASADM ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_COMTAR">${m.u_MGS_CL_COMTAR ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_IMPUES">${m.u_MGS_CL_IMPUES ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_REGALI">${m.u_MGS_CL_REGALI ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_META">${m.u_MGS_CL_META ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_RENTA">${m.u_MGS_CL_RENTA ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_VAN">${m.u_MGS_CL_VAN ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_ESTPER">${m.u_MGS_CL_ESTPER ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_GASADM">${m.u_MGS_CL_GASADM ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_COMTAR">${m.u_MGS_CL_COMTAR ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_IMPUES">${m.u_MGS_CL_IMPUES ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_REGALI">${m.u_MGS_CL_REGALI ?? ''}</td>
 
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUSER">${m.u_MGS_CL_AUSER ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUOPE">${m.u_MGS_CL_AUOPE ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUCCC">${m.u_MGS_CL_AUCCC ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUADH">${m.u_MGS_CL_AUADH ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_CLIMA">${m.u_MGS_CL_CLIMA ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_RUSTI">${m.u_MGS_CL_RUSTI ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_MELID">${m.u_MGS_CL_MELID ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_ADMGR">${m.u_MGS_CL_ADMGR ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXGES">${m.u_MGS_CL_EXGES ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXSER">${m.u_MGS_CL_EXSER ?? ''}</td>
-    <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXMAR">${m.u_MGS_CL_EXMAR ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUSER">${m.u_MGS_CL_AUSER ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUOPE">${m.u_MGS_CL_AUOPE ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUCCC">${m.u_MGS_CL_AUCCC ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUADH">${m.u_MGS_CL_AUADH ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_CLIMA">${m.u_MGS_CL_CLIMA ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_RUSTI">${m.u_MGS_CL_RUSTI ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_MELID">${m.u_MGS_CL_MELID ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_ADMGR">${m.u_MGS_CL_ADMGR ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXGES">${m.u_MGS_CL_EXGES ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXSER">${m.u_MGS_CL_EXSER ?? ''}</td>
+        <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXMAR">${m.u_MGS_CL_EXMAR ?? ''}</td>
 
-    
+
 </tr>`;
         }
 
@@ -461,7 +461,30 @@
             console.log('Nuevo registro');
         });
 
+        const FIELD_MAP = {
+            'u_MGS_CL_META': 'U_MGS_CL_META',
+            'u_MGS_CL_RENTA': 'U_MGS_CL_RENTA',
+            'u_MGS_CL_VAN': 'U_MGS_CL_VAN',
+            'u_MGS_CL_ESTPER': 'U_MGS_CL_ESTPER',
+            'u_MGS_CL_GASADM': 'U_MGS_CL_GASADM',
+            'u_MGS_CL_COMTAR': 'U_MGS_CL_COMTAR',
+            'u_MGS_CL_IMPUES': 'U_MGS_CL_IMPUES',
+            'u_MGS_CL_REGALI': 'U_MGS_CL_REGALI',
+            'u_MGS_CL_AUSER': 'U_MGS_CL_AUSER',
+            'u_MGS_CL_AUOPE': 'U_MGS_CL_AUOPE',
+            'u_MGS_CL_AUCCC': 'U_MGS_CL_AUCCC',
+            'u_MGS_CL_AUADH': 'U_MGS_CL_AUADH',
+            'u_MGS_CL_CLIMA': 'U_MGS_CL_CLIMA',
+            'u_MGS_CL_RUSTI': 'U_MGS_CL_RUSTI',
+            'u_MGS_CL_MELID': 'U_MGS_CL_MELID',
+            'u_MGS_CL_ADMGR': 'U_MGS_CL_ADMGR',
+            'u_MGS_CL_EXGES': 'U_MGS_CL_EXGES',
+            'u_MGS_CL_EXSER': 'U_MGS_CL_EXSER',
+            'u_MGS_CL_EXMAR': 'U_MGS_CL_EXMAR',
+        };
         // ---------- Actualizar todo ----------
+
+
         document.getElementById('btnActualizarTodo')?.addEventListener('click', async () => {
             // Recolectar filas
             const rows = Array.from(document.querySelectorAll('#tablaMatriz tbody tr'));
@@ -484,31 +507,31 @@
                 return;
             }
 
-            const payload = rows.map(tr => {
-                const base = {
-                    docEntry: tr.dataset.docentry || '',
-                    lineId: tr.dataset.lineid || '',
-                    u_MGS_CL_PERIODO: tr.dataset.periodo || '',
-                    u_MGS_CL_TIENDA: tr.dataset.tienda || '',
-                    u_MGS_CL_NOMTIE: tr.dataset.nomtien || ''
-                };
+            const payload = {
+                MGS_CL_FACDETCollection: rows.map(tr => {
+                    const detalle = {
+                        LineId: tr.dataset.lineid || '',
+                        U_MGS_CL_PRIMARY: ''
+                    };
 
-                tr.querySelectorAll('td.dec').forEach(td => {
-                    const key = td.getAttribute('data-field');
-                    const val = normalizeDecimal(td.innerText.trim());
-                    base[key] = val === '' ? 0 : Number(val);
-                });
-                return base;
-            });
+                    tr.querySelectorAll('td.dec').forEach(td => {
+                        const key = td.getAttribute('data-field');
+                        const val = normalizeDecimal(td.innerText.trim());
+                        const mappedKey = key ? FIELD_MAP[key] : '';
+                        if (!mappedKey) return;
+                        detalle[mappedKey] = val === '' ? 0 : Number(val);
+                    });
+
+                    return detalle;
+                })
+            };
 
             try {
                 const res = await fetch(`/Factores/Actualizar?docEntry=${encodeURIComponent(docEntry)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
+                }); const data = await res.json();
                 if (!res.ok || !data.registered) {
                     alert(data.message || 'Error al actualizar');
                     return;

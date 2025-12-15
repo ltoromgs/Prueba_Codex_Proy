@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System;
 
-namespace ArellanoCore.Api.Helpers
+namespace RusticaPortal_PRMVAN.Api.Helpers
 {
 
 

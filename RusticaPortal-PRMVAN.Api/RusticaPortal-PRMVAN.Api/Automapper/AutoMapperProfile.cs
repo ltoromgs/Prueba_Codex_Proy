@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using ArellanoCore.Api.Entities.Dto.Information;
-using ArellanoCore.Api.Entities.Information;
+using RusticaPortal_PRMVAN.Api.Entities.Dto.Information;
+using RusticaPortal_PRMVAN.Api.Entities.Information;
 
-namespace ArellanoCore.Api.Automapper
+namespace RusticaPortal_PRMVAN.Api.Automapper
 {
     public class AutoMapperProfile:  Profile
     {
