@@ -107,7 +107,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         {
             try
             {
-                var rp = await _documentService.GetFactoresDB(Empresa, periodo, tiendas);
+                var rp = await _documentService.GetFactoresNuevoDB(Empresa, tiendas);
 
                 if (!rp.Registered)
                 {

@@ -1831,6 +1831,112 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
         }
 
+        public async Task<ResponseInformation> GetFactoresNuevoDB(string empresa, string tiendasCsv)
+        {
+            if (!int.TryParse(empresa, out var idEmpresa))
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error: Parámetro 'empresa' debe ser un número válido.",
+                    Content = "",
+
+                };
+            }
+
+            var cfg = _empresaConfigService.GetEmpresa(idEmpresa);
+            if (cfg == null)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = $"Error: No existe configuración para la empresa con ID = {idEmpresa}.",
+                    Content = "",
+                };
+            }
+
+            var lista = new List<MatrizFactorDTO>();
+            using var conn = new HanaConnection(cfg.ConnectionString);
+
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_MatrizFactoresNuevo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 255).Value = tiendasCsv ?? string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var rd = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (rd.Read())
+                {
+                    lista.Add(new MatrizFactorDTO
+                    {
+                        U_MGS_CL_PERIODO = rd["U_MGS_CL_PERIODO"] as string,
+                        U_MGS_CL_PERIODO_DEST = rd["U_MGS_CL_PERIODO_DEST"] as string,
+                        U_MGS_CL_TIENDA = rd["U_MGS_CL_TIENDA"] as string,
+                        U_MGS_CL_NOMTIE = rd["U_MGS_CL_NOMTIE"] as string,
+                        DocEntry = rd["DocEntry"]?.ToString(),
+                        LineId = rd["LineId"]?.ToString(),
+
+                        U_MGS_CL_META = ToDec(rd, "U_MGS_CL_META"),
+                        U_MGS_CL_RENTA = ToDec(rd, "U_MGS_CL_RENTA"),
+                        U_MGS_CL_VAN = ToDec(rd, "U_MGS_CL_VAN"),
+                        U_MGS_CL_ESTPER = ToDec(rd, "U_MGS_CL_ESTPER"),
+                        U_MGS_CL_GASADM = ToDec(rd, "U_MGS_CL_GASADM"),
+                        U_MGS_CL_COMTAR = ToDec(rd, "U_MGS_CL_COMTAR"),
+                        U_MGS_CL_IMPUES = ToDec(rd, "U_MGS_CL_IMPUES"),
+                        U_MGS_CL_REGALI = ToDec(rd, "U_MGS_CL_REGALI"),
+                        U_MGS_CL_AUSER = ToDec(rd, "U_MGS_CL_AUSER"),
+                        U_MGS_CL_AUOPE = ToDec(rd, "U_MGS_CL_AUOPE"),
+                        U_MGS_CL_AUCCC = ToDec(rd, "U_MGS_CL_AUCCC"),
+                        U_MGS_CL_AUADH = ToDec(rd, "U_MGS_CL_AUADH"),
+                        U_MGS_CL_CLIMA = ToDec(rd, "U_MGS_CL_CLIMA"),
+                        U_MGS_CL_RUSTI = ToDec(rd, "U_MGS_CL_RUSTI"),
+                        U_MGS_CL_MELID = ToDec(rd, "U_MGS_CL_MELID"),
+                        U_MGS_CL_ADMGR = ToDec(rd, "U_MGS_CL_ADMGR"),
+                        U_MGS_CL_EXGES = ToDec(rd, "U_MGS_CL_EXGES"),
+                        U_MGS_CL_EXSER = ToDec(rd, "U_MGS_CL_EXSER"),
+                        U_MGS_CL_EXMAR = ToDec(rd, "U_MGS_CL_EXMAR"),
+
+                        U_MGS_CL_PRIMARY = rd["U_MGS_CL_PRIMARY"] as string
+                    });
+                }
+
+                if (!lista.Any())
+                    return new ResponseInformation { Registered = false, Message = "Sin datos", Content = "" };
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = "",
+                    Content = JsonConvert.SerializeObject(lista)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+
+            static decimal ToDec(HanaDataReader r, string col)
+           => r.IsDBNull(r.GetOrdinal(col)) ? 0m : Convert.ToDecimal(r[col]);
+        }
+
         public async Task<ResponseInformation> GetTiendasActivas(string empresa)
         {
             if (!int.TryParse(empresa, out var idEmpresa))
