@@ -42,20 +42,8 @@
                                 Seleccionar tiendas
                             </button>
                             <div class="dropdown-menu p-3" style="max-height: 280px; overflow: auto; width: 320px;">
-                                <div class="small text-secondary mb-2">Marca una o más tiendas</div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input tienda-check" type="checkbox" value="P0045" id="t_P0045" checked>
-                                    <label class="form-check-label" for="t_P0045">P0045 - Mall Santa Anita</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input tienda-check" type="checkbox" value="P0031" id="t_P0031">
-                                    <label class="form-check-label" for="t_P0031">P0031 - Larcomar</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input tienda-check" type="checkbox" value="P0021" id="t_P0021">
-                                    <label class="form-check-label" for="t_P0021">P0021 - Miraflores</label>
-                                </div>
+                                <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
+                                <div id="tiendasListado" class="d-grid gap-1"></div>
 
                                 <div class="border-top pt-2 mt-2 d-flex justify-content-between">
                                     <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
@@ -86,27 +74,27 @@
                     <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaMatriz" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th>Código interno</th>
-                                <th class="sticky-col-start">Tienda</th>                               
-                                <th>Meta (UV)</th>
-                                <th>Renta (%)</th>
-                                <th>VAN (%)</th>
-                                <th>PERS (%)</th>
-                                <th>GastosADM (%)</th>
-                                <th>ComisiónTarjeta (%)</th>
-                                <th>Impuesto (%)</th>
-                                <th>Regalías (%)</th>
-                                <th>AUD. SERV</th>
-                                <th>AUD. OPER</th>
-                                <th>AUD. CC</th>
-                                <th>AUD. ADH</th>
-                                <th>CLIMA LAB</th>
-                                <th>CPTO RUSTICA</th>
-                                <th>META LIDER</th>
-                                <th>ADM. GENERAL</th>
-                                <th>FU. EXC GESTION</th>
-                                <th>FU. EXC SERVICIO</th>
-                                <th>FU. EXC MARCA</th>
+                                <th>Cód.<br />interno</th>
+                                <th class="sticky-col-start">Tienda</th>
+                                <th>Meta<br />(UV)</th>
+                                <th>Renta<br />(%)</th>
+                                <th>VAN<br />(%)</th>
+                                <th>PERS<br />(%)</th>
+                                <th>Gtos<br />ADM (%)</th>
+                                <th>Comisión<br />Tarjeta (%)</th>
+                                <th>Impuesto<br />(%)</th>
+                                <th>Regalías<br />(%)</th>
+                                <th>AUD.<br />SERV</th>
+                                <th>AUD.<br />OPER</th>
+                                <th>AUD.<br />CC</th>
+                                <th>AUD.<br />ADH</th>
+                                <th>CLIMA<br />LAB</th>
+                                <th>CPTO<br />RUSTICA</th>
+                                <th>META<br />LIDER</th>
+                                <th>ADM.<br />GENERAL</th>
+                                <th>FU. EXC<br />GESTION</th>
+                                <th>FU. EXC<br />SERVICIO</th>
+                                <th>FU. EXC<br />MARCA</th>
                                 @*<th class="sticky-col-end text-center">Acción</th>*@
                             </tr>
                         </thead>
@@ -271,6 +259,16 @@
             min-width: 180px;
         }
 
+        .placeholder-row td {
+            height: 36px;
+            min-height: 36px;
+            background-color: #f8f9fa;
+        }
+
+        .placeholder-cell {
+            color: transparent;
+        }
+
         /* Botón XS */
         .btn-xs {
             padding: .15rem .35rem;
@@ -289,6 +287,48 @@
     <script>
         // ---------- Utilidades de Tiendas ----------
         const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
+        const tiendasEstado = document.getElementById('tiendasEstado');
+        const tiendasListado = document.getElementById('tiendasListado');
+
+        async function cargarTiendas() {
+            if (tiendasEstado) tiendasEstado.textContent = 'Cargando tiendas...';
+
+            try {
+                const res = await fetch('/Factores/Tiendas');
+                if (!res.ok) throw new Error('Error al obtener tiendas');
+
+                const data = await res.json();
+                renderTiendas(data);
+            } catch (err) {
+                console.error('ERROR TIENDAS:', err);
+                if (tiendasEstado) tiendasEstado.textContent = 'No se pudieron cargar las tiendas.';
+                if (tiendasListado) tiendasListado.innerHTML = '';
+            }
+        }
+
+        function renderTiendas(lista) {
+            if (!tiendasListado || !tiendasEstado) return;
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                tiendasEstado.textContent = 'No hay tiendas activas disponibles.';
+                tiendasListado.innerHTML = '';
+                return;
+            }
+
+            tiendasEstado.textContent = 'Marca una o más tiendas';
+            tiendasListado.innerHTML = lista.map(t => {
+                const codigo = t.codigo ?? t.Codigo ?? '';
+                const nombre = t.nombre ?? t.Nombre ?? '';
+                const id = `t_${codigo}`;
+
+                return `
+                    <div class="form-check">
+                        <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
+                        <label class="form-check-label" for="${id}">${codigo} - ${nombre}</label>
+                    </div>`;
+            }).join('');
+        }
+
         document.getElementById('tiendaSelTodas')?.addEventListener('click', (e) => {
             e.preventDefault();
             checks().forEach(ch => ch.checked = true);
@@ -380,6 +420,20 @@
             });
         }
 
+        function renderEmptyRows(count = 10, tbodyEl) {
+            const tbody = tbodyEl ?? document.querySelector('#tablaMatriz tbody');
+            if (!tbody) return;
+
+            const placeholder = `
+                <tr class="placeholder-row">
+                    <td>&nbsp;</td>
+                    <td class="sticky-col-start fw-semibold">&nbsp;</td>
+                    ${Array.from({ length: 19 }).map(() => '<td class="placeholder-cell">&nbsp;</td>').join('')}
+                </tr>`;
+
+            tbody.innerHTML = Array.from({ length: count }).map(() => placeholder).join('');
+        }
+
         // buscar y llenar tabla
         document.getElementById('btnBuscar')?.addEventListener('click', async () => {
             const periodo = document.getElementById('filtroPeriodo').value; // yyyy-mm
@@ -395,8 +449,12 @@
                 if (!res.ok) { alert(data.message || 'Error al buscar'); return; }
 
                 const tbody = document.querySelector('#tablaMatriz tbody');
-                tbody.innerHTML = (data || []).map(renderFila).join('');
-                wireDecCells();
+                if (Array.isArray(data) && data.length > 0) {
+                    tbody.innerHTML = data.map(renderFila).join('');
+                    wireDecCells();
+                } else {
+                    renderEmptyRows(10, tbody);
+                }
                 console.log('periodo ' + periodo);
                 console.log('tiendas ' + tiendas);
                 console.log('data ' + data.length);
@@ -404,7 +462,8 @@
 
                 const lbl = document.getElementById('lblResumen');
                 if (lbl) {
-                    lbl.textContent = `Mostrando ${data.length} de ${data.length}`;
+                    const total = Array.isArray(data) ? data.length : 0;
+                    lbl.textContent = `Mostrando ${total} de ${total}`;
                 }
             } catch (err) {
                 console.error('ERROR FETCH:', err);
@@ -550,6 +609,11 @@
                 const tr = btn.closest('tr');
                 tr?.remove();
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEmptyRows();
+            cargarTiendas();
         });
     </script>
 }
