@@ -247,7 +247,7 @@
                     <table class="table table-sm table-hover table-bordered" id="tablaPreviewNuevo" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th style="min-width:110px;">Cód.<br />interno</th>
+                                <th class="d-none" style="min-width:110px;">Cód.<br />interno</th>
                                 <th class="sticky-col-start" style="min-width:220px;">Tienda<br />Nombre</th>
                                 <th>Meta<br />(UV)</th>
                                 <th>Renta<br />(%)</th>
@@ -703,7 +703,7 @@
 
             tablaPreviewNuevoBody.innerHTML = filas.map(item => `
                 <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">
-                    <td>${item.LineId ?? ''}</td>
+                    <td class="d-none">${item.LineId ?? ''}</td>
                     <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA ?? ''} - ${item.U_MGS_CL_NOMTIE ?? ''}</td>
                     <td contenteditable="true" class="dec" data-field="U_MGS_CL_META">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
                     <td contenteditable="true" class="dec" data-field="U_MGS_CL_RENTA">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
@@ -771,11 +771,11 @@
 
         async function abrirModalNuevo() {
             clearAlert();
-            const tiendasSeleccionadas = checks().filter(ch => ch.checked).map(ch => ch.value);
+            //const tiendasSeleccionadas = checks().filter(ch => ch.checked).map(ch => ch.value);
 
             nuevoPeriodoDestinoValor = '';
             if (nuevoPeriodoDestino) nuevoPeriodoDestino.value = '';
-            if (nuevoFiltroTienda) nuevoFiltroTienda.value = tiendasSeleccionadas.join(',');
+            //if (nuevoFiltroTienda) nuevoFiltroTienda.value = tiendasSeleccionadas.join(',');
 
             if (nuevoDescripcion) {
                 nuevoDescripcion.textContent = 'Se copiarán los valores del último periodo registrado hacia el siguiente periodo disponible.';
@@ -785,7 +785,8 @@
             if (tablaPreviewNuevoBody) tablaPreviewNuevoBody.innerHTML = '';
 
             // Construir URL de consulta antes de invocar fetch para evitar referencias indefinidas
-            const urlPrevisualizar = `/Factores/Previsualizar?tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
+            //const urlPrevisualizar = `/Factores/Previsualizar?tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
+            const urlPrevisualizar = `/Factores/Previsualizar`;
 
             try {
                 const res = await fetch(urlPrevisualizar);

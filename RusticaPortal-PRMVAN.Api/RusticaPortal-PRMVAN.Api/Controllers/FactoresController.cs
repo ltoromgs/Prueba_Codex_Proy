@@ -101,12 +101,11 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         }
 
         [HttpGet("nuevo")]
-        public async Task<ActionResult<ResponseInformation>> GetFactoresPrevios([FromQuery] string Empresa,
-                                                                               [FromQuery] string tiendas)
+        public async Task<ActionResult<ResponseInformation>> GetFactoresPrevios([FromQuery] string Empresa)
         {
             try
             {
-                var rp = await _documentService.GetFactoresNuevoDB(Empresa, tiendas);
+                var rp = await _documentService.GetFactoresNuevoDB(Empresa);
 
                 if (!rp.Registered)
                 {

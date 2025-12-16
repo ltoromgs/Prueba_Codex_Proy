@@ -25,7 +25,7 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetMenuDB(string empresa, string userId);
         Task<ResponseInformation> GetRecepcionDB(string empresa);
         Task<ResponseInformation> GetFactoresDB(string empresa, string periodo, string tiendas);
-        Task<ResponseInformation> GetFactoresNuevoDB(string empresa, string tiendas);
+        Task<ResponseInformation> GetFactoresNuevoDB(string empresa);
         Task<ResponseInformation> GetTiendasActivas(string empresa);
         Task<ResponseInformation> GetContactoDB(string empresa);
     }
