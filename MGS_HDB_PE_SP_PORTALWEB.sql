@@ -1,4 +1,4 @@
--- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
+﻿-- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
 -- matriz de factores, tiendas activas y otros auxiliares.
 alter PROCEDURE MGS_HDB_PE_SP_PORTALWEB (
     IN vTipo NVARCHAR(20),
@@ -146,62 +146,88 @@ BEGIN
     EXECUTE IMMEDIATE :lvSql;
 
 
-    ELSEIF vTipo = 'Get_MatrizFactoresNuevo' THEN
+    ELSEIF vTipo = 'Get_FactoresNuevo' THEN
 
-        DECLARE lvTiendas NVARCHAR(5000);
-        DECLARE lvSql     NVARCHAR(8000);
+        DECLARE lvPeriodoBaseDate DATE;
         DECLARE lvPeriodoBase NVARCHAR(10);
         DECLARE lvPeriodoDestino NVARCHAR(10);
 
         -- Determinar el último periodo registrado y el siguiente (periodo destino)
-        SELECT TO_VARCHAR(MAX("U_MGS_CL_PERIODO"), 'YYYY-MM')
-             , TO_VARCHAR(ADD_MONTHS(MAX("U_MGS_CL_PERIODO"), 1), 'YYYY-MM')
-          INTO lvPeriodoBase, lvPeriodoDestino
+        SELECT MAX("U_MGS_CL_PERIODO")
+          INTO lvPeriodoBaseDate
           FROM "@MGS_CL_FACCAB";
 
-        -- Construir filtro opcional de tiendas solo para la vista previa
-        IF :vParam2 IS NULL OR :vParam2 = '' THEN
-            lvTiendas := '';
+        IF lvPeriodoBaseDate IS NULL THEN
+            lvPeriodoBase := TO_VARCHAR(CURRENT_DATE, 'YYYY-MM');
+            lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(CURRENT_DATE, 1), 'YYYY-MM');
         ELSE
-            lvTiendas := ' AND D."U_MGS_CL_TIENDA" IN (''' || REPLACE(:vParam2, ',', ''',''') || ''')';
+            lvPeriodoBase := TO_VARCHAR(lvPeriodoBaseDate, 'YYYY-MM');
+            lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(lvPeriodoBaseDate, 1), 'YYYY-MM');
         END IF;
 
-        lvSql := '
+	
+        SELECT
+            :lvPeriodoBase      AS "U_MGS_CL_PERIODO",
+            :lvPeriodoDestino   AS "U_MGS_CL_PERIODO_DEST",
+            P."PrjCode"        AS "U_MGS_CL_TIENDA",
+            P."PrjName"        AS "U_MGS_CL_NOMTIE",
+            IFNULL(F."DocEntry", 0)           AS "DocEntry",
+            IFNULL(F."LineId", 0)             AS "LineId",
+            IFNULL(F."U_MGS_CL_META", 0)      AS "U_MGS_CL_META",
+            IFNULL(F."U_MGS_CL_RENTA", 0)     AS "U_MGS_CL_RENTA",
+            IFNULL(F."U_MGS_CL_VAN", 0)       AS "U_MGS_CL_VAN",
+            IFNULL(F."U_MGS_CL_ESTPER", 0)    AS "U_MGS_CL_ESTPER",
+            IFNULL(F."U_MGS_CL_GASADM", 0)    AS "U_MGS_CL_GASADM",
+            IFNULL(F."U_MGS_CL_COMTAR", 0)    AS "U_MGS_CL_COMTAR",
+            IFNULL(F."U_MGS_CL_IMPUES", 0)    AS "U_MGS_CL_IMPUES",
+            IFNULL(F."U_MGS_CL_REGALI", 0)    AS "U_MGS_CL_REGALI",
+            IFNULL(F."U_MGS_CL_AUSER", 0)     AS "U_MGS_CL_AUSER",
+            IFNULL(F."U_MGS_CL_AUOPE", 0)     AS "U_MGS_CL_AUOPE",
+            IFNULL(F."U_MGS_CL_AUCCC", 0)     AS "U_MGS_CL_AUCCC",
+            IFNULL(F."U_MGS_CL_AUADH", 0)     AS "U_MGS_CL_AUADH",
+            IFNULL(F."U_MGS_CL_CLIMA", 0)     AS "U_MGS_CL_CLIMA",
+            IFNULL(F."U_MGS_CL_RUSTI", 0)     AS "U_MGS_CL_RUSTI",
+            IFNULL(F."U_MGS_CL_MELID", 0)     AS "U_MGS_CL_MELID",
+            IFNULL(F."U_MGS_CL_ADMGR", 0)     AS "U_MGS_CL_ADMGR",
+            IFNULL(F."U_MGS_CL_EXGES", 0)     AS "U_MGS_CL_EXGES",
+            IFNULL(F."U_MGS_CL_EXSER", 0)     AS "U_MGS_CL_EXSER",
+            IFNULL(F."U_MGS_CL_EXMAR", 0)     AS "U_MGS_CL_EXMAR",
+            IFNULL(F."U_MGS_CL_PRIMARY", '')   AS "U_MGS_CL_PRIMARY"
+        FROM "OPRJ" P
+        LEFT JOIN (
             SELECT
-                TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'')  AS "U_MGS_CL_PERIODO",
-                ''' || lvPeriodoDestino || '''                  AS "U_MGS_CL_PERIODO_DEST",
-                D."U_MGS_CL_TIENDA"   AS "U_MGS_CL_TIENDA",
-                D."U_MGS_CL_NOMTIE"   AS "U_MGS_CL_NOMTIE",
-                C."DocEntry"          AS "DocEntry",
-                D."LineId"            AS "LineId",
-                D."U_MGS_CL_META"     AS "U_MGS_CL_META",
-                D."U_MGS_CL_RENTA"    AS "U_MGS_CL_RENTA",
-                D."U_MGS_CL_VAN"      AS "U_MGS_CL_VAN",
-                D."U_MGS_CL_ESTPER"   AS "U_MGS_CL_ESTPER",
-                D."U_MGS_CL_GASADM"   AS "U_MGS_CL_GASADM",
-                D."U_MGS_CL_COMTAR"   AS "U_MGS_CL_COMTAR",
-                D."U_MGS_CL_IMPUES"   AS "U_MGS_CL_IMPUES",
-                D."U_MGS_CL_REGALI"   AS "U_MGS_CL_REGALI",
-                D."U_MGS_CL_AUSER"    AS "U_MGS_CL_AUSER",
-                D."U_MGS_CL_AUOPE"    AS "U_MGS_CL_AUOPE",
-                D."U_MGS_CL_AUCCC"    AS "U_MGS_CL_AUCCC",
-                D."U_MGS_CL_AUADH"    AS "U_MGS_CL_AUADH",
-                D."U_MGS_CL_CLIMA"    AS "U_MGS_CL_CLIMA",
-                D."U_MGS_CL_RUSTI"    AS "U_MGS_CL_RUSTI",
-                D."U_MGS_CL_MELID"    AS "U_MGS_CL_MELID",
-                D."U_MGS_CL_ADMGR"    AS "U_MGS_CL_ADMGR",
-                D."U_MGS_CL_EXGES"    AS "U_MGS_CL_EXGES",
-                D."U_MGS_CL_EXSER"    AS "U_MGS_CL_EXSER",
-                D."U_MGS_CL_EXMAR"    AS "U_MGS_CL_EXMAR",
-                D."U_MGS_CL_PRIMARY"  AS "U_MGS_CL_PRIMARY"
+                C."DocEntry",
+                D."LineId",
+                D."U_MGS_CL_TIENDA",
+                D."U_MGS_CL_NOMTIE",
+                D."U_MGS_CL_META",
+                D."U_MGS_CL_RENTA",
+                D."U_MGS_CL_VAN",
+                D."U_MGS_CL_ESTPER",
+                D."U_MGS_CL_GASADM",
+                D."U_MGS_CL_COMTAR",
+                D."U_MGS_CL_IMPUES",
+                D."U_MGS_CL_REGALI",
+                D."U_MGS_CL_AUSER",
+                D."U_MGS_CL_AUOPE",
+                D."U_MGS_CL_AUCCC",
+                D."U_MGS_CL_AUADH",
+                D."U_MGS_CL_CLIMA",
+                D."U_MGS_CL_RUSTI",
+                D."U_MGS_CL_MELID",
+                D."U_MGS_CL_ADMGR",
+                D."U_MGS_CL_EXGES",
+                D."U_MGS_CL_EXSER",
+                D."U_MGS_CL_EXMAR",
+                D."U_MGS_CL_PRIMARY"
             FROM "@MGS_CL_FACCAB" C
             JOIN "@MGS_CL_FACDET" D
               ON D."DocEntry" = C."DocEntry"
-            WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'') = ''' || lvPeriodoBase || ''''
-            || lvTiendas ||
-            ' ORDER BY D."LineId", D."U_MGS_CL_TIENDA", D."U_MGS_CL_NOMTIE"';
+            WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", 'YYYY-MM') = :lvPeriodoBase
+        ) F ON F."U_MGS_CL_TIENDA" = P."PrjCode"
+        WHERE P."Active" = 'Y'
+        ORDER BY P."PrjCode", P."PrjName";
 
-        EXECUTE IMMEDIATE :lvSql;
 
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN
     

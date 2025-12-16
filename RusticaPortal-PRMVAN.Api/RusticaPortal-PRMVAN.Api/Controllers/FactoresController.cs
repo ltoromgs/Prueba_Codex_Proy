@@ -102,7 +102,6 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
         [HttpGet("nuevo")]
         public async Task<ActionResult<ResponseInformation>> GetFactoresPrevios([FromQuery] string Empresa,
-                                                                               [FromQuery] string periodo,
                                                                                [FromQuery] string tiendas)
         {
             try

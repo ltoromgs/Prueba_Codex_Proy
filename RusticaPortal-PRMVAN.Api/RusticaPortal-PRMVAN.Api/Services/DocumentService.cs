@@ -1866,7 +1866,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     CommandType = CommandType.StoredProcedure
                 };
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_MatrizFactoresNuevo";
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_FactoresNuevo";
                 cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
                 cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 255).Value = tiendasCsv ?? string.Empty;
                 cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
