@@ -249,7 +249,7 @@
                             <tr>
                                 <th style="min-width:110px;">Cód.<br />interno</th>
                                 <th class="sticky-col-start" style="min-width:220px;">Tienda<br />Nombre</th>
-                                <th>Meta<br />UV</th>
+                                <th>Meta<br />(UV)</th>
                                 <th>Renta<br />(%)</th>
                                 <th>VAN<br />(%)</th>
                                 <th>PERS<br />(%)</th>
@@ -490,6 +490,7 @@
                     cell.innerText = val;
                     // Disparar validación inmediata
                     validateCell(cell);
+                    actualizarValorPreview(cell.closest('tr'), cell.getAttribute('data-field'), val);
                     cIndex++;
                 });
             });
@@ -740,7 +741,10 @@
         function wirePreviewDecCells() {
             document.querySelectorAll('#tablaPreviewNuevo td.dec').forEach(td => {
                 td.addEventListener('paste', handleGridPaste);
-                td.addEventListener('input', () => validateCell(td));
+                td.addEventListener('input', () => {
+                    validateCell(td);
+                    actualizarValorPreview(td.closest('tr'), td.getAttribute('data-field'), td.innerText);
+                });
                 td.addEventListener('blur', () => {
                     let v = normalizeDecimal(td.innerText.trim());
                     if (isValidDecimal(v)) td.innerText = formatDecimal(v);
