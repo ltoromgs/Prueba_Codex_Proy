@@ -228,25 +228,52 @@
             <div class="modal-body">
                 <p class="mb-2 text-muted" id="nuevoDescripcion"></p>
                 <div id="nuevoEstado" class="alert alert-info d-none" role="alert"></div>
-                <div class="table-responsive" style="max-height:60vh;">
-                    <table class="table table-sm table-striped" id="tablaPreviewNuevo">
+                <div class="row g-3 align-items-end mb-3">
+                    <div class="col-sm-4 col-md-3">
+                        <label class="form-label mb-1">Periodo destino</label>
+                        <input type="month" id="nuevoPeriodoDestino" class="form-control form-control-sm" readonly />
+                    </div>
+                    <div class="col-sm-5 col-md-5">
+                        <label class="form-label mb-1">Filtro por tienda</label>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="nuevoFiltroTienda" class="form-control" placeholder="Buscar por código o nombre" />
+                            <button class="btn btn-outline-secondary" type="button" id="btnFiltrarNuevo">Filtrar</button>
+                            <button class="btn btn-outline-secondary" type="button" id="btnLimpiarFiltroNuevo">Limpiar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="max-height:60vh; overflow:auto;">
+                    <table class="table table-sm table-hover table-bordered" id="tablaPreviewNuevo" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th style="min-width:120px;">Tienda</th>
-                                <th style="min-width:220px;">Nombre</th>
-                                <th class="text-end">Meta UV</th>
-                                <th class="text-end">Renta %</th>
-                                <th class="text-end">VAN %</th>
-                                <th class="text-end">Gtos ADM %</th>
-                                <th class="text-end">Comisión %</th>
-                                <th class="text-end">Impuesto %</th>
-                                <th class="text-end">Regalías %</th>
+                                <th style="min-width:110px;">Cód.<br />interno</th>
+                                <th class="sticky-col-start" style="min-width:220px;">Tienda<br />Nombre</th>
+                                <th>Meta<br />(UV)</th>
+                                <th>Renta<br />(%)</th>
+                                <th>VAN<br />(%)</th>
+                                <th>PERS<br />(%)</th>
+                                <th>Gtos<br />ADM (%)</th>
+                                <th>Comisión<br />Tarjeta (%)</th>
+                                <th>Impuesto<br />(%)</th>
+                                <th>Regalías<br />(%)</th>
+                                <th>AUD.<br />SERV</th>
+                                <th>AUD.<br />OPER</th>
+                                <th>AUD.<br />CC</th>
+                                <th>AUD.<br />ADH</th>
+                                <th>CLIMA<br />LAB</th>
+                                <th>CPTO<br />RUSTICA</th>
+                                <th>META<br />LIDER</th>
+                                <th>ADM.<br />GENERAL</th>
+                                <th>FU. EXC<br />GESTION</th>
+                                <th>FU. EXC<br />SERVICIO</th>
+                                <th>FU. EXC<br />MARCA</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                <small class="text-secondary d-block mt-2">Los valores provienen del periodo anterior; las tiendas nuevas aparecerán con montos en cero.</small>
+                <small class="text-secondary d-block mt-2">Los valores provienen del último periodo registrado y se crearán en el siguiente periodo.</small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -333,6 +360,7 @@
         let tiendasCache = [];
         let previewData = [];
         let modalNuevo;
+        let nuevoPeriodoDestinoValor = '';
 
         function showAlert(message, type = 'success') {
             if (!alertContainer) { alert(message); return; }
@@ -462,6 +490,7 @@
                     cell.innerText = val;
                     // Disparar validación inmediata
                     validateCell(cell);
+                    actualizarValorPreview(cell.closest('tr'), cell.getAttribute('data-field'), val);
                     cIndex++;
                 });
             });
@@ -598,6 +627,10 @@
         const nuevoEstado = document.getElementById('nuevoEstado');
         const nuevoDescripcion = document.getElementById('nuevoDescripcion');
         const tablaPreviewNuevoBody = document.querySelector('#tablaPreviewNuevo tbody');
+        const nuevoPeriodoDestino = document.getElementById('nuevoPeriodoDestino');
+        const nuevoFiltroTienda = document.getElementById('nuevoFiltroTienda');
+        const btnFiltrarNuevo = document.getElementById('btnFiltrarNuevo');
+        const btnLimpiarFiltroNuevo = document.getElementById('btnLimpiarFiltroNuevo');
 
         function setNuevoEstado(msg, type = 'info') {
             if (!nuevoEstado) return;
@@ -617,12 +650,24 @@
             return found ? (found.nombre ?? found.Nombre ?? '') : '';
         }
 
-        function armarPreview(tiendasSel, data) {
-            previewData = tiendasSel.map(code => {
-                const previo = (data || []).find(d => (d.u_MGS_CL_TIENDA ?? d.U_MGS_CL_TIENDA ?? '').trim() === code) || {};
+        function armarPreview(data) {
+            previewData = (data || []).map(previo => {
+                const tienda = (previo.u_MGS_CL_TIENDA ?? previo.U_MGS_CL_TIENDA ?? '').trim();
+                const nombre = previo.u_MGS_CL_NOMTIE ?? previo.U_MGS_CL_NOMTIE ?? obtenerNombreTienda(tienda);
+                const periodoBase = previo.u_MGS_CL_PERIODO ?? previo.U_MGS_CL_PERIODO ?? '';
+                const periodoDestino = previo.u_MGS_CL_PERIODO_DEST ?? previo.U_MGS_CL_PERIODO_DEST ?? '';
+
+                if (!nuevoPeriodoDestinoValor && periodoDestino) {
+                    nuevoPeriodoDestinoValor = periodoDestino;
+                    if (nuevoPeriodoDestino) nuevoPeriodoDestino.value = periodoDestino;
+                }
+
                 return {
-                    tienda: code,
-                    nombre: previo.u_MGS_CL_NOMTIE ?? previo.U_MGS_CL_NOMTIE ?? obtenerNombreTienda(code),
+                    U_MGS_CL_PERIODO: periodoBase,
+                    U_MGS_CL_PERIODO_DEST: periodoDestino,
+                    U_MGS_CL_TIENDA: tienda,
+                    U_MGS_CL_NOMTIE: nombre,
+                    LineId: previo.lineId ?? previo.LineId ?? '',
                     U_MGS_CL_META: toNumberOrZero(previo.u_MGS_CL_META ?? previo.U_MGS_CL_META),
                     U_MGS_CL_RENTA: toNumberOrZero(previo.u_MGS_CL_RENTA ?? previo.U_MGS_CL_RENTA),
                     U_MGS_CL_VAN: toNumberOrZero(previo.u_MGS_CL_VAN ?? previo.U_MGS_CL_VAN),
@@ -631,63 +676,146 @@
                     U_MGS_CL_COMTAR: toNumberOrZero(previo.u_MGS_CL_COMTAR ?? previo.U_MGS_CL_COMTAR),
                     U_MGS_CL_IMPUES: toNumberOrZero(previo.u_MGS_CL_IMPUES ?? previo.U_MGS_CL_IMPUES),
                     U_MGS_CL_REGALI: toNumberOrZero(previo.u_MGS_CL_REGALI ?? previo.U_MGS_CL_REGALI),
+                    U_MGS_CL_AUSER: toNumberOrZero(previo.u_MGS_CL_AUSER ?? previo.U_MGS_CL_AUSER),
+                    U_MGS_CL_AUOPE: toNumberOrZero(previo.u_MGS_CL_AUOPE ?? previo.U_MGS_CL_AUOPE),
+                    U_MGS_CL_AUCCC: toNumberOrZero(previo.u_MGS_CL_AUCCC ?? previo.U_MGS_CL_AUCCC),
+                    U_MGS_CL_AUADH: toNumberOrZero(previo.u_MGS_CL_AUADH ?? previo.U_MGS_CL_AUADH),
+                    U_MGS_CL_CLIMA: toNumberOrZero(previo.u_MGS_CL_CLIMA ?? previo.U_MGS_CL_CLIMA),
+                    U_MGS_CL_RUSTI: toNumberOrZero(previo.u_MGS_CL_RUSTI ?? previo.U_MGS_CL_RUSTI),
+                    U_MGS_CL_MELID: toNumberOrZero(previo.u_MGS_CL_MELID ?? previo.U_MGS_CL_MELID),
+                    U_MGS_CL_ADMGR: toNumberOrZero(previo.u_MGS_CL_ADMGR ?? previo.U_MGS_CL_ADMGR),
+                    U_MGS_CL_EXGES: toNumberOrZero(previo.u_MGS_CL_EXGES ?? previo.U_MGS_CL_EXGES),
+                    U_MGS_CL_EXSER: toNumberOrZero(previo.u_MGS_CL_EXSER ?? previo.U_MGS_CL_EXSER),
+                    U_MGS_CL_EXMAR: toNumberOrZero(previo.u_MGS_CL_EXMAR ?? previo.U_MGS_CL_EXMAR),
                     U_MGS_CL_PRIMARY: previo.u_MGS_CL_PRIMARY ?? previo.U_MGS_CL_PRIMARY ?? ''
                 };
             });
         }
 
-        function renderPreviewTabla() {
+        function renderPreviewTabla(dataParaMostrar) {
             if (!tablaPreviewNuevoBody) return;
-            if (!previewData.length) {
-                tablaPreviewNuevoBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Sin información para mostrar.</td></tr>';
+            const filas = Array.isArray(dataParaMostrar) ? dataParaMostrar : previewData;
+
+            if (!filas.length) {
+                tablaPreviewNuevoBody.innerHTML = '<tr><td colspan="21" class="text-center text-muted">Sin información para mostrar.</td></tr>';
                 return;
             }
 
-            tablaPreviewNuevoBody.innerHTML = previewData.map(item => `
-                <tr>
-                    <td class="fw-semibold">${item.tienda}</td>
-                    <td>${item.nombre ?? ''}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
-                    <td class="text-end">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
+            tablaPreviewNuevoBody.innerHTML = filas.map(item => `
+                <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">
+                    <td>${item.LineId ?? ''}</td>
+                    <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA ?? ''} - ${item.U_MGS_CL_NOMTIE ?? ''}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_META">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_RENTA">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_VAN">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_ESTPER">${formatDecimal(String(item.U_MGS_CL_ESTPER ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_GASADM">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_COMTAR">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_IMPUES">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_REGALI">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUSER">${formatDecimal(String(item.U_MGS_CL_AUSER ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUOPE">${formatDecimal(String(item.U_MGS_CL_AUOPE ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUCCC">${formatDecimal(String(item.U_MGS_CL_AUCCC ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUADH">${formatDecimal(String(item.U_MGS_CL_AUADH ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_CLIMA">${formatDecimal(String(item.U_MGS_CL_CLIMA ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_RUSTI">${formatDecimal(String(item.U_MGS_CL_RUSTI ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_MELID">${formatDecimal(String(item.U_MGS_CL_MELID ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_ADMGR">${formatDecimal(String(item.U_MGS_CL_ADMGR ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXGES">${formatDecimal(String(item.U_MGS_CL_EXGES ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXSER">${formatDecimal(String(item.U_MGS_CL_EXSER ?? '0'))}</td>
+                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXMAR">${formatDecimal(String(item.U_MGS_CL_EXMAR ?? '0'))}</td>
                 </tr>
             `).join('');
+
+            wirePreviewDecCells();
+        }
+
+        function actualizarValorPreview(tr, field, rawVal) {
+            const tienda = tr?.dataset.tienda;
+            if (!tienda || !field) return;
+            const fila = previewData.find(p => (p.U_MGS_CL_TIENDA ?? '').trim() === tienda.trim());
+            if (!fila) return;
+            fila[field] = toNumberOrZero(rawVal);
+        }
+
+        function wirePreviewDecCells() {
+            document.querySelectorAll('#tablaPreviewNuevo td.dec').forEach(td => {
+                td.addEventListener('paste', handleGridPaste);
+                td.addEventListener('input', () => {
+                    validateCell(td);
+                    actualizarValorPreview(td.closest('tr'), td.getAttribute('data-field'), td.innerText);
+                });
+                td.addEventListener('blur', () => {
+                    let v = normalizeDecimal(td.innerText.trim());
+                    if (isValidDecimal(v)) td.innerText = formatDecimal(v);
+                    validateCell(td);
+                    actualizarValorPreview(td.closest('tr'), td.getAttribute('data-field'), v);
+                });
+            });
+        }
+
+        function aplicarFiltroPreview() {
+            const term = (nuevoFiltroTienda?.value ?? '').toLowerCase().trim();
+            if (!term) {
+                renderPreviewTabla(previewData);
+                return;
+            }
+
+            const filtrado = previewData.filter(p => {
+                const texto = `${p.U_MGS_CL_TIENDA ?? ''} ${p.U_MGS_CL_NOMTIE ?? ''}`.toLowerCase();
+                return texto.includes(term);
+            });
+
+            renderPreviewTabla(filtrado);
         }
 
         async function abrirModalNuevo() {
             clearAlert();
-            const periodoDestino = document.getElementById('filtroPeriodo').value;
-            const periodoOrigen = periodoAnterior(periodoDestino);
             const tiendasSeleccionadas = checks().filter(ch => ch.checked).map(ch => ch.value);
 
-            if (!tiendasSeleccionadas.length) {
-                showAlert('Selecciona al menos una tienda antes de cargar el periodo anterior.', 'warning');
-                return;
-            }
+            nuevoPeriodoDestinoValor = '';
+            if (nuevoPeriodoDestino) nuevoPeriodoDestino.value = '';
+            if (nuevoFiltroTienda) nuevoFiltroTienda.value = tiendasSeleccionadas.join(',');
 
             if (nuevoDescripcion) {
-                nuevoDescripcion.textContent = `Se copiarán los valores del periodo ${periodoOrigen} hacia ${periodoDestino}.`;
+                nuevoDescripcion.textContent = 'Se copiarán los valores del último periodo registrado hacia el siguiente periodo disponible.';
             }
 
-            setNuevoEstado('Consultando información del periodo anterior...', 'info');
+            setNuevoEstado('Consultando información del último periodo...', 'info');
             if (tablaPreviewNuevoBody) tablaPreviewNuevoBody.innerHTML = '';
 
+            // Construir URL de consulta antes de invocar fetch para evitar referencias indefinidas
+            const urlPrevisualizar = `/Factores/Previsualizar?tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
+
             try {
-                const url = `/Factores/Previsualizar?periodoOrigen=${encodeURIComponent(periodoOrigen)}&tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
-                const res = await fetch(url);
-                const data = await res.json();
+                const res = await fetch(urlPrevisualizar);
+                let data = [];
+
+                try {
+                    const raw = await res.text();
+                    data = raw ? JSON.parse(raw) : [];
+                } catch (parseErr) {
+                    console.error('ERROR PREVIA NUEVO: parse JSON', parseErr);
+                }
 
                 if (!res.ok) {
-                    setNuevoEstado(data.message || 'No se pudo obtener la información.', 'danger');
+                    const msg = (data && data.message) ? data.message : `No se pudo obtener la información (HTTP ${res.status}).`;
+                    setNuevoEstado(msg, 'danger');
                     return;
                 }
 
-                armarPreview(tiendasSeleccionadas, Array.isArray(data) ? data : []);
-                renderPreviewTabla();
+                armarPreview(Array.isArray(data) ? data : []);
+                if (previewData.length) {
+                    const periodoOrigen = previewData[0]?.U_MGS_CL_PERIODO ?? '';
+                    if (nuevoPeriodoDestinoValor && nuevoDescripcion) {
+                        nuevoDescripcion.textContent = `Se copiarán los valores del periodo ${periodoOrigen} hacia ${nuevoPeriodoDestinoValor}.`;
+                    }
+                    if (nuevoPeriodoDestino && nuevoPeriodoDestinoValor) {
+                        nuevoPeriodoDestino.value = nuevoPeriodoDestinoValor;
+                    }
+                }
+
+                aplicarFiltroPreview();
                 clearNuevoEstado();
 
                 modalNuevo = modalNuevo ?? new bootstrap.Modal(document.getElementById('modalNuevo'));
@@ -704,12 +832,16 @@
                 return;
             }
 
-            const periodoDestino = document.getElementById('filtroPeriodo').value;
+            const periodoDestino = nuevoPeriodoDestinoValor || (previewData[0]?.U_MGS_CL_PERIODO_DEST ?? '');
+            if (!periodoDestino) {
+                setNuevoEstado('No se pudo determinar el periodo destino.', 'danger');
+                return;
+            }
             const payload = {
                 U_MGS_CL_PERIODO: `${periodoDestino}-01`,
                 MGS_CL_FACDETCollection: previewData.map(p => ({
-                    U_MGS_CL_TIENDA: p.tienda,
-                    U_MGS_CL_NOMTIE: p.nombre ?? '',
+                    U_MGS_CL_TIENDA: p.U_MGS_CL_TIENDA,
+                    U_MGS_CL_NOMTIE: p.U_MGS_CL_NOMTIE ?? '',
                     U_MGS_CL_META: toNumberOrZero(p.U_MGS_CL_META),
                     U_MGS_CL_RENTA: toNumberOrZero(p.U_MGS_CL_RENTA),
                     U_MGS_CL_VAN: toNumberOrZero(p.U_MGS_CL_VAN),
@@ -718,17 +850,17 @@
                     U_MGS_CL_COMTAR: toNumberOrZero(p.U_MGS_CL_COMTAR),
                     U_MGS_CL_IMPUES: toNumberOrZero(p.U_MGS_CL_IMPUES),
                     U_MGS_CL_REGALI: toNumberOrZero(p.U_MGS_CL_REGALI),
-                    U_MGS_CL_AUSER: 0,
-                    U_MGS_CL_AUOPE: 0,
-                    U_MGS_CL_AUCCC: 0,
-                    U_MGS_CL_AUADH: 0,
-                    U_MGS_CL_CLIMA: 0,
-                    U_MGS_CL_RUSTI: 0,
-                    U_MGS_CL_MELID: 0,
-                    U_MGS_CL_ADMGR: 0,
-                    U_MGS_CL_EXGES: 0,
-                    U_MGS_CL_EXSER: 0,
-                    U_MGS_CL_EXMAR: 0,
+                    U_MGS_CL_AUSER: toNumberOrZero(p.U_MGS_CL_AUSER),
+                    U_MGS_CL_AUOPE: toNumberOrZero(p.U_MGS_CL_AUOPE),
+                    U_MGS_CL_AUCCC: toNumberOrZero(p.U_MGS_CL_AUCCC),
+                    U_MGS_CL_AUADH: toNumberOrZero(p.U_MGS_CL_AUADH),
+                    U_MGS_CL_CLIMA: toNumberOrZero(p.U_MGS_CL_CLIMA),
+                    U_MGS_CL_RUSTI: toNumberOrZero(p.U_MGS_CL_RUSTI),
+                    U_MGS_CL_MELID: toNumberOrZero(p.U_MGS_CL_MELID),
+                    U_MGS_CL_ADMGR: toNumberOrZero(p.U_MGS_CL_ADMGR),
+                    U_MGS_CL_EXGES: toNumberOrZero(p.U_MGS_CL_EXGES),
+                    U_MGS_CL_EXSER: toNumberOrZero(p.U_MGS_CL_EXSER),
+                    U_MGS_CL_EXMAR: toNumberOrZero(p.U_MGS_CL_EXMAR),
                     U_MGS_CL_PRIMARY: p.U_MGS_CL_PRIMARY ?? ''
                 }))
             };
@@ -759,6 +891,9 @@
 
         document.getElementById('btnNuevo')?.addEventListener('click', abrirModalNuevo);
         document.getElementById('btnConfirmarNuevo')?.addEventListener('click', crearMatrizDesdeModal);
+        btnFiltrarNuevo?.addEventListener('click', (e) => { e.preventDefault(); aplicarFiltroPreview(); });
+        btnLimpiarFiltroNuevo?.addEventListener('click', (e) => { e.preventDefault(); if (nuevoFiltroTienda) nuevoFiltroTienda.value = ''; aplicarFiltroPreview(); });
+        nuevoFiltroTienda?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); aplicarFiltroPreview(); } });
 
         const FIELD_MAP = {
             'u_MGS_CL_META': 'U_MGS_CL_META',
