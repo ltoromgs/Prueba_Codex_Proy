@@ -2425,98 +2425,22 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
         public async Task<ResponseInformation> SetGrupoVanPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<VanGrupoDetalleDto> items)
         {
-            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            return new ResponseInformation
             {
-                return error;
-            }
-
-            using var conn = new HanaConnection(cfg.ConnectionString);
-            try
-            {
-                await conn.OpenAsync();
-
-                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Set_VanTdaBul";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = JsonConvert.SerializeObject(new { items });
-
-                await cmd.ExecuteNonQueryAsync();
-
-                return new ResponseInformation
-                {
-                    Registered = true,
-                    Message = "Grupos VAN actualizados correctamente",
-                    Content = string.Empty
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "Error en base de datos.",
-                    Content = ex.Message
-                };
-            }
-            finally
-            {
-                if (conn.State == ConnectionState.Open)
-                    conn.Close();
-            }
+                Registered = false,
+                Message = "Guardado masivo de grupos VAN debe realizarse vía Service Layer siguiendo el patrón de Matriz de Factores. No se permite usar el SP para escrituras.",
+                Content = string.Empty
+            };
         }
 
         public async Task<ResponseInformation> SetGrupoVanArticulosBulk(string empresa, string grupoCodigo, IEnumerable<VanArticuloDetalleDto> items)
         {
-            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            return new ResponseInformation
             {
-                return error;
-            }
-
-            using var conn = new HanaConnection(cfg.ConnectionString);
-            try
-            {
-                await conn.OpenAsync();
-
-                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Set_VanArtBul";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = JsonConvert.SerializeObject(new { items });
-
-                await cmd.ExecuteNonQueryAsync();
-
-                return new ResponseInformation
-                {
-                    Registered = true,
-                    Message = "Artículos VAN actualizados correctamente",
-                    Content = string.Empty
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "Error en base de datos.",
-                    Content = ex.Message
-                };
-            }
-            finally
-            {
-                if (conn.State == ConnectionState.Open)
-                    conn.Close();
-            }
+                Registered = false,
+                Message = "Guardado masivo de artículos VAN debe implementarse contra Service Layer; el SP sólo soporta consultas.",
+                Content = string.Empty
+            };
         }
 
        
