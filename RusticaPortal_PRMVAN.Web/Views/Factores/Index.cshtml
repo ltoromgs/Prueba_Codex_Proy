@@ -3,7 +3,6 @@
     Layout = "_Layout";
     ViewData["Title"] = "Matriz factores";
 }
-
 <!-- Header -->
 <div class="app-content-header">
     <div class="container-fluid">
@@ -30,7 +29,15 @@
                     <!-- Periodo (month picker) -->
                     <div class="col-auto">
                         <label class="form-label mb-1">Periodo</label>
-                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm"  value="@Model.PeriodoActual" />
+                        <div class="input-group input-group-sm">
+                            <button class="btn btn-outline-secondary" type="button" id="btnPeriodoAnterior">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.PeriodoActual" />
+                            <button class="btn btn-outline-secondary" type="button" id="btnPeriodoSiguiente">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Tiendas: multiselección en dropdown, no se cierra al interactuar -->
@@ -70,12 +77,20 @@
 
             <div class="card-body p-0">
                 <div id="alertContainer" class="px-3 pt-3"></div>
+                <div id="loadingOverlay" class="loading-overlay d-none">
+                    <div class="loading-box text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Procesando...</span>
+                        </div>
+                        <div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div>
+                    </div>
+                </div>
                 <!-- Tabla con scroll horizontal y columnas pegajosas -->
                 <div class="table-responsive" style="overflow:auto;">
                     <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaMatriz" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th>Cód.<br />interno</th>
+                                <th>#</th>
                                 <th class="sticky-col-start">Tienda</th>
                                 <th>Meta<br />(UV)</th>
                                 <th>Renta<br />(%)</th>
@@ -133,7 +148,6 @@
                                     <button class="btn btn-outline-danger btn-xs btn-eliminar"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>-->
-
                             <!-- Fila 2 -->
                             <!--<tr data-id="2">
                                 <td>PUW01</td>
@@ -167,7 +181,6 @@
                                     <button class="btn btn-outline-danger btn-xs btn-eliminar"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>-->
-
                             <!-- Fila 3 -->
                             <!--<tr data-id="3">
                                 <td>PUW02</td>
@@ -207,7 +220,10 @@
 
                 <!-- Pie/acciones inferiores -->
                 <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
-                    <small id="lblResumen" class="text-secondary">Mostrando 0 de 0</small>
+                    <div class="d-flex flex-column">
+                        <small id="lblResumen" class="text-secondary">Mostrando 0 de 0</small>
+                        <small id="lblDocEntry" class="text-secondary">DocEntry: --</small>
+                    </div>
                     <a href="/Home/Index" class="btn btn-outline-primary btn-sm">
                         <i class="bi bi-arrow-left-circle"></i> Regresar
                     </a>
@@ -247,7 +263,7 @@
                     <table class="table table-sm table-hover table-bordered" id="tablaPreviewNuevo" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th class="d-none" style="min-width:110px;">Cód.<br />interno</th>
+                                <th>#</th>
                                 <th class="sticky-col-start" style="min-width:220px;">Tienda<br />Nombre</th>
                                 <th>Meta<br />(UV)</th>
                                 <th>Renta<br />(%)</th>
@@ -351,33 +367,72 @@
             outline: 2px solid #dc3545;
             background: #fde2e1;
         }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2050;
+        }
+
+        .loading-box {
+            background: #ffffff;
+            border-radius: .5rem;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
     </style>
 
     <script>
         const alertContainer = document.getElementById('alertContainer');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingMessage = document.getElementById('loadingMessage');
         const tiendasEstado = document.getElementById('tiendasEstado');
         const tiendasListado = document.getElementById('tiendasListado');
+        const docEntryLabel = document.getElementById('lblDocEntry');
         let tiendasCache = [];
         let previewData = [];
         let modalNuevo;
         let nuevoPeriodoDestinoValor = '';
+        let loadingCount = 0;
 
         function showAlert(message, type = 'success') {
             if (!alertContainer) { alert(message); return; }
 
             alertContainer.innerHTML = '';
             const wrapper = document.createElement('div');
-            wrapper.className = `alert alert-${type} alert-dismissible fade show`;            
+            wrapper.className = `alert alert-${type} alert-dismissible fade show`;
             wrapper.role = 'alert';
             wrapper.innerHTML = `
-                <div>${message}</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+                    <div>${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
             alertContainer.appendChild(wrapper);
         }
 
         function clearAlert() {
             if (alertContainer) alertContainer.innerHTML = '';
+        }
+
+        function showLoading(message = 'Procesando...') {
+            if (!loadingOverlay) return;
+            loadingCount++;
+            loadingMessage.textContent = message;
+            loadingOverlay.classList.remove('d-none');
+        }
+
+        function hideLoading() {
+            if (!loadingOverlay) return;
+            loadingCount = Math.max(loadingCount - 1, 0);
+            if (loadingCount === 0) loadingOverlay.classList.add('d-none');
+        }
+
+        function updateDocEntryInfo(docEntry) {
+            if (!docEntryLabel) return;
+            docEntryLabel.textContent = `DocEntry: ${docEntry || '--'}`;
         }
 
         function periodoAnterior(periodo) {
@@ -388,11 +443,22 @@
             return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
         }
 
+        function cambiarPeriodo(deltaMeses) {
+            const input = document.getElementById('filtroPeriodo');
+            const hoy = new Date();
+            const [anio, mes] = (input?.value ?? `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`).split('-').map(Number);
+            const fecha = new Date(anio || hoy.getFullYear(), (mes || (hoy.getMonth() + 1)) - 1, 1);
+            fecha.setMonth(fecha.getMonth() + deltaMeses);
+            if (input) input.value = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+        }
+
         // ---------- Utilidades de Tiendas ----------
         const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
 
         async function cargarTiendas() {
             if (tiendasEstado) tiendasEstado.textContent = 'Cargando tiendas...';
+
+            showLoading('Cargando tiendas...');
 
             try {
                 const res = await fetch('/Factores/Tiendas');
@@ -404,6 +470,8 @@
                 console.error('ERROR TIENDAS:', err);
                 if (tiendasEstado) tiendasEstado.textContent = 'No se pudieron cargar las tiendas.';
                 if (tiendasListado) tiendasListado.innerHTML = '';
+            } finally {
+                hideLoading();
             }
         }
 
@@ -424,10 +492,10 @@
                 const id = `t_${codigo}`;
 
                 return `
-                    <div class="form-check">
-                        <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
-                        <label class="form-check-label" for="${id}">${codigo} - ${nombre}</label>
-                    </div>`;
+                        <div class="form-check">
+                            <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
+                            <label class="form-check-label" for="${id}">${codigo} - ${nombre}</label>
+                        </div>`;
             }).join('');
         }
 
@@ -533,11 +601,11 @@
             if (!tbody) return;
 
             const placeholder = `
-                <tr class="placeholder-row">
-                    <td>&nbsp;</td>
-                    <td class="sticky-col-start fw-semibold">&nbsp;</td>
-                    ${Array.from({ length: 19 }).map(() => '<td class="placeholder-cell">&nbsp;</td>').join('')}
-                </tr>`;
+                    <tr class="placeholder-row">
+                        <td>&nbsp;</td>
+                        <td class="sticky-col-start fw-semibold">&nbsp;</td>
+                        ${Array.from({ length: 19 }).map(() => '<td class="placeholder-cell">&nbsp;</td>').join('')}
+                    </tr>`;
 
             tbody.innerHTML = Array.from({ length: count }).map(() => placeholder).join('');
         }
@@ -548,13 +616,14 @@
             const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value).join(',');
 
 
+            showLoading('Buscando información...');
             try {
                 const url = `/Factores/Buscar?periodo=${encodeURIComponent(periodo)}&tiendas=${encodeURIComponent(tiendas)}`;
                 const res = await fetch(url, { method: 'GET' });
                 const data = await res.json();
 
 
-                if (!res.ok) { showAlert(data.message || 'Error al buscar', 'danger'); return; }
+                if (!res.ok) { showAlert(data.message || 'Error al buscar', 'danger'); updateDocEntryInfo(''); return; }
 
                 const tbody = document.querySelector('#tablaMatriz tbody');
                 if (Array.isArray(data) && data.length > 0) {
@@ -563,6 +632,8 @@
                 } else {
                     renderEmptyRows(10, tbody);
                 }
+                const docEntry = Array.isArray(data) && data.length ? (data[0].docEntry ?? data[0].DocEntry ?? '') : '';
+                updateDocEntryInfo(docEntry);
                 console.log('periodo ' + periodo);
                 console.log('tiendas ' + tiendas);
                 console.log('data ' + data.length);
@@ -576,6 +647,9 @@
             } catch (err) {
                 console.error('ERROR FETCH:', err);
                 showAlert('No se pudo conectar con el servidor.', 'danger');
+                updateDocEntryInfo('');
+            } finally {
+                hideLoading();
             }
         });
 
@@ -584,32 +658,32 @@
             console.log(`fila: ${m.u_MGS_CL_TIENDA} - ${m.u_MGS_CL_NOMTIE}`);
 
             return `
-                <tr data-id="${m.lineId}" data-lineid="${m.lineId ?? ''}" data-docentry="${m.docEntry ?? ''}" data-periodo="${m.u_MGS_CL_PERIODO ?? ''}" data-tienda="${m.u_MGS_CL_TIENDA ?? ''}" data-nomtien="${m.u_MGS_CL_NOMTIE ?? ''}">
-        <td>${m.lineId ?? ''}</td> <!-- Codigo Interno / ProductoPlanner -->
-        <td class="sticky-col-start fw-semibold">
-            ${m.u_MGS_CL_TIENDA ?? ''} - ${m.u_MGS_CL_NOMTIE ?? ''}
-        </td>
+                    <tr data-id="${m.lineId}" data-lineid="${m.lineId ?? ''}" data-docentry="${m.docEntry ?? ''}" data-periodo="${m.u_MGS_CL_PERIODO ?? ''}" data-tienda="${m.u_MGS_CL_TIENDA ?? ''}" data-nomtien="${m.u_MGS_CL_NOMTIE ?? ''}">
+            <td>${m.lineId ?? ''}</td> <!-- Codigo Interno / ProductoPlanner -->
+            <td class="sticky-col-start fw-semibold">
+                ${m.u_MGS_CL_TIENDA ?? ''} - ${m.u_MGS_CL_NOMTIE ?? ''}
+            </td>
 
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_META">${m.u_MGS_CL_META ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_RENTA">${m.u_MGS_CL_RENTA ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_VAN">${m.u_MGS_CL_VAN ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_ESTPER">${m.u_MGS_CL_ESTPER ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_GASADM">${m.u_MGS_CL_GASADM ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_COMTAR">${m.u_MGS_CL_COMTAR ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_IMPUES">${m.u_MGS_CL_IMPUES ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_REGALI">${m.u_MGS_CL_REGALI ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_META">${m.u_MGS_CL_META ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_RENTA">${m.u_MGS_CL_RENTA ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_VAN">${m.u_MGS_CL_VAN ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_ESTPER">${m.u_MGS_CL_ESTPER ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_GASADM">${m.u_MGS_CL_GASADM ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_COMTAR">${m.u_MGS_CL_COMTAR ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_IMPUES">${m.u_MGS_CL_IMPUES ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_REGALI">${m.u_MGS_CL_REGALI ?? ''}</td>
 
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUSER">${m.u_MGS_CL_AUSER ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUOPE">${m.u_MGS_CL_AUOPE ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUCCC">${m.u_MGS_CL_AUCCC ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUADH">${m.u_MGS_CL_AUADH ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_CLIMA">${m.u_MGS_CL_CLIMA ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_RUSTI">${m.u_MGS_CL_RUSTI ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_MELID">${m.u_MGS_CL_MELID ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_ADMGR">${m.u_MGS_CL_ADMGR ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXGES">${m.u_MGS_CL_EXGES ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXSER">${m.u_MGS_CL_EXSER ?? ''}</td>
-        <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXMAR">${m.u_MGS_CL_EXMAR ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUSER">${m.u_MGS_CL_AUSER ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUOPE">${m.u_MGS_CL_AUOPE ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUCCC">${m.u_MGS_CL_AUCCC ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_AUADH">${m.u_MGS_CL_AUADH ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_CLIMA">${m.u_MGS_CL_CLIMA ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_RUSTI">${m.u_MGS_CL_RUSTI ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_MELID">${m.u_MGS_CL_MELID ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_ADMGR">${m.u_MGS_CL_ADMGR ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXGES">${m.u_MGS_CL_EXGES ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXSER">${m.u_MGS_CL_EXSER ?? ''}</td>
+            <td contenteditable="true" class="dec" data-field="u_MGS_CL_EXMAR">${m.u_MGS_CL_EXMAR ?? ''}</td>
 
 
 </tr>`;
@@ -702,30 +776,30 @@
             }
 
             tablaPreviewNuevoBody.innerHTML = filas.map(item => `
-                <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">
-                    <td class="d-none">${item.LineId ?? ''}</td>
-                    <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA ?? ''} - ${item.U_MGS_CL_NOMTIE ?? ''}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_META">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_RENTA">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_VAN">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_ESTPER">${formatDecimal(String(item.U_MGS_CL_ESTPER ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_GASADM">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_COMTAR">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_IMPUES">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_REGALI">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUSER">${formatDecimal(String(item.U_MGS_CL_AUSER ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUOPE">${formatDecimal(String(item.U_MGS_CL_AUOPE ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUCCC">${formatDecimal(String(item.U_MGS_CL_AUCCC ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUADH">${formatDecimal(String(item.U_MGS_CL_AUADH ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_CLIMA">${formatDecimal(String(item.U_MGS_CL_CLIMA ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_RUSTI">${formatDecimal(String(item.U_MGS_CL_RUSTI ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_MELID">${formatDecimal(String(item.U_MGS_CL_MELID ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_ADMGR">${formatDecimal(String(item.U_MGS_CL_ADMGR ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXGES">${formatDecimal(String(item.U_MGS_CL_EXGES ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXSER">${formatDecimal(String(item.U_MGS_CL_EXSER ?? '0'))}</td>
-                    <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXMAR">${formatDecimal(String(item.U_MGS_CL_EXMAR ?? '0'))}</td>
-                </tr>
-            `).join('');
+                    <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">
+                        <td class="fw-semibold">${item.LineId ?? ''}</td>
+                        <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA ?? ''} - ${item.U_MGS_CL_NOMTIE ?? ''}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_META">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_RENTA">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_VAN">${formatDecimal(String(item.U_MGS_CL_VAN ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_ESTPER">${formatDecimal(String(item.U_MGS_CL_ESTPER ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_GASADM">${formatDecimal(String(item.U_MGS_CL_GASADM ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_COMTAR">${formatDecimal(String(item.U_MGS_CL_COMTAR ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_IMPUES">${formatDecimal(String(item.U_MGS_CL_IMPUES ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_REGALI">${formatDecimal(String(item.U_MGS_CL_REGALI ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUSER">${formatDecimal(String(item.U_MGS_CL_AUSER ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUOPE">${formatDecimal(String(item.U_MGS_CL_AUOPE ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUCCC">${formatDecimal(String(item.U_MGS_CL_AUCCC ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_AUADH">${formatDecimal(String(item.U_MGS_CL_AUADH ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_CLIMA">${formatDecimal(String(item.U_MGS_CL_CLIMA ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_RUSTI">${formatDecimal(String(item.U_MGS_CL_RUSTI ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_MELID">${formatDecimal(String(item.U_MGS_CL_MELID ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_ADMGR">${formatDecimal(String(item.U_MGS_CL_ADMGR ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXGES">${formatDecimal(String(item.U_MGS_CL_EXGES ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXSER">${formatDecimal(String(item.U_MGS_CL_EXSER ?? '0'))}</td>
+                        <td contenteditable="true" class="dec" data-field="U_MGS_CL_EXMAR">${formatDecimal(String(item.U_MGS_CL_EXMAR ?? '0'))}</td>
+                    </tr>
+                `).join('');
 
             wirePreviewDecCells();
         }
@@ -783,6 +857,7 @@
 
             setNuevoEstado('Consultando información del último periodo...', 'info');
             if (tablaPreviewNuevoBody) tablaPreviewNuevoBody.innerHTML = '';
+            showLoading('Consultando información del último periodo...');
 
             // Construir URL de consulta antes de invocar fetch para evitar referencias indefinidas
             //const urlPrevisualizar = `/Factores/Previsualizar?tiendas=${encodeURIComponent(tiendasSeleccionadas.join(','))}`;
@@ -824,6 +899,8 @@
             } catch (err) {
                 console.error('ERROR PREVIA NUEVO:', err);
                 setNuevoEstado('No se pudo conectar con el servidor.', 'danger');
+            } finally {
+                hideLoading();
             }
         }
 
@@ -868,6 +945,7 @@
 
             try {
                 setNuevoEstado('Guardando información...', 'info');
+                showLoading('Guardando información...');
                 const res = await fetch('/Factores/Crear', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -887,6 +965,8 @@
             } catch (err) {
                 console.error('ERROR CREAR:', err);
                 setNuevoEstado('No se pudo crear la matriz.', 'danger');
+            } finally {
+                hideLoading();
             }
         }
 
@@ -895,6 +975,8 @@
         btnFiltrarNuevo?.addEventListener('click', (e) => { e.preventDefault(); aplicarFiltroPreview(); });
         btnLimpiarFiltroNuevo?.addEventListener('click', (e) => { e.preventDefault(); if (nuevoFiltroTienda) nuevoFiltroTienda.value = ''; aplicarFiltroPreview(); });
         nuevoFiltroTienda?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); aplicarFiltroPreview(); } });
+        document.getElementById('btnPeriodoAnterior')?.addEventListener('click', () => cambiarPeriodo(-1));
+        document.getElementById('btnPeriodoSiguiente')?.addEventListener('click', () => cambiarPeriodo(1));
 
         const FIELD_MAP = {
             'u_MGS_CL_META': 'U_MGS_CL_META',
@@ -962,6 +1044,7 @@
             };
 
             try {
+                showLoading('Actualizando matriz...');
                 const res = await fetch(`/Factores/Actualizar?docEntry=${encodeURIComponent(docEntry)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -976,6 +1059,8 @@
             } catch (err) {
                 console.error('ERROR ACTUALIZAR:', err);
                 showAlert('No se pudo actualizar la matriz.', 'danger');
+            } finally {
+                hideLoading();
             }
         });
 
@@ -990,6 +1075,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderEmptyRows();
             cargarTiendas();
+            updateDocEntryInfo('');
             if (window.bootstrap && document.getElementById('modalNuevo')) {
                 modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
             }
