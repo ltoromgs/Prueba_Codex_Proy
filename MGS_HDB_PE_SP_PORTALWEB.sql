@@ -229,6 +229,292 @@ BEGIN
         ORDER BY P."PrjCode", P."PrjName";
 
 
+    ELSEIF vTipo = 'Get_VanTienda' THEN
+
+        SELECT
+            "PrjCode" AS "PrjCode",
+            "PrjName" AS "PrjName"
+        FROM "OPRJ"
+        WHERE "Active" = 'Y'
+        ORDER BY "PrjCode";
+
+
+    ELSEIF vTipo = 'Get_VanGrupoM' THEN
+
+        SELECT
+            "Code"           AS "Code",
+            "Name"           AS "Name",
+            "U_MGS_CL_TIPO"  AS "U_MGS_CL_TIPO",
+            "U_MGS_CL_PORC"  AS "U_MGS_CL_PORC",
+            "U_MGS_CL_ACTIVO" AS "U_MGS_CL_ACTIVO",
+            "U_MGS_CL_FECPRO" AS "U_MGS_CL_FECPRO",
+            "U_MGS_CL_PRIMARY" AS "U_MGS_CL_PRIMARY"
+        FROM "@MGS_CL_VANGRP"
+        ORDER BY "Code";
+
+
+    ELSEIF vTipo = 'Get_VanTdaGrp' THEN
+
+        SELECT
+            D."LineId"           AS "LineId",
+            D."U_MGS_CL_GRPCOD"  AS "U_MGS_CL_GRPCOD",
+            D."U_MGS_CL_GRPNOM"  AS "U_MGS_CL_GRPNOM",
+            D."U_MGS_CL_TIPO"    AS "U_MGS_CL_TIPO",
+            D."U_MGS_CL_PORC"    AS "U_MGS_CL_PORC",
+            D."U_MGS_CL_ACTIVO"  AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_VANTDA" H
+        JOIN "@MGS_CL_VANTDA_D" D ON D."DocEntry" = H."DocEntry"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+        ORDER BY D."LineId";
+
+
+    ELSEIF vTipo = 'Get_VanGrpArt' THEN
+
+        SELECT
+            D."LineId"            AS "LineId",
+            D."U_MGS_CL_ITEMCOD"  AS "U_MGS_CL_ITEMCOD",
+            D."U_MGS_CL_ITEMNAM"  AS "U_MGS_CL_ITEMNAM",
+            D."U_MGS_CL_TIPO"     AS "U_MGS_CL_TIPO",
+            D."U_MGS_CL_PORC"     AS "U_MGS_CL_PORC",
+            D."U_MGS_CL_ACTIVO"   AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_VANART" H
+        JOIN "@MGS_CL_VANART_D" D ON D."DocEntry" = H."DocEntry"
+        WHERE H."U_MGS_CL_GRPCOD" = :vParam1
+        ORDER BY D."LineId";
+
+
+    ELSEIF vTipo = 'Set_VanTdaBul' THEN
+
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            SIGNAL SQL_ERROR 'Error al actualizar los grupos VAN de la tienda.';
+        END;
+
+        START TRANSACTION;
+
+        DECLARE lvDocEntry INT;
+        DECLARE lvLineId INT;
+        DECLARE lvNomTienda NVARCHAR(200);
+        DECLARE lvExiste INT;
+
+        SELECT COUNT(*) INTO lvExiste FROM "OPRJ" WHERE "PrjCode" = :vParam1;
+        IF lvExiste = 0 THEN
+            SIGNAL SQL_ERROR 'La tienda no existe.';
+        END IF;
+
+        SELECT TOP 1 "DocEntry", "U_MGS_CL_NOMTIE"
+          INTO lvDocEntry, lvNomTienda
+          FROM "@MGS_CL_VANTDA"
+         WHERE "U_MGS_CL_TIENDA" = :vParam1
+         ORDER BY "DocEntry" DESC;
+
+        IF lvDocEntry IS NULL THEN
+            SELECT "PrjName" INTO lvNomTienda FROM "OPRJ" WHERE "PrjCode" = :vParam1;
+
+            INSERT INTO "@MGS_CL_VANTDA" (
+                "U_MGS_CL_TIENDA",
+                "U_MGS_CL_NOMTIE",
+                "U_MGS_CL_FECPRO",
+                "U_MGS_CL_PRIMARY"
+            ) VALUES (
+                :vParam1,
+                lvNomTienda,
+                CURRENT_DATE,
+                'Y'
+            );
+
+            SELECT MAX("DocEntry") INTO lvDocEntry FROM "@MGS_CL_VANTDA" WHERE "U_MGS_CL_TIENDA" = :vParam1;
+        END IF;
+
+        FOR cur AS
+            SELECT
+                COALESCE("LineId", 0) AS "LineId",
+                COALESCE("U_MGS_CL_GRPCOD", '') AS "U_MGS_CL_GRPCOD",
+                COALESCE("U_MGS_CL_GRPNOM", '') AS "U_MGS_CL_GRPNOM",
+                COALESCE("U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
+                COALESCE("U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC",
+                COALESCE("U_MGS_CL_ACTIVO", 'Y') AS "U_MGS_CL_ACTIVO"
+            FROM JSON_TABLE(:vParam2, '$.items[*]'
+                 COLUMNS (
+                     "LineId" INT PATH '$.LineId',
+                     "U_MGS_CL_GRPCOD" NVARCHAR(50) PATH '$.U_MGS_CL_GRPCOD',
+                     "U_MGS_CL_GRPNOM" NVARCHAR(100) PATH '$.U_MGS_CL_GRPNOM',
+                     "U_MGS_CL_TIPO" NVARCHAR(20) PATH '$.U_MGS_CL_TIPO',
+                     "U_MGS_CL_PORC" DECIMAL(19, 6) PATH '$.U_MGS_CL_PORC',
+                     "U_MGS_CL_ACTIVO" NVARCHAR(1) PATH '$.U_MGS_CL_ACTIVO'
+                )
+            ) AS JT
+        DO
+
+            IF cur."U_MGS_CL_TIPO" = '' THEN
+                SIGNAL SQL_ERROR 'El tipo es obligatorio.';
+            END IF;
+
+            IF cur."U_MGS_CL_PORC" < 0 OR cur."U_MGS_CL_PORC" > 100 THEN
+                SIGNAL SQL_ERROR 'El porcentaje debe estar entre 0 y 100.';
+            END IF;
+
+            DECLARE lvDup INT;
+            SELECT COUNT(*) INTO lvDup
+            FROM "@MGS_CL_VANTDA_D"
+            WHERE "DocEntry" = lvDocEntry
+              AND "U_MGS_CL_GRPCOD" = cur."U_MGS_CL_GRPCOD"
+              AND (cur."LineId" IS NULL OR "LineId" <> cur."LineId");
+
+            IF lvDup > 0 THEN
+                SIGNAL SQL_ERROR 'El grupo VAN ya existe para la tienda.';
+            END IF;
+
+            IF cur."LineId" > 0 THEN
+                UPDATE "@MGS_CL_VANTDA_D"
+                   SET "U_MGS_CL_TIPO" = cur."U_MGS_CL_TIPO",
+                       "U_MGS_CL_PORC" = cur."U_MGS_CL_PORC",
+                       "U_MGS_CL_ACTIVO" = cur."U_MGS_CL_ACTIVO"
+                 WHERE "DocEntry" = lvDocEntry
+                   AND "LineId" = cur."LineId";
+            ELSE
+                SELECT COALESCE(MAX("LineId"), 0) + 1 INTO lvLineId FROM "@MGS_CL_VANTDA_D" WHERE "DocEntry" = lvDocEntry;
+
+                INSERT INTO "@MGS_CL_VANTDA_D" (
+                    "DocEntry",
+                    "LineId",
+                    "U_MGS_CL_GRPCOD",
+                    "U_MGS_CL_GRPNOM",
+                    "U_MGS_CL_TIPO",
+                    "U_MGS_CL_PORC",
+                    "U_MGS_CL_ACTIVO"
+                ) VALUES (
+                    lvDocEntry,
+                    lvLineId,
+                    cur."U_MGS_CL_GRPCOD",
+                    cur."U_MGS_CL_GRPNOM",
+                    cur."U_MGS_CL_TIPO",
+                    cur."U_MGS_CL_PORC",
+                    cur."U_MGS_CL_ACTIVO"
+                );
+            END IF;
+        END FOR;
+
+        COMMIT;
+
+
+    ELSEIF vTipo = 'Set_VanArtBul' THEN
+
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            SIGNAL SQL_ERROR 'Error al actualizar los artículos del grupo VAN.';
+        END;
+
+        START TRANSACTION;
+
+        DECLARE lvDocEntryArt INT;
+        DECLARE lvLineIdArt INT;
+        DECLARE lvNombreGrp NVARCHAR(200);
+        DECLARE lvGrpExiste INT;
+
+        SELECT COUNT(*) INTO lvGrpExiste FROM "@MGS_CL_VANGRP" WHERE "Code" = :vParam1;
+        IF lvGrpExiste = 0 THEN
+            SIGNAL SQL_ERROR 'El grupo VAN no existe.';
+        END IF;
+
+        SELECT TOP 1 "DocEntry", "U_MGS_CL_GRPNOM"
+          INTO lvDocEntryArt, lvNombreGrp
+          FROM "@MGS_CL_VANART"
+         WHERE "U_MGS_CL_GRPCOD" = :vParam1
+         ORDER BY "DocEntry" DESC;
+
+        IF lvDocEntryArt IS NULL THEN
+            SELECT "Name" INTO lvNombreGrp FROM "@MGS_CL_VANGRP" WHERE "Code" = :vParam1;
+
+            INSERT INTO "@MGS_CL_VANART" (
+                "U_MGS_CL_GRPCOD",
+                "U_MGS_CL_GRPNOM",
+                "U_MGS_CL_FECPRO",
+                "U_MGS_CL_PRIMARY"
+            ) VALUES (
+                :vParam1,
+                lvNombreGrp,
+                CURRENT_DATE,
+                'Y'
+            );
+
+            SELECT MAX("DocEntry") INTO lvDocEntryArt FROM "@MGS_CL_VANART" WHERE "U_MGS_CL_GRPCOD" = :vParam1;
+        END IF;
+
+        FOR curArt AS
+            SELECT
+                COALESCE("LineId", 0) AS "LineId",
+                COALESCE("U_MGS_CL_ITEMCOD", '') AS "U_MGS_CL_ITEMCOD",
+                COALESCE("U_MGS_CL_ITEMNAM", '') AS "U_MGS_CL_ITEMNAM",
+                COALESCE("U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
+                COALESCE("U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC",
+                COALESCE("U_MGS_CL_ACTIVO", 'Y') AS "U_MGS_CL_ACTIVO"
+            FROM JSON_TABLE(:vParam2, '$.items[*]'
+                 COLUMNS (
+                     "LineId" INT PATH '$.LineId',
+                     "U_MGS_CL_ITEMCOD" NVARCHAR(50) PATH '$.U_MGS_CL_ITEMCOD',
+                     "U_MGS_CL_ITEMNAM" NVARCHAR(200) PATH '$.U_MGS_CL_ITEMNAM',
+                     "U_MGS_CL_TIPO" NVARCHAR(20) PATH '$.U_MGS_CL_TIPO',
+                     "U_MGS_CL_PORC" DECIMAL(19, 6) PATH '$.U_MGS_CL_PORC',
+                     "U_MGS_CL_ACTIVO" NVARCHAR(1) PATH '$.U_MGS_CL_ACTIVO'
+                )
+            ) AS JT
+        DO
+
+            IF curArt."U_MGS_CL_TIPO" = '' THEN
+                SIGNAL SQL_ERROR 'El tipo es obligatorio.';
+            END IF;
+
+            IF curArt."U_MGS_CL_PORC" < 0 OR curArt."U_MGS_CL_PORC" > 100 THEN
+                SIGNAL SQL_ERROR 'El porcentaje debe estar entre 0 y 100.';
+            END IF;
+
+            DECLARE lvDupArt INT;
+            SELECT COUNT(*) INTO lvDupArt
+            FROM "@MGS_CL_VANART_D"
+            WHERE "DocEntry" = lvDocEntryArt
+              AND "U_MGS_CL_ITEMCOD" = curArt."U_MGS_CL_ITEMCOD"
+              AND (curArt."LineId" IS NULL OR "LineId" <> curArt."LineId");
+
+            IF lvDupArt > 0 THEN
+                SIGNAL SQL_ERROR 'El artículo ya existe en el grupo VAN.';
+            END IF;
+
+            IF curArt."LineId" > 0 THEN
+                UPDATE "@MGS_CL_VANART_D"
+                   SET "U_MGS_CL_TIPO" = curArt."U_MGS_CL_TIPO",
+                       "U_MGS_CL_PORC" = curArt."U_MGS_CL_PORC",
+                       "U_MGS_CL_ACTIVO" = curArt."U_MGS_CL_ACTIVO"
+                 WHERE "DocEntry" = lvDocEntryArt
+                   AND "LineId" = curArt."LineId";
+            ELSE
+                SELECT COALESCE(MAX("LineId"), 0) + 1 INTO lvLineIdArt FROM "@MGS_CL_VANART_D" WHERE "DocEntry" = lvDocEntryArt;
+
+                INSERT INTO "@MGS_CL_VANART_D" (
+                    "DocEntry",
+                    "LineId",
+                    "U_MGS_CL_ITEMCOD",
+                    "U_MGS_CL_ITEMNAM",
+                    "U_MGS_CL_TIPO",
+                    "U_MGS_CL_PORC",
+                    "U_MGS_CL_ACTIVO"
+                ) VALUES (
+                    lvDocEntryArt,
+                    lvLineIdArt,
+                    curArt."U_MGS_CL_ITEMCOD",
+                    curArt."U_MGS_CL_ITEMNAM",
+                    curArt."U_MGS_CL_TIPO",
+                    curArt."U_MGS_CL_PORC",
+                    curArt."U_MGS_CL_ACTIVO"
+                );
+            END IF;
+        END FOR;
+
+        COMMIT;
+
+
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN
     
         /*SELECT 

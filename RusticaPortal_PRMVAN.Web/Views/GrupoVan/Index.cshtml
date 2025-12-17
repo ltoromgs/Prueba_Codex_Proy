@@ -1,0 +1,452 @@
+﻿@{
+    ViewData["Title"] = "Grupos VAN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid" id="grupos-van-app">
+    <div class="d-flex align-items-center justify-content-between bg-light border rounded p-3 sticky-top" style="top: 70px; z-index: 1030;">
+        <div>
+            <div class="fw-bold">Tienda seleccionada: <span id="headerTienda">-</span></div>
+            <div>Grupo VAN seleccionado: <span id="headerGrupo">-</span></div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-1">
+                <span class="text-secondary">Pendientes</span>
+                <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
+            </div>
+            <button id="btnActualizarTodo" class="btn btn-primary" disabled>Actualizar todo</button>
+        </div>
+    </div>
+
+    <div id="alertas" class="mt-3"></div>
+
+    <div class="row mt-3">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">Tiendas</div>
+                <div class="card-body d-flex flex-column">
+                    <input type="text" id="buscarTienda" class="form-control mb-2" placeholder="Buscar tienda" />
+                    <div id="tiendasLista" class="list-group flex-grow-1 overflow-auto" style="max-height: 70vh;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">Grupo VAN por tienda</div>
+                <div class="card-body d-flex flex-column">
+                    <div class="row g-2 mb-2">
+                        <div class="col-5">
+                            <select id="selectGrupoMaestro" class="form-select"></select>
+                        </div>
+                        <div class="col-3">
+                            <select id="selectTipoGrupo" class="form-select">
+                                <option value="">Tipo</option>
+                                <option>Determinado</option>
+                                <option>Indeterminado</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <input id="inputPorcGrupo" type="number" min="0" max="100" class="form-control" placeholder="%" />
+                        </div>
+                        <div class="col-2 d-grid">
+                            <button id="btnAgregarGrupo" class="btn btn-success">+</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive position-relative flex-grow-1" style="max-height: 65vh;">
+                        <table class="table table-sm table-bordered align-middle" id="tablaGrupos">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sticky-col">Grupo VAN</th>
+                                    <th>Tipo</th>
+                                    <th>%</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">Asignación de artículos VAN</div>
+                <div class="card-body d-flex flex-column">
+                    <div class="row g-2 mb-2">
+                        <div class="col-4">
+                            <input id="inputArticulo" class="form-control" placeholder="Código" />
+                        </div>
+                        <div class="col-4">
+                            <select id="selectTipoArticulo" class="form-select">
+                                <option value="">Tipo</option>
+                                <option>Determinado</option>
+                                <option>Indeterminado</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <input id="inputPorcArticulo" type="number" min="0" max="100" class="form-control" placeholder="%" />
+                        </div>
+                        <div class="col-2 d-grid">
+                            <button id="btnAgregarArticulo" class="btn btn-success">+</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive position-relative flex-grow-1" style="max-height: 65vh;">
+                        <table class="table table-sm table-bordered align-middle" id="tablaArticulos">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sticky-col">Código</th>
+                                    <th>Descripción</th>
+                                    <th>Tipo</th>
+                                    <th>%</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCambios" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambios pendientes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Hay cambios pendientes sin guardar. ¿Deseas descartarlos?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+                    <button type="button" class="btn btn-danger" id="btnDescartar">Descartar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .sticky-col {
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 2;
+    }
+    .fila-pendiente {
+        background-color: #fff3cd !important;
+    }
+</style>
+
+<script>
+    const empresa = '@User.FindFirst("Empresa")?.Value';
+
+    const state = {
+        tiendas: [],
+        gruposMaestro: [],
+        gruposTienda: [],
+        articulosGrupo: [],
+        tiendaActual: null,
+        grupoActual: null,
+        pending: {
+            grupos: new Set(),
+            articulos: new Set()
+        }
+    };
+
+    const alertas = document.getElementById('alertas');
+
+    const mostrarAlerta = (mensaje, tipo = 'danger') => {
+        if (!mensaje) return;
+        alertas.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">${mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+    };
+
+    const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
+
+    const actualizarHeader = () => {
+        document.getElementById('headerTienda').textContent = state.tiendaActual?.PrjName || '-';
+        document.getElementById('headerGrupo').textContent = state.grupoActual?.U_MGS_CL_GRPNOM || '-';
+        document.getElementById('pendingBadge').textContent = pendientesTotal();
+        document.getElementById('btnActualizarTodo').disabled = pendientesTotal() === 0;
+    };
+
+    const marcarPendiente = (tipo, lineId) => {
+        state.pending[tipo].add(lineId);
+        actualizarHeader();
+    };
+
+    const limpiarPendientes = () => {
+        state.pending.grupos.clear();
+        state.pending.articulos.clear();
+        actualizarHeader();
+    };
+
+    const cargarTiendas = async () => {
+        const resp = await fetch(`/api/grupovan/tiendas?empresa=${empresa}`);
+        const data = await resp.json();
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudieron cargar las tiendas');
+            return;
+        }
+        state.tiendas = JSON.parse(data.content || '[]');
+        renderTiendas();
+    };
+
+    const renderTiendas = () => {
+        const cont = document.getElementById('tiendasLista');
+        cont.innerHTML = '';
+        const filtro = document.getElementById('buscarTienda').value?.toLowerCase() || '';
+        state.tiendas
+            .filter(t => t.PrjCode.toLowerCase().includes(filtro) || t.PrjName.toLowerCase().includes(filtro))
+            .forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = 'list-group-item list-group-item-action';
+                btn.textContent = `${t.PrjCode} - ${t.PrjName}`;
+                btn.onclick = () => seleccionarTienda(t);
+                if (state.tiendaActual?.PrjCode === t.PrjCode) btn.classList.add('active');
+                cont.appendChild(btn);
+            });
+    };
+
+    const seleccionarTienda = (tienda) => {
+        if (pendientesTotal() > 0) {
+            const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
+            document.getElementById('btnDescartar').onclick = () => {
+                limpiarPendientes();
+                modal.hide();
+                cambiarTienda(tienda);
+            };
+            modal.show();
+            return;
+        }
+        cambiarTienda(tienda);
+    };
+
+    const cambiarTienda = async (tienda) => {
+        state.tiendaActual = tienda;
+        state.grupoActual = null;
+        actualizarHeader();
+        await cargarGruposTienda();
+        renderGrupos();
+        renderArticulos([]);
+        renderTiendas();
+    };
+
+    const cargarGruposTienda = async () => {
+        if (!state.tiendaActual) return;
+        const resp = await fetch(`/api/grupovan/tienda/${state.tiendaActual.PrjCode}/grupos?empresa=${empresa}`);
+        const data = await resp.json();
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudieron cargar los grupos de la tienda');
+            return;
+        }
+        state.gruposTienda = JSON.parse(data.content || '[]');
+    };
+
+    const renderGrupos = () => {
+        const tbody = document.querySelector('#tablaGrupos tbody');
+        tbody.innerHTML = '';
+        state.gruposTienda.forEach(g => {
+            const tr = document.createElement('tr');
+            if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
+            if (g.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
+
+            const tdNombre = document.createElement('td');
+            tdNombre.className = 'sticky-col';
+            tdNombre.textContent = `${g.U_MGS_CL_GRPCOD} - ${g.U_MGS_CL_GRPNOM}`;
+            tdNombre.onclick = () => seleccionarGrupo(g);
+
+            const tdTipo = document.createElement('td');
+            const select = document.createElement('select');
+            select.className = 'form-select form-select-sm';
+            ['Determinado','Indeterminado'].forEach(opt => {
+                const o = document.createElement('option');
+                o.textContent = opt; o.value = opt; if (g.U_MGS_CL_TIPO === opt) o.selected = true; select.appendChild(o);
+            });
+            select.onchange = () => { g.U_MGS_CL_TIPO = select.value; marcarPendiente('grupos', g.LineId); renderGrupos(); };
+            tdTipo.appendChild(select);
+
+            const tdPorc = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number'; input.min = 0; input.max = 100; input.className = 'form-control form-control-sm'; input.value = g.U_MGS_CL_PORC;
+            input.onchange = () => { g.U_MGS_CL_PORC = Number(input.value); marcarPendiente('grupos', g.LineId); renderGrupos(); };
+            tdPorc.appendChild(input);
+
+            const tdAccion = document.createElement('td');
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-outline-danger btn-sm';
+            btn.textContent = g.U_MGS_CL_ACTIVO === 'Y' ? 'Quitar' : 'Revertir';
+            btn.onclick = () => {
+                g.U_MGS_CL_ACTIVO = g.U_MGS_CL_ACTIVO === 'Y' ? 'N' : 'Y';
+                marcarPendiente('grupos', g.LineId);
+                renderGrupos();
+            };
+            tdAccion.appendChild(btn);
+
+            tr.append(tdNombre, tdTipo, tdPorc, tdAccion);
+            tbody.appendChild(tr);
+        });
+    };
+
+    const seleccionarGrupo = async (grupo) => {
+        if (pendientesTotal() > 0 && state.grupoActual && state.grupoActual.LineId !== grupo.LineId) {
+            const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
+            document.getElementById('btnDescartar').onclick = () => {
+                limpiarPendientes();
+                modal.hide();
+                cambiarGrupo(grupo);
+            };
+            modal.show();
+            return;
+        }
+        cambiarGrupo(grupo);
+    };
+
+    const cambiarGrupo = async (grupo) => {
+        state.grupoActual = grupo;
+        actualizarHeader();
+        await cargarArticulosGrupo();
+        renderArticulos(state.articulosGrupo);
+    };
+
+    const cargarArticulosGrupo = async () => {
+        if (!state.grupoActual) return;
+        const resp = await fetch(`/api/grupovan/grupo/${state.grupoActual.U_MGS_CL_GRPCOD}/articulos?empresa=${empresa}`);
+        const data = await resp.json();
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudieron cargar los artículos del grupo');
+            return;
+        }
+        state.articulosGrupo = JSON.parse(data.content || '[]');
+    };
+
+    const renderArticulos = (lista) => {
+        const tbody = document.querySelector('#tablaArticulos tbody');
+        tbody.innerHTML = '';
+        lista.forEach(a => {
+            const tr = document.createElement('tr');
+            if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
+            if (a.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
+
+            const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
+            const tdNombre = document.createElement('td'); tdNombre.textContent = a.U_MGS_CL_ITEMNAM;
+            const tdTipo = document.createElement('td');
+            const select = document.createElement('select'); select.className = 'form-select form-select-sm';
+            ['Determinado','Indeterminado'].forEach(opt => { const o=document.createElement('option'); o.value=opt; o.textContent=opt; if(a.U_MGS_CL_TIPO===opt) o.selected=true; select.appendChild(o); });
+            select.onchange = () => { a.U_MGS_CL_TIPO = select.value; marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); };
+            tdTipo.appendChild(select);
+
+            const tdPorc = document.createElement('td');
+            const input = document.createElement('input'); input.type='number'; input.min=0; input.max=100; input.className='form-control form-control-sm'; input.value=a.U_MGS_CL_PORC;
+            input.onchange = () => { a.U_MGS_CL_PORC = Number(input.value); marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); };
+            tdPorc.appendChild(input);
+
+            const tdAccion = document.createElement('td');
+            const btn = document.createElement('button'); btn.className='btn btn-outline-danger btn-sm'; btn.textContent='Quitar';
+            btn.textContent = a.U_MGS_CL_ACTIVO === 'Y' ? 'Quitar' : 'Revertir';
+            btn.onclick = () => { a.U_MGS_CL_ACTIVO = a.U_MGS_CL_ACTIVO === 'Y' ? 'N' : 'Y'; marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); };
+            tdAccion.appendChild(btn);
+
+            tr.append(tdCodigo, tdNombre, tdTipo, tdPorc, tdAccion);
+            tbody.appendChild(tr);
+        });
+    };
+
+    const agregarGrupo = () => {
+        if (!state.tiendaActual) return;
+        const grp = state.gruposMaestro.find(g => g.Code === document.getElementById('selectGrupoMaestro').value);
+        const tipo = document.getElementById('selectTipoGrupo').value;
+        const porc = Number(document.getElementById('inputPorcGrupo').value || 0);
+        if (!grp || !tipo || porc < 0 || porc > 100) return;
+        if (state.gruposTienda.some(x => x.U_MGS_CL_GRPCOD === grp.Code)) { mostrarAlerta('El grupo ya está asignado a la tienda'); return; }
+        const nuevo = { DocEntry: null, LineId: Date.now(), U_MGS_CL_GRPCOD: grp.Code, U_MGS_CL_GRPNOM: grp.Name, U_MGS_CL_TIPO: tipo, U_MGS_CL_PORC: porc, U_MGS_CL_ACTIVO: 'Y' };
+        state.gruposTienda.push(nuevo);
+        marcarPendiente('grupos', nuevo.LineId);
+        renderGrupos();
+    };
+
+    const agregarArticulo = () => {
+        if (!state.grupoActual) return;
+        const codigo = document.getElementById('inputArticulo').value;
+        const tipo = document.getElementById('selectTipoArticulo').value;
+        const porc = Number(document.getElementById('inputPorcArticulo').value || 0);
+        if (!codigo || !tipo || porc < 0 || porc > 100) return;
+        if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
+        const nuevo = { DocEntry: null, LineId: Date.now(), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: 'Nuevo artículo', U_MGS_CL_TIPO: tipo, U_MGS_CL_PORC: porc, U_MGS_CL_ACTIVO: 'Y' };
+        state.articulosGrupo.push(nuevo);
+        marcarPendiente('articulos', nuevo.LineId);
+        renderArticulos(state.articulosGrupo);
+    };
+
+    const actualizarTodo = async () => {
+        if (!state.tiendaActual) return;
+        const payloadGrupos = {
+            items: state.gruposTienda
+                .filter(g => state.pending.grupos.has(g.LineId))
+                .map(g => ({
+                    DocEntry: g.DocEntry,
+                    LineId: g.LineId,
+                    U_MGS_CL_GRPCOD: g.U_MGS_CL_GRPCOD,
+                    U_MGS_CL_GRPNOM: g.U_MGS_CL_GRPNOM,
+                    U_MGS_CL_TIPO: g.U_MGS_CL_TIPO,
+                    U_MGS_CL_PORC: g.U_MGS_CL_PORC,
+                    U_MGS_CL_ACTIVO: g.U_MGS_CL_ACTIVO
+                }))
+        };
+        const payloadArts = {
+            items: state.articulosGrupo
+                .filter(a => state.pending.articulos.has(a.LineId))
+                .map(a => ({
+                    DocEntry: a.DocEntry,
+                    LineId: a.LineId,
+                    U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
+                    U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
+                    U_MGS_CL_TIPO: a.U_MGS_CL_TIPO,
+                    U_MGS_CL_PORC: a.U_MGS_CL_PORC,
+                    U_MGS_CL_ACTIVO: a.U_MGS_CL_ACTIVO
+                }))
+        };
+
+        const mensajes = [];
+
+        if (payloadGrupos.items.length > 0) {
+            const resp = await fetch(`/api/grupovan/tienda/${state.tiendaActual.PrjCode}/grupos/bulk?empresa=${empresa}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadGrupos) });
+            const data = await resp.json();
+            if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los grupos'); return; }
+            mensajes.push(data.message || 'Grupos actualizados');
+        }
+
+        if (state.grupoActual && payloadArts.items.length > 0) {
+            const resp = await fetch(`/api/grupovan/grupo/${state.grupoActual.U_MGS_CL_GRPCOD}/articulos/bulk?empresa=${empresa}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) });
+            const data = await resp.json();
+            if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los artículos'); return; }
+            mensajes.push(data.message || 'Artículos actualizados');
+        }
+
+        limpiarPendientes();
+        if (mensajes.length) mostrarAlerta(mensajes.join(' | '), 'success');
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('buscarTienda').oninput = renderTiendas;
+        document.getElementById('btnAgregarGrupo').onclick = agregarGrupo;
+        document.getElementById('btnAgregarArticulo').onclick = agregarArticulo;
+        document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
+
+        const respMaestro = await fetch(`/api/grupovan/grupos-maestro?empresa=${empresa}`);
+        const dataMaestro = await respMaestro.json();
+        if (!dataMaestro.registered) {
+            mostrarAlerta(dataMaestro.message || 'No se pudo cargar el maestro de grupos');
+            return;
+        }
+        state.gruposMaestro = JSON.parse(dataMaestro.content || '[]');
+        const select = document.getElementById('selectGrupoMaestro');
+        select.innerHTML = '<option value="">Grupo VAN</option>' + state.gruposMaestro.map(g => `<option value="${g.Code}">${g.Code} - ${g.Name}</option>`).join('');
+
+        await cargarTiendas();
+    });
+</script>
