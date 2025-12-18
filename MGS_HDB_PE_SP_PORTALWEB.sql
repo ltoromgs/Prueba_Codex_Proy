@@ -1,4 +1,4 @@
-﻿-- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
+-- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
 -- matriz de factores, tiendas activas y otros auxiliares.
 alter PROCEDURE MGS_HDB_PE_SP_PORTALWEB (
     IN vTipo NVARCHAR(20),
@@ -165,7 +165,7 @@ BEGIN
             lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(lvPeriodoBaseDate, 1), 'YYYY-MM');
         END IF;
 
-	
+
         SELECT
             :lvPeriodoBase      AS "U_MGS_CL_PERIODO",
             :lvPeriodoDestino   AS "U_MGS_CL_PERIODO_DEST",
@@ -229,6 +229,16 @@ BEGIN
         ORDER BY P."PrjCode", P."PrjName";
 
 
+ELSEIF vTipo = 'Get_VanTipo' THEN
+
+        SELECT
+            "Code"           AS "Code",
+            "Name"           AS "Name",
+            "U_MGS_CL_ACTIVO" AS "U_MGS_CL_ACTIVO"           
+        FROM "@MGS_CL_VANTIPO"
+        ORDER BY "Code";
+
+
     ELSEIF vTipo = 'Get_VanTienda' THEN
 
         SELECT
@@ -262,8 +272,8 @@ BEGIN
             D."U_MGS_CL_TIPO"    AS "U_MGS_CL_TIPO",
             D."U_MGS_CL_PORC"    AS "U_MGS_CL_PORC",
             D."U_MGS_CL_ACTIVO"  AS "U_MGS_CL_ACTIVO"
-        FROM "@MGS_CL_VANTDA" H
-        JOIN "@MGS_CL_VANTDA_D" D ON D."DocEntry" = H."DocEntry"
+        FROM "@MGS_CL_VANTCAB" H
+        JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
         WHERE H."U_MGS_CL_TIENDA" = :vParam1
         ORDER BY D."LineId";
 
@@ -273,12 +283,13 @@ BEGIN
         SELECT
             D."LineId"            AS "LineId",
             D."U_MGS_CL_ITEMCOD"  AS "U_MGS_CL_ITEMCOD",
-            D."U_MGS_CL_ITEMNAM"  AS "U_MGS_CL_ITEMNAM",
+            O."ItemName"          AS "U_MGS_CL_ITEMNAM",
             D."U_MGS_CL_TIPO"     AS "U_MGS_CL_TIPO",
             D."U_MGS_CL_PORC"     AS "U_MGS_CL_PORC",
             D."U_MGS_CL_ACTIVO"   AS "U_MGS_CL_ACTIVO"
-        FROM "@MGS_CL_VANART" H
-        JOIN "@MGS_CL_VANART_D" D ON D."DocEntry" = H."DocEntry"
+        FROM "@MGS_CL_VANACAB" H
+        JOIN "@MGS_CL_VANADET" D ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"
         WHERE H."U_MGS_CL_GRPCOD" = :vParam1
         ORDER BY D."LineId";
 
