@@ -270,9 +270,12 @@ BEGIN
             "ItemCode" AS "ItemCode",
             "ItemName" AS "ItemName"
         FROM "OITM"
-        WHERE :vParam1 = ''
-           OR UPPER("ItemCode") LIKE '%' || UPPER(:vParam1) || '%'
-           OR UPPER("ItemName") LIKE '%' || UPPER(:vParam1) || '%'
+        WHERE "InvntItem" = 'Y'
+          AND (
+                :vParam1 = ''
+             OR UPPER("ItemCode") LIKE '%' || UPPER(:vParam1) || '%'
+             OR UPPER("ItemName") LIKE '%' || UPPER(:vParam1) || '%'
+          )
         ORDER BY "ItemCode";
 
 
