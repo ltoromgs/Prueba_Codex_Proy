@@ -280,7 +280,9 @@ BEGIN
             D."DocEntry"        AS "DocEntry",
             D."LineId"          AS "LineId",
             D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
-            G."Name"            AS "U_MGS_CL_GRPNOM"
+            G."Name"            AS "U_MGS_CL_GRPNOM",
+            IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
         FROM "@MGS_CL_VANTCAB" H
         JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
@@ -294,7 +296,9 @@ BEGIN
             D."DocEntry"          AS "DocEntry",
             D."LineId"            AS "LineId",
             D."U_MGS_CL_ITEMCOD"  AS "U_MGS_CL_ITEMCOD",
-            O."ItemName"          AS "U_MGS_CL_ITEMNAM"
+            O."ItemName"          AS "U_MGS_CL_ITEMNAM",
+            IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
         FROM "@MGS_CL_VANACAB" H
         JOIN "@MGS_CL_VANADET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"
