@@ -19,9 +19,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Tiendas(string? empresa)
+        public async Task<IActionResult> Tiendas()
         {
-            var emp = !string.IsNullOrEmpty(empresa) ? empresa : User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
@@ -36,9 +36,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GruposMaestro(string? empresa)
+        public async Task<IActionResult> GruposMaestro()
         {
-            var emp = !string.IsNullOrEmpty(empresa) ? empresa : User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
@@ -53,9 +53,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GruposPorTienda(string tienda, string? empresa)
+        public async Task<IActionResult> GruposPorTienda(string tienda)
         {
-            var emp = !string.IsNullOrEmpty(empresa) ? empresa : User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
@@ -73,9 +73,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ArticulosPorGrupo(string grupo, string? empresa)
+        public async Task<IActionResult> ArticulosPorGrupo(string grupo)
         {
-            var emp = !string.IsNullOrEmpty(empresa) ? empresa : User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
@@ -93,9 +93,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GuardarGruposPorTienda(string prjCode, [FromBody] object payload, string? empresa)
+        public async Task<IActionResult> GuardarGruposPorTienda(string prjCode, [FromBody] object payload)
         {
-            var emp = !string.IsNullOrEmpty(empresa) ? empresa : User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
@@ -113,9 +113,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GuardarArticulosPorGrupo(string grpCode, [FromBody] object payload, string? empresa)
+        public async Task<IActionResult> GuardarArticulosPorGrupo(string grpCode, [FromBody] object payload)
         {
-            var emp = !string.IsNullOrEmpty(empresa) ? empresa : User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 

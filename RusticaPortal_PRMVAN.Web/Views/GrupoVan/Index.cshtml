@@ -143,8 +143,6 @@
 </style>
 
 <script>
-    const empresa = '@User.FindFirst("Empresa")?.Value';
-
     const state = {
         tiendas: [],
         gruposMaestro: [],
@@ -186,7 +184,7 @@
     };
 
     const cargarTiendas = async () => {
-        const resp = await fetch(`/GrupoVan/Tiendas?empresa=${empresa}`);
+        const resp = await fetch(`/GrupoVan/Tiendas`);
         const data = await resp.json();
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar las tiendas');
@@ -238,7 +236,7 @@
 
     const cargarGruposTienda = async () => {
         if (!state.tiendaActual) return;
-        const resp = await fetch(`/GrupoVan/GruposPorTienda?tienda=${state.tiendaActual.PrjCode}&empresa=${empresa}`);
+        const resp = await fetch(`/GrupoVan/GruposPorTienda?tienda=${state.tiendaActual.PrjCode}`);
         const data = await resp.json();
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar los grupos de la tienda');
@@ -315,7 +313,7 @@
 
     const cargarArticulosGrupo = async () => {
         if (!state.grupoActual) return;
-        const resp = await fetch(`/GrupoVan/ArticulosPorGrupo?grupo=${state.grupoActual.U_MGS_CL_GRPCOD}&empresa=${empresa}`);
+        const resp = await fetch(`/GrupoVan/ArticulosPorGrupo?grupo=${state.grupoActual.U_MGS_CL_GRPCOD}`);
         const data = await resp.json();
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar los artículos del grupo');
@@ -414,14 +412,14 @@
         const mensajes = [];
 
         if (payloadGrupos.items.length > 0) {
-            const resp = await fetch(`/GrupoVan/GuardarGruposPorTienda?prjCode=${state.tiendaActual.PrjCode}&empresa=${empresa}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadGrupos) });
+            const resp = await fetch(`/GrupoVan/GuardarGruposPorTienda?prjCode=${state.tiendaActual.PrjCode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadGrupos) });
             const data = await resp.json();
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los grupos'); return; }
             mensajes.push(data.message || 'Grupos actualizados');
         }
 
         if (state.grupoActual && payloadArts.items.length > 0) {
-            const resp = await fetch(`/GrupoVan/GuardarArticulosPorGrupo?grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}&empresa=${empresa}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) });
+            const resp = await fetch(`/GrupoVan/GuardarArticulosPorGrupo?grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) });
             const data = await resp.json();
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los artículos'); return; }
             mensajes.push(data.message || 'Artículos actualizados');
@@ -437,7 +435,7 @@
         document.getElementById('btnAgregarArticulo').onclick = agregarArticulo;
         document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
 
-        const respMaestro = await fetch(`/GrupoVan/GruposMaestro?empresa=${empresa}`);
+        const respMaestro = await fetch(`/GrupoVan/GruposMaestro`);
         const dataMaestro = await respMaestro.json();
         if (!dataMaestro.registered) {
             mostrarAlerta(dataMaestro.message || 'No se pudo cargar el maestro de grupos');
