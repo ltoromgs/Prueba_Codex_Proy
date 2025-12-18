@@ -229,17 +229,6 @@ BEGIN
         ORDER BY P."PrjCode", P."PrjName";
 
 
-    ELSEIF vTipo = 'Get_VanTipo' THEN
-
-        SELECT
-            "Code"           AS "Code",
-            "Name"           AS "Name",
-            "U_MGS_CL_ACTIVO" AS "U_MGS_CL_ACTIVO"
-        FROM "@MGS_CL_VANTIPO"
-        WHERE IFNULL("U_MGS_CL_ACTIVO", 'N') = 'Y'
-        ORDER BY "Code";
-
-
     ELSEIF vTipo = 'Get_VanTienda' THEN
 
         SELECT
@@ -254,13 +243,19 @@ BEGIN
 
         SELECT
             "Code"           AS "Code",
-            "Name"           AS "Name",
-            "U_MGS_CL_TIPO"  AS "U_MGS_CL_TIPO",
-            "U_MGS_CL_PORC"  AS "U_MGS_CL_PORC",
-            "U_MGS_CL_ACTIVO" AS "U_MGS_CL_ACTIVO",
-            "U_MGS_CL_FECPRO" AS "U_MGS_CL_FECPRO",
-            "U_MGS_CL_PRIMARY" AS "U_MGS_CL_PRIMARY"
+            "Name"           AS "Name"
         FROM "@MGS_CL_VANGRP"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+
+    ELSEIF vTipo = 'Get_VanTipo' THEN
+
+        SELECT
+            "Code"           AS "Code",
+            "Name"           AS "Name"
+        FROM "@MGS_CL_VANTIPO"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
         ORDER BY "Code";
 
 
@@ -282,14 +277,13 @@ BEGIN
     ELSEIF vTipo = 'Get_VanTdaGrp' THEN
 
         SELECT
-            D."LineId"           AS "LineId",
-            D."U_MGS_CL_GRPCOD"  AS "U_MGS_CL_GRPCOD",
-            D."U_MGS_CL_GRPNOM"  AS "U_MGS_CL_GRPNOM",
-            D."U_MGS_CL_TIPO"    AS "U_MGS_CL_TIPO",
-            D."U_MGS_CL_PORC"    AS "U_MGS_CL_PORC",
-            D."U_MGS_CL_ACTIVO"  AS "U_MGS_CL_ACTIVO"
+            D."DocEntry"        AS "DocEntry",
+            D."LineId"          AS "LineId",
+            D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
+            G."Name"            AS "U_MGS_CL_GRPNOM"
         FROM "@MGS_CL_VANTCAB" H
         JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
         WHERE H."U_MGS_CL_TIENDA" = :vParam1
         ORDER BY D."LineId";
 
@@ -297,12 +291,10 @@ BEGIN
     ELSEIF vTipo = 'Get_VanGrpArt' THEN
 
         SELECT
+            D."DocEntry"          AS "DocEntry",
             D."LineId"            AS "LineId",
             D."U_MGS_CL_ITEMCOD"  AS "U_MGS_CL_ITEMCOD",
-            O."ItemName"          AS "U_MGS_CL_ITEMNAM",
-            D."U_MGS_CL_TIPO"     AS "U_MGS_CL_TIPO",
-            D."U_MGS_CL_PORC"     AS "U_MGS_CL_PORC",
-            D."U_MGS_CL_ACTIVO"   AS "U_MGS_CL_ACTIVO"
+            O."ItemName"          AS "U_MGS_CL_ITEMNAM"
         FROM "@MGS_CL_VANACAB" H
         JOIN "@MGS_CL_VANADET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"

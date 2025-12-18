@@ -36,16 +36,8 @@
                 <div class="card-header">Grupo VAN por tienda</div>
                 <div class="card-body d-flex flex-column">
                     <div class="row g-2 mb-2">
-                        <div class="col-5">
-                          <select id="selectGrupoMaestro" class="form-select"></select>
-                      </div>
-                      <div class="col-3">
-                          <select id="selectTipoGrupo" class="form-select">
-                              <option value="">Tipo</option>
-                          </select>
-                      </div>
-                      <div class="col-2">
-                          <input id="inputPorcGrupo" type="number" min="0" max="100" class="form-control" placeholder="%" />
+                        <div class="col-10">
+                            <select id="selectGrupoMaestro" class="form-select"></select>
                         </div>
                         <div class="col-2 d-grid">
                             <button id="btnAgregarGrupo" class="btn btn-success">+</button>
@@ -56,8 +48,6 @@
                             <thead class="table-light">
                                 <tr>
                                     <th class="sticky-col">Grupo VAN</th>
-                                    <th>Tipo</th>
-                                    <th>%</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
@@ -73,18 +63,10 @@
                 <div class="card-header">Asignación de artículos VAN</div>
                 <div class="card-body d-flex flex-column">
                     <div class="row g-2 mb-2">
-                        <div class="col-5">
+                        <div class="col-10">
                             <input id="inputArticulo" class="form-control" placeholder="Código o nombre" list="listaArticulos" autocomplete="off" />
                             <datalist id="listaArticulos"></datalist>
                             <small class="text-muted" id="articuloSeleccionado"></small>
-                        </div>
-                          <div class="col-4">
-                              <select id="selectTipoArticulo" class="form-select">
-                              <option value="">Tipo</option>
-                              </select>
-                          </div>
-                        <div class="col-2">
-                            <input id="inputPorcArticulo" type="number" min="0" max="100" class="form-control" placeholder="%" />
                         </div>
                         <div class="col-2 d-grid">
                             <button id="btnAgregarArticulo" class="btn btn-success">+</button>
@@ -96,8 +78,6 @@
                                 <tr>
                                     <th class="sticky-col">Código</th>
                                     <th>Descripción</th>
-                                    <th>Tipo</th>
-                                    <th>%</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
@@ -148,7 +128,6 @@
               articulosGrupo: [],
               articulosMaestro: [],
               articuloSeleccionado: null,
-              tipos: [],
               tiendaActual: null,
               grupoActual: null,
               pending: {
@@ -165,36 +144,6 @@
       };
 
       const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
-
-      const obtenerNombreTipo = (code) => state.tipos.find(t => t.Code === code)?.Name || code || '';
-
-      const crearSelectTipo = (seleccionActual, onChange, sizeClass = 'form-select-sm') => {
-          const select = document.createElement('select');
-          select.className = `form-select ${sizeClass}`;
-          select.innerHTML = '<option value="">Tipo</option>';
-          state.tipos.forEach(t => {
-              const opt = document.createElement('option');
-              opt.value = t.Code;
-              opt.textContent = t.Name;
-              if (t.Code === seleccionActual) opt.selected = true;
-              select.appendChild(opt);
-          });
-          if (seleccionActual && !state.tipos.some(t => t.Code === seleccionActual)) {
-              const opt = document.createElement('option');
-              opt.value = seleccionActual;
-              opt.textContent = seleccionActual;
-              opt.selected = true;
-              select.appendChild(opt);
-          }
-          select.onchange = () => onChange(select.value);
-          return select;
-      };
-
-        const poblarSelectTiposFormulario = () => {
-            const opciones = ['<option value="">Tipo</option>', ...state.tipos.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
-            document.getElementById('selectTipoGrupo').innerHTML = opciones;
-            document.getElementById('selectTipoArticulo').innerHTML = opciones;
-        };
 
         const renderSugerenciasArticulos = () => {
             const lista = document.getElementById('listaArticulos');
@@ -226,18 +175,6 @@
             renderSugerenciasArticulos();
             seleccionarArticuloDesdeInput();
         };
-
-      const cargarTipos = async () => {
-          const resp = await fetch(`/GrupoVan/Tipos`);
-          const data = await resp.json();
-          if (!data.registered) {
-              mostrarAlerta(data.message || 'No se pudieron cargar los tipos VAN');
-              return false;
-          }
-          state.tipos = JSON.parse(data.content || '[]');
-          poblarSelectTiposFormulario();
-          return true;
-      };
 
     const actualizarHeader = () => {
         document.getElementById('headerTienda').textContent = state.tiendaActual?.PrjName || '-';
@@ -317,6 +254,11 @@
             return;
         }
         state.gruposTienda = JSON.parse(data.content || '[]');
+        state.gruposTienda.forEach(g => {
+            if (!g.U_MGS_CL_GRPNOM) {
+                g.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === g.U_MGS_CL_GRPCOD)?.Name || '';
+            }
+        });
     };
 
       const renderGrupos = () => {
@@ -325,35 +267,30 @@
           state.gruposTienda.forEach(g => {
               const tr = document.createElement('tr');
               if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
-              if (g.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
 
               const tdNombre = document.createElement('td');
               tdNombre.className = 'sticky-col';
-              tdNombre.textContent = `${g.U_MGS_CL_GRPCOD} - ${g.U_MGS_CL_GRPNOM}`;
+              const nombre = g.U_MGS_CL_GRPNOM || state.gruposMaestro.find(x => x.Code === g.U_MGS_CL_GRPCOD)?.Name || '';
+              tdNombre.textContent = `${g.U_MGS_CL_GRPCOD}${nombre ? ' - ' + nombre : ''}`;
               tdNombre.onclick = () => seleccionarGrupo(g);
-
-              const tdTipo = document.createElement('td');
-              const select = crearSelectTipo(g.U_MGS_CL_TIPO, (valor) => { g.U_MGS_CL_TIPO = valor; marcarPendiente('grupos', g.LineId); renderGrupos(); });
-              tdTipo.appendChild(select);
-
-            const tdPorc = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'number'; input.min = 0; input.max = 100; input.className = 'form-control form-control-sm'; input.value = g.U_MGS_CL_PORC;
-            input.onchange = () => { g.U_MGS_CL_PORC = Number(input.value); marcarPendiente('grupos', g.LineId); renderGrupos(); };
-            tdPorc.appendChild(input);
 
             const tdAccion = document.createElement('td');
             const btn = document.createElement('button');
             btn.className = 'btn btn-outline-danger btn-sm';
-            btn.textContent = g.U_MGS_CL_ACTIVO === 'Y' ? 'Quitar' : 'Revertir';
+            btn.textContent = 'Quitar';
+            btn.disabled = !!g.DocEntry;
             btn.onclick = () => {
-                g.U_MGS_CL_ACTIVO = g.U_MGS_CL_ACTIVO === 'Y' ? 'N' : 'Y';
-                marcarPendiente('grupos', g.LineId);
-                renderGrupos();
+                const idx = state.gruposTienda.findIndex(x => x.LineId === g.LineId);
+                if (idx >= 0) {
+                    state.gruposTienda.splice(idx,1);
+                    state.pending.grupos.delete(g.LineId);
+                    renderGrupos();
+                    actualizarHeader();
+                }
             };
             tdAccion.appendChild(btn);
 
-            tr.append(tdNombre, tdTipo, tdPorc, tdAccion);
+            tr.append(tdNombre, tdAccion);
             tbody.appendChild(tr);
         });
     };
@@ -390,32 +327,31 @@
         state.articulosGrupo = JSON.parse(data.content || '[]');
     };
 
-    const renderArticulos = (lista) => {
+      const renderArticulos = (lista) => {
         const tbody = document.querySelector('#tablaArticulos tbody');
         tbody.innerHTML = '';
           lista.forEach(a => {
               const tr = document.createElement('tr');
               if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
-              if (a.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
 
               const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
               const tdNombre = document.createElement('td'); tdNombre.textContent = a.U_MGS_CL_ITEMNAM;
-              const tdTipo = document.createElement('td');
-              const select = crearSelectTipo(a.U_MGS_CL_TIPO, (valor) => { a.U_MGS_CL_TIPO = valor; marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); });
-              tdTipo.appendChild(select);
-
-            const tdPorc = document.createElement('td');
-            const input = document.createElement('input'); input.type='number'; input.min=0; input.max=100; input.className='form-control form-control-sm'; input.value=a.U_MGS_CL_PORC;
-            input.onchange = () => { a.U_MGS_CL_PORC = Number(input.value); marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); };
-            tdPorc.appendChild(input);
 
             const tdAccion = document.createElement('td');
             const btn = document.createElement('button'); btn.className='btn btn-outline-danger btn-sm'; btn.textContent='Quitar';
-            btn.textContent = a.U_MGS_CL_ACTIVO === 'Y' ? 'Quitar' : 'Revertir';
-            btn.onclick = () => { a.U_MGS_CL_ACTIVO = a.U_MGS_CL_ACTIVO === 'Y' ? 'N' : 'Y'; marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); };
+            btn.disabled = !!a.DocEntry;
+            btn.onclick = () => {
+                const idx = state.articulosGrupo.findIndex(x => x.LineId === a.LineId);
+                if (idx >= 0) {
+                    state.articulosGrupo.splice(idx,1);
+                    state.pending.articulos.delete(a.LineId);
+                    renderArticulos(state.articulosGrupo);
+                    actualizarHeader();
+                }
+            };
             tdAccion.appendChild(btn);
 
-            tr.append(tdCodigo, tdNombre, tdTipo, tdPorc, tdAccion);
+            tr.append(tdCodigo, tdNombre, tdAccion);
             tbody.appendChild(tr);
         });
     };
@@ -423,15 +359,12 @@
     const agregarGrupo = () => {
         if (!state.tiendaActual) return;
         const grp = state.gruposMaestro.find(g => g.Code === document.getElementById('selectGrupoMaestro').value);
-        const tipo = document.getElementById('selectTipoGrupo').value;
-        const porc = Number(document.getElementById('inputPorcGrupo').value || 100);
-        if (!grp || !tipo || porc < 0 || porc > 100) return;
+        if (!grp) return;
         if (state.gruposTienda.some(x => x.U_MGS_CL_GRPCOD === grp.Code)) { mostrarAlerta('El grupo ya está asignado a la tienda'); return; }
-        const nuevo = { DocEntry: null, LineId: Date.now(), U_MGS_CL_GRPCOD: grp.Code, U_MGS_CL_GRPNOM: grp.Name, U_MGS_CL_TIPO: tipo, U_MGS_CL_PORC: porc, U_MGS_CL_ACTIVO: 'Y' };
+        const nuevo = { DocEntry: null, LineId: Date.now(), U_MGS_CL_GRPCOD: grp.Code, U_MGS_CL_GRPNOM: grp.Name };
         state.gruposTienda.push(nuevo);
         marcarPendiente('grupos', nuevo.LineId);
         renderGrupos();
-        document.getElementById('inputPorcGrupo').value = 100;
     };
 
     const agregarArticulo = () => {
@@ -439,11 +372,9 @@
         seleccionarArticuloDesdeInput();
         const codigo = state.articuloSeleccionado?.ItemCode;
         const nombre = state.articuloSeleccionado?.ItemName;
-        const tipo = document.getElementById('selectTipoArticulo').value;
-        const porc = Number(document.getElementById('inputPorcArticulo').value || 100);
-        if (!codigo || !nombre || !tipo || porc < 0 || porc > 100) { mostrarAlerta('Selecciona un artículo válido, tipo y porcentaje entre 0 y 100'); return; }
+        if (!codigo || !nombre) { mostrarAlerta('Selecciona un artículo válido'); return; }
         if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
-        const nuevo = { DocEntry: null, LineId: Date.now(), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre, U_MGS_CL_TIPO: tipo, U_MGS_CL_PORC: porc, U_MGS_CL_ACTIVO: 'Y' };
+        const nuevo = { DocEntry: null, LineId: Date.now(), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre };
         state.articulosGrupo.push(nuevo);
         marcarPendiente('articulos', nuevo.LineId);
         renderArticulos(state.articulosGrupo);
@@ -452,7 +383,6 @@
         document.getElementById('articuloSeleccionado').textContent = '';
         document.getElementById('inputArticulo').value = '';
         renderSugerenciasArticulos();
-        document.getElementById('inputPorcArticulo').value = 100;
     };
 
       const actualizarTodo = async () => {
@@ -464,10 +394,7 @@
                     DocEntry: g.DocEntry,
                     LineId: g.LineId,
                     U_MGS_CL_GRPCOD: g.U_MGS_CL_GRPCOD,
-                    U_MGS_CL_GRPNOM: g.U_MGS_CL_GRPNOM,
-                    U_MGS_CL_TIPO: g.U_MGS_CL_TIPO,
-                    U_MGS_CL_PORC: g.U_MGS_CL_PORC,
-                    U_MGS_CL_ACTIVO: g.U_MGS_CL_ACTIVO
+                    U_MGS_CL_GRPNOM: g.U_MGS_CL_GRPNOM
                 }))
         };
         const payloadArts = {
@@ -477,10 +404,7 @@
                     DocEntry: a.DocEntry,
                     LineId: a.LineId,
                     U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
-                    U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
-                    U_MGS_CL_TIPO: a.U_MGS_CL_TIPO,
-                    U_MGS_CL_PORC: a.U_MGS_CL_PORC,
-                    U_MGS_CL_ACTIVO: a.U_MGS_CL_ACTIVO
+                    U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM
                 }))
         };
 
@@ -511,11 +435,6 @@
           document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
           document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
           document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;
-          document.getElementById('inputPorcGrupo').value = 100;
-          document.getElementById('inputPorcArticulo').value = 100;
-
-          const tiposOk = await cargarTipos();
-          if (!tiposOk) return;
 
           const respMaestro = await fetch(`/GrupoVan/GruposMaestro`);
           const dataMaestro = await respMaestro.json();

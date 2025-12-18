@@ -65,8 +65,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     tipos.Add(new VanTipoDto
                     {
                         Code = reader[nameof(VanTipoDto.Code)]?.ToString() ?? string.Empty,
-                        Name = reader[nameof(VanTipoDto.Name)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_ACTIVO = reader[nameof(VanTipoDto.U_MGS_CL_ACTIVO)]?.ToString() ?? string.Empty
+                        Name = reader[nameof(VanTipoDto.Name)]?.ToString() ?? string.Empty
                     });
                 }
 
@@ -2324,12 +2323,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     grupos.Add(new VanGrupoMaestroDto
                     {
                         Code = reader[nameof(VanGrupoMaestroDto.Code)]?.ToString() ?? string.Empty,
-                        Name = reader[nameof(VanGrupoMaestroDto.Name)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPO = reader[nameof(VanGrupoMaestroDto.U_MGS_CL_TIPO)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_PORC = reader.IsDBNull(reader.GetOrdinal(nameof(VanGrupoMaestroDto.U_MGS_CL_PORC))) ? 0 : Convert.ToDecimal(reader[nameof(VanGrupoMaestroDto.U_MGS_CL_PORC)]),
-                        U_MGS_CL_ACTIVO = reader[nameof(VanGrupoMaestroDto.U_MGS_CL_ACTIVO)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_FECPRO = reader[nameof(VanGrupoMaestroDto.U_MGS_CL_FECPRO)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_PRIMARY = reader[nameof(VanGrupoMaestroDto.U_MGS_CL_PRIMARY)]?.ToString() ?? string.Empty
+                        Name = reader[nameof(VanGrupoMaestroDto.Name)]?.ToString() ?? string.Empty
                     });
                 }
 
@@ -2457,10 +2451,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
                         LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
                         U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPO = reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_PORC = reader.IsDBNull(reader.GetOrdinal("U_MGS_CL_PORC")) ? 0 : Convert.ToDecimal(reader["U_MGS_CL_PORC"]),
-                        U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                        U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty
                     });
                 }
 
@@ -2520,10 +2511,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
                         LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
                         U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPO = reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_PORC = reader.IsDBNull(reader.GetOrdinal("U_MGS_CL_PORC")) ? 0 : Convert.ToDecimal(reader["U_MGS_CL_PORC"]),
-                        U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                        U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty
                     });
                 }
 

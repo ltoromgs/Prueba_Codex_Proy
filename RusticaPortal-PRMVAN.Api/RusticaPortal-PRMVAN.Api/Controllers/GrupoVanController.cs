@@ -153,19 +153,6 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 return new ResponseInformation { Registered = false, Message = "No se recibieron registros para actualizar" };
             }
 
-            foreach (var item in items)
-            {
-                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPO))
-                {
-                    return new ResponseInformation { Registered = false, Message = "El tipo de grupo es obligatorio" };
-                }
-
-                if (item.U_MGS_CL_PORC < 0 || item.U_MGS_CL_PORC > 100)
-                {
-                    return new ResponseInformation { Registered = false, Message = "El porcentaje debe estar entre 0 y 100" };
-                }
-            }
-
             var duplicados = items
                 .Where(x => !string.IsNullOrWhiteSpace(x.U_MGS_CL_GRPCOD))
                 .GroupBy(x => x.U_MGS_CL_GRPCOD.ToUpper())
@@ -184,19 +171,6 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             if (items == null || !items.Any())
             {
                 return new ResponseInformation { Registered = false, Message = "No se recibieron registros para actualizar" };
-            }
-
-            foreach (var item in items)
-            {
-                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPO))
-                {
-                    return new ResponseInformation { Registered = false, Message = "El tipo de artículo es obligatorio" };
-                }
-
-                if (item.U_MGS_CL_PORC < 0 || item.U_MGS_CL_PORC > 100)
-                {
-                    return new ResponseInformation { Registered = false, Message = "El porcentaje debe estar entre 0 y 100" };
-                }
             }
 
             var duplicados = items
