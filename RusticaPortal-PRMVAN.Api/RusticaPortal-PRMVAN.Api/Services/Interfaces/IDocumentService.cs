@@ -29,6 +29,7 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetFactoresNuevoDB(string empresa);
         Task<ResponseInformation> GetTiendasActivas(string empresa);
         Task<ResponseInformation> GetContactoDB(string empresa);
+        Task<ResponseInformation> GetGrupoVanTipos(string empresa);
         Task<ResponseInformation> GetGrupoVanTiendas(string empresa);
         Task<ResponseInformation> GetGrupoVanMaestro(string empresa);
         Task<ResponseInformation> GetGrupoVanPorTienda(string empresa, string tiendaCodigo);

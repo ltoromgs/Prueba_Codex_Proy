@@ -34,6 +34,75 @@ namespace RusticaPortal_PRMVAN.Api.Services
             _empresaConfigService = empresaConfigService;
         }
 
+        public async Task<ResponseInformation> GetGrupoVanTipos(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tipos = new List<VanTipoDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTipo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tipos.Add(new VanTipoDto
+                    {
+                        Code = reader[nameof(VanTipoDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(VanTipoDto.Name)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ACTIVO = reader[nameof(VanTipoDto.U_MGS_CL_ACTIVO)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!tipos.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron tipos de VAN.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tipos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
         public async Task<AditionalInfomation> GetClienteMoneda(string project, string BaseDatos)
         {
             string result = "";

@@ -36,6 +36,23 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Tipos()
+        {
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            if (string.IsNullOrEmpty(emp))
+                return BadRequest(new { message = "Empresa no encontrada en sesión." });
+
+            var endpoint = QueryHelpers.AddQueryString("/api/grupovan/tipos", new Dictionary<string, string?>
+            {
+                ["empresa"] = emp
+            });
+
+            var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
+            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            return Ok(resp);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GruposMaestro()
         {
             var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;

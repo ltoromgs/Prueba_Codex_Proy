@@ -229,13 +229,14 @@ BEGIN
         ORDER BY P."PrjCode", P."PrjName";
 
 
-ELSEIF vTipo = 'Get_VanTipo' THEN
+    ELSEIF vTipo = 'Get_VanTipo' THEN
 
         SELECT
             "Code"           AS "Code",
             "Name"           AS "Name",
-            "U_MGS_CL_ACTIVO" AS "U_MGS_CL_ACTIVO"           
+            "U_MGS_CL_ACTIVO" AS "U_MGS_CL_ACTIVO"
         FROM "@MGS_CL_VANTIPO"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'N') = 'Y'
         ORDER BY "Code";
 
 

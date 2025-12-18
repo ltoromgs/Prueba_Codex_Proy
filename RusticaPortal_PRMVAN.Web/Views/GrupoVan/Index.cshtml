@@ -37,17 +37,15 @@
                 <div class="card-body d-flex flex-column">
                     <div class="row g-2 mb-2">
                         <div class="col-5">
-                            <select id="selectGrupoMaestro" class="form-select"></select>
-                        </div>
-                        <div class="col-3">
-                            <select id="selectTipoGrupo" class="form-select">
-                                <option value="">Tipo</option>
-                                <option>Determinado</option>
-                                <option>Indeterminado</option>
-                            </select>
-                        </div>
-                        <div class="col-2">
-                            <input id="inputPorcGrupo" type="number" min="0" max="100" class="form-control" placeholder="%" />
+                          <select id="selectGrupoMaestro" class="form-select"></select>
+                      </div>
+                      <div class="col-3">
+                          <select id="selectTipoGrupo" class="form-select">
+                              <option value="">Tipo</option>
+                          </select>
+                      </div>
+                      <div class="col-2">
+                          <input id="inputPorcGrupo" type="number" min="0" max="100" class="form-control" placeholder="%" />
                         </div>
                         <div class="col-2 d-grid">
                             <button id="btnAgregarGrupo" class="btn btn-success">+</button>
@@ -78,13 +76,11 @@
                         <div class="col-4">
                             <input id="inputArticulo" class="form-control" placeholder="Código" />
                         </div>
-                        <div class="col-4">
-                            <select id="selectTipoArticulo" class="form-select">
-                                <option value="">Tipo</option>
-                                <option>Determinado</option>
-                                <option>Indeterminado</option>
-                            </select>
-                        </div>
+                          <div class="col-4">
+                              <select id="selectTipoArticulo" class="form-select">
+                              <option value="">Tipo</option>
+                              </select>
+                          </div>
                         <div class="col-2">
                             <input id="inputPorcArticulo" type="number" min="0" max="100" class="form-control" placeholder="%" />
                         </div>
@@ -142,28 +138,71 @@
     }
 </style>
 
-<script>
-    const state = {
-        tiendas: [],
-        gruposMaestro: [],
-        gruposTienda: [],
-        articulosGrupo: [],
-        tiendaActual: null,
-        grupoActual: null,
-        pending: {
-            grupos: new Set(),
-            articulos: new Set()
+      <script>
+          const state = {
+              tiendas: [],
+              gruposMaestro: [],
+              gruposTienda: [],
+              articulosGrupo: [],
+              tipos: [],
+              tiendaActual: null,
+              grupoActual: null,
+              pending: {
+                  grupos: new Set(),
+                  articulos: new Set()
         }
     };
 
-    const alertas = document.getElementById('alertas');
+      const alertas = document.getElementById('alertas');
 
-    const mostrarAlerta = (mensaje, tipo = 'danger') => {
-        if (!mensaje) return;
-        alertas.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">${mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
-    };
+      const mostrarAlerta = (mensaje, tipo = 'danger') => {
+          if (!mensaje) return;
+          alertas.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">${mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+      };
 
-    const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
+      const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
+
+      const obtenerNombreTipo = (code) => state.tipos.find(t => t.Code === code)?.Name || code || '';
+
+      const crearSelectTipo = (seleccionActual, onChange, sizeClass = 'form-select-sm') => {
+          const select = document.createElement('select');
+          select.className = `form-select ${sizeClass}`;
+          select.innerHTML = '<option value="">Tipo</option>';
+          state.tipos.forEach(t => {
+              const opt = document.createElement('option');
+              opt.value = t.Code;
+              opt.textContent = t.Name;
+              if (t.Code === seleccionActual) opt.selected = true;
+              select.appendChild(opt);
+          });
+          if (seleccionActual && !state.tipos.some(t => t.Code === seleccionActual)) {
+              const opt = document.createElement('option');
+              opt.value = seleccionActual;
+              opt.textContent = seleccionActual;
+              opt.selected = true;
+              select.appendChild(opt);
+          }
+          select.onchange = () => onChange(select.value);
+          return select;
+      };
+
+      const poblarSelectTiposFormulario = () => {
+          const opciones = ['<option value="">Tipo</option>', ...state.tipos.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
+          document.getElementById('selectTipoGrupo').innerHTML = opciones;
+          document.getElementById('selectTipoArticulo').innerHTML = opciones;
+      };
+
+      const cargarTipos = async () => {
+          const resp = await fetch(`/GrupoVan/Tipos`);
+          const data = await resp.json();
+          if (!data.registered) {
+              mostrarAlerta(data.message || 'No se pudieron cargar los tipos VAN');
+              return false;
+          }
+          state.tipos = JSON.parse(data.content || '[]');
+          poblarSelectTiposFormulario();
+          return true;
+      };
 
     const actualizarHeader = () => {
         document.getElementById('headerTienda').textContent = state.tiendaActual?.PrjName || '-';
@@ -245,28 +284,22 @@
         state.gruposTienda = JSON.parse(data.content || '[]');
     };
 
-    const renderGrupos = () => {
-        const tbody = document.querySelector('#tablaGrupos tbody');
-        tbody.innerHTML = '';
-        state.gruposTienda.forEach(g => {
-            const tr = document.createElement('tr');
-            if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
-            if (g.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
+      const renderGrupos = () => {
+          const tbody = document.querySelector('#tablaGrupos tbody');
+          tbody.innerHTML = '';
+          state.gruposTienda.forEach(g => {
+              const tr = document.createElement('tr');
+              if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
+              if (g.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
 
-            const tdNombre = document.createElement('td');
-            tdNombre.className = 'sticky-col';
-            tdNombre.textContent = `${g.U_MGS_CL_GRPCOD} - ${g.U_MGS_CL_GRPNOM}`;
-            tdNombre.onclick = () => seleccionarGrupo(g);
+              const tdNombre = document.createElement('td');
+              tdNombre.className = 'sticky-col';
+              tdNombre.textContent = `${g.U_MGS_CL_GRPCOD} - ${g.U_MGS_CL_GRPNOM}`;
+              tdNombre.onclick = () => seleccionarGrupo(g);
 
-            const tdTipo = document.createElement('td');
-            const select = document.createElement('select');
-            select.className = 'form-select form-select-sm';
-            ['Determinado','Indeterminado'].forEach(opt => {
-                const o = document.createElement('option');
-                o.textContent = opt; o.value = opt; if (g.U_MGS_CL_TIPO === opt) o.selected = true; select.appendChild(o);
-            });
-            select.onchange = () => { g.U_MGS_CL_TIPO = select.value; marcarPendiente('grupos', g.LineId); renderGrupos(); };
-            tdTipo.appendChild(select);
+              const tdTipo = document.createElement('td');
+              const select = crearSelectTipo(g.U_MGS_CL_TIPO, (valor) => { g.U_MGS_CL_TIPO = valor; marcarPendiente('grupos', g.LineId); renderGrupos(); });
+              tdTipo.appendChild(select);
 
             const tdPorc = document.createElement('td');
             const input = document.createElement('input');
@@ -325,18 +358,16 @@
     const renderArticulos = (lista) => {
         const tbody = document.querySelector('#tablaArticulos tbody');
         tbody.innerHTML = '';
-        lista.forEach(a => {
-            const tr = document.createElement('tr');
-            if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
-            if (a.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
+          lista.forEach(a => {
+              const tr = document.createElement('tr');
+              if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
+              if (a.U_MGS_CL_ACTIVO === 'N') tr.classList.add('table-secondary');
 
-            const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
-            const tdNombre = document.createElement('td'); tdNombre.textContent = a.U_MGS_CL_ITEMNAM;
-            const tdTipo = document.createElement('td');
-            const select = document.createElement('select'); select.className = 'form-select form-select-sm';
-            ['Determinado','Indeterminado'].forEach(opt => { const o=document.createElement('option'); o.value=opt; o.textContent=opt; if(a.U_MGS_CL_TIPO===opt) o.selected=true; select.appendChild(o); });
-            select.onchange = () => { a.U_MGS_CL_TIPO = select.value; marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); };
-            tdTipo.appendChild(select);
+              const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
+              const tdNombre = document.createElement('td'); tdNombre.textContent = a.U_MGS_CL_ITEMNAM;
+              const tdTipo = document.createElement('td');
+              const select = crearSelectTipo(a.U_MGS_CL_TIPO, (valor) => { a.U_MGS_CL_TIPO = valor; marcarPendiente('articulos', a.LineId); renderArticulos(state.articulosGrupo); });
+              tdTipo.appendChild(select);
 
             const tdPorc = document.createElement('td');
             const input = document.createElement('input'); input.type='number'; input.min=0; input.max=100; input.className='form-control form-control-sm'; input.value=a.U_MGS_CL_PORC;
@@ -429,17 +460,20 @@
         if (mensajes.length) mostrarAlerta(mensajes.join(' | '), 'success');
     };
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        document.getElementById('buscarTienda').oninput = renderTiendas;
-        document.getElementById('btnAgregarGrupo').onclick = agregarGrupo;
-        document.getElementById('btnAgregarArticulo').onclick = agregarArticulo;
-        document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
+      document.addEventListener('DOMContentLoaded', async () => {
+          document.getElementById('buscarTienda').oninput = renderTiendas;
+          document.getElementById('btnAgregarGrupo').onclick = agregarGrupo;
+          document.getElementById('btnAgregarArticulo').onclick = agregarArticulo;
+          document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
 
-        const respMaestro = await fetch(`/GrupoVan/GruposMaestro`);
-        const dataMaestro = await respMaestro.json();
-        if (!dataMaestro.registered) {
-            mostrarAlerta(dataMaestro.message || 'No se pudo cargar el maestro de grupos');
-            return;
+          const tiposOk = await cargarTipos();
+          if (!tiposOk) return;
+
+          const respMaestro = await fetch(`/GrupoVan/GruposMaestro`);
+          const dataMaestro = await respMaestro.json();
+          if (!dataMaestro.registered) {
+              mostrarAlerta(dataMaestro.message || 'No se pudo cargar el maestro de grupos');
+              return;
         }
         state.gruposMaestro = JSON.parse(dataMaestro.content || '[]');
         const select = document.getElementById('selectGrupoMaestro');
