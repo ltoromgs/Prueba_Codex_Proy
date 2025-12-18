@@ -26,13 +26,16 @@ namespace RusticaPortal_PRMVAN.Api.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IEmpresaConfigService _empresaConfigService;
+        private readonly ILoginService _loginService;
 
         public DocumentService(
             IConfiguration configuration,
-            IEmpresaConfigService empresaConfigService)
+            IEmpresaConfigService empresaConfigService,
+            ILoginService loginService)
         {
             _configuration = configuration;
             _empresaConfigService = empresaConfigService;
+            _loginService = loginService;
         }
 
         public async Task<ResponseInformation> GetGrupoVanTipos(string empresa)
@@ -2545,22 +2548,168 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
         public async Task<ResponseInformation> SetGrupoVanPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<VanGrupoDetalleDto> items)
         {
-            return new ResponseInformation
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
             {
-                Registered = false,
-                Message = "Guardado masivo de grupos VAN debe realizarse vía Service Layer siguiendo el patrón de Matriz de Factores. No se permite usar el SP para escrituras.",
-                Content = string.Empty
-            };
+                return login.Error;
+            }
+
+            var lista = (items ?? Enumerable.Empty<VanGrupoDetalleDto>()).ToList();
+            if (!lista.Any())
+            {
+                return new ResponseInformation { Registered = false, Message = "No se recibieron grupos para actualizar.", Content = string.Empty };
+            }
+
+            foreach (var item in lista)
+            {
+                if (!item.U_MGS_CL_PORC.HasValue || item.U_MGS_CL_PORC.Value <= 0)
+                {
+                    item.U_MGS_CL_PORC = 100;
+                }
+            }
+
+            var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            if (existingDocEntry.HasValue)
+            {
+                foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
+                {
+                    item.DocEntry = existingDocEntry;
+                }
+            }
+
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+            if (existingDocEntry.HasValue)
+            {
+                var updateReq = new
+                {
+                    MGS_CL_VANTDETCollection = lista.Select(i => new
+                    {
+                        i.LineId,
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_GRPNOM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = $"MGS_CL_VANTCAB({existingDocEntry})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(updateReq, settings)
+                };
+
+                return await UpdateInfo(requestInformation, "PYP", login.Cfg);
+            }
+            else
+            {
+                var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaCodigo);
+                var createReq = new
+                {
+                    U_MGS_CL_TIENDA = tiendaCodigo,
+                    U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaCodigo : nombreTienda,
+                    MGS_CL_VANTDETCollection = lista.Select(i => new
+                    {
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_GRPNOM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = "MGS_CL_VANTCAB",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(createReq, settings)
+                };
+
+                return await PostInfo(requestInformation, "PYP", login.Cfg);
+            }
         }
 
         public async Task<ResponseInformation> SetGrupoVanArticulosBulk(string empresa, string grupoCodigo, IEnumerable<VanArticuloDetalleDto> items)
         {
-            return new ResponseInformation
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
             {
-                Registered = false,
-                Message = "Guardado masivo de artículos VAN debe implementarse contra Service Layer; el SP sólo soporta consultas.",
-                Content = string.Empty
-            };
+                return login.Error;
+            }
+
+            var lista = (items ?? Enumerable.Empty<VanArticuloDetalleDto>()).ToList();
+            if (!lista.Any())
+            {
+                return new ResponseInformation { Registered = false, Message = "No se recibieron artículos para actualizar.", Content = string.Empty };
+            }
+
+            foreach (var item in lista)
+            {
+                if (!item.U_MGS_CL_PORC.HasValue || item.U_MGS_CL_PORC.Value <= 0)
+                {
+                    item.U_MGS_CL_PORC = 100;
+                }
+            }
+
+            var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            if (existingDocEntry.HasValue)
+            {
+                foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
+                {
+                    item.DocEntry = existingDocEntry;
+                }
+            }
+
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+            if (existingDocEntry.HasValue)
+            {
+                var updateReq = new
+                {
+                    MGS_CL_VANADETCollection = lista.Select(i => new
+                    {
+                        i.LineId,
+                        i.U_MGS_CL_ITEMCOD,
+                        i.U_MGS_CL_ITEMNAM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = $"MGS_CL_VANACAB({existingDocEntry})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(updateReq, settings)
+                };
+
+                return await UpdateInfo(requestInformation, "PYP", login.Cfg);
+            }
+            else
+            {
+                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
+                var createReq = new
+                {
+                    U_MGS_CL_GRPCOD = grupoCodigo,
+                    U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? grupoCodigo : nombreGrupo,
+                    MGS_CL_VANADETCollection = lista.Select(i => new
+                    {
+                        i.U_MGS_CL_ITEMCOD,
+                        i.U_MGS_CL_ITEMNAM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = "MGS_CL_VANACAB",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(createReq, settings)
+                };
+
+                return await PostInfo(requestInformation, "PYP", login.Cfg);
+            }
         }
 
         private static bool HasColumn(IDataRecord reader, string columnName)
@@ -2573,6 +2722,69 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 }
             }
             return false;
+        }
+
+        private async Task<(bool Ok, ResponseInformation Error, string Token, EmpresaConfig Cfg)> LoginEmpresa(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return (false, error, string.Empty, null);
+            }
+
+            var token = await _loginService.Login(cfg);
+            if (string.IsNullOrEmpty(token))
+            {
+                return (false, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No fue posible conectarse al Service Layer",
+                    Content = string.Empty
+                }, string.Empty, null);
+            }
+
+            return (true, null, token, cfg);
+        }
+
+        private async Task<string> ObtenerNombreTienda(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+                using var cmd = new HanaCommand("SELECT \"PrjName\" FROM \"OPRJ\" WHERE \"PrjCode\" = @code", conn);
+                cmd.Parameters.AddWithValue("@code", tiendaCodigo ?? string.Empty);
+                var result = await cmd.ExecuteScalarAsync();
+                return result?.ToString();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open) conn.Close();
+            }
+        }
+
+        private async Task<string> ObtenerNombreGrupo(EmpresaConfig cfg, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+                using var cmd = new HanaCommand("SELECT \"Name\" FROM \"@MGS_CL_VANGRP\" WHERE \"Code\" = @code", conn);
+                cmd.Parameters.AddWithValue("@code", grupoCodigo ?? string.Empty);
+                var result = await cmd.ExecuteScalarAsync();
+                return result?.ToString();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open) conn.Close();
+            }
         }
 
 
