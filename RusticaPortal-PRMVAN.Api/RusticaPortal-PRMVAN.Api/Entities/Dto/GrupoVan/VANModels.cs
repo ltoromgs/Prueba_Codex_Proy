@@ -25,6 +25,12 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan
         public string U_MGS_CL_ACTIVO { get; set; }
     }
 
+    public class VanItemMaestroDto
+    {
+        public string ItemCode { get; set; }
+        public string ItemName { get; set; }
+    }
+
     public class VanGrupoDetalleDto
     {
         public int? DocEntry { get; set; }

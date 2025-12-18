@@ -264,6 +264,18 @@ BEGIN
         ORDER BY "Code";
 
 
+    ELSEIF vTipo = 'Get_VanItemM' THEN
+
+        SELECT
+            "ItemCode" AS "ItemCode",
+            "ItemName" AS "ItemName"
+        FROM "OITM"
+        WHERE :vParam1 = ''
+           OR UPPER("ItemCode") LIKE '%' || UPPER(:vParam1) || '%'
+           OR UPPER("ItemName") LIKE '%' || UPPER(:vParam1) || '%'
+        ORDER BY "ItemCode";
+
+
     ELSEIF vTipo = 'Get_VanTdaGrp' THEN
 
         SELECT

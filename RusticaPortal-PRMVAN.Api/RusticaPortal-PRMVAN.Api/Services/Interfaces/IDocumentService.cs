@@ -32,6 +32,7 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetGrupoVanTipos(string empresa);
         Task<ResponseInformation> GetGrupoVanTiendas(string empresa);
         Task<ResponseInformation> GetGrupoVanMaestro(string empresa);
+        Task<ResponseInformation> GetGrupoVanItemsMaestro(string empresa, string search);
         Task<ResponseInformation> GetGrupoVanPorTienda(string empresa, string tiendaCodigo);
         Task<ResponseInformation> GetGrupoVanArticulos(string empresa, string grupoCodigo);
         Task<ResponseInformation> SetGrupoVanPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<VanGrupoDetalleDto> items);

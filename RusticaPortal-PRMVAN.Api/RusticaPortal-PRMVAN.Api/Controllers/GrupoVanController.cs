@@ -64,6 +64,20 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             return Ok(rp);
         }
 
+        [HttpGet("articulos-maestro")]
+        public async Task<ActionResult<ResponseInformation>> GetArticulosMaestro([FromQuery] string Empresa, [FromQuery] string search = "")
+        {
+            var validacion = await _documentService.ValidaDatos(Empresa);
+            if (!validacion.Registered)
+            {
+                _logger.LogWarning("Validación fallida para empresa {Empresa}", Empresa);
+                return Ok(validacion);
+            }
+
+            var rp = await _documentService.GetGrupoVanItemsMaestro(Empresa, search);
+            return Ok(rp);
+        }
+
         [HttpGet("tienda/{prjCode}/grupos")]
         public async Task<ActionResult<ResponseInformation>> GetGruposPorTienda(string prjCode, [FromQuery] string Empresa)
         {
