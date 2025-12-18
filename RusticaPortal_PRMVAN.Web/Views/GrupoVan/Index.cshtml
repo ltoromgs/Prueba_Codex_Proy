@@ -87,6 +87,7 @@
                         </div>
                     </div>
                     <div class="table-responsive position-relative flex-grow-1" style="max-height: 65vh;">
+                        <div class="text-info small" id="infoArticulos"></div>
                         <table class="table table-sm table-bordered align-middle" id="tablaArticulos">
                             <thead class="table-light">
                                 <tr>
@@ -134,6 +135,10 @@
     .fila-pendiente {
         background-color: #fff3cd !important;
     }
+    #loadingOverlay {
+        background: rgba(255,255,255,0.7);
+        z-index: 9999;
+    }
 </style>
 
       <script>
@@ -155,10 +160,38 @@
           };
 
       const alertas = document.getElementById('alertas');
+      const overlay = document.createElement('div');
+      overlay.id = 'loadingOverlay';
+      overlay.className = 'position-fixed top-0 start-0 w-100 h-100 d-none d-flex align-items-center justify-content-center';
+      overlay.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>';
+      document.body.appendChild(overlay);
+
+      const setLoading = (flag) => {
+          state.loading = flag;
+          overlay.classList.toggle('d-none', !flag);
+      };
 
       const mostrarAlerta = (mensaje, tipo = 'danger') => {
           if (!mensaje) return;
           alertas.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">${mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+      };
+
+      const fetchJson = async (url, options = {}, contexto = 'operación') => {
+          setLoading(true);
+          try {
+              const resp = await fetch(url, options);
+              if (!resp.ok) {
+                  mostrarAlerta(`Error ${contexto}: ${resp.status}`);
+                  return null;
+              }
+              const data = await resp.json();
+              return data;
+          } catch (err) {
+              mostrarAlerta(`Error ${contexto}: ${err.message}`);
+              return null;
+          } finally {
+              setLoading(false);
+          }
       };
 
       const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
@@ -183,8 +216,8 @@
                 return;
             }
 
-            const resp = await fetch(`/GrupoVan/ArticulosMaestro?search=${encodeURIComponent(termino)}`);
-            const data = await resp.json();
+            const data = await fetchJson(`/GrupoVan/ArticulosMaestro?search=${encodeURIComponent(termino)}`, {}, 'al buscar artículos');
+            if (!data) return;
             if (!data.registered) {
                 mostrarAlerta(data.message || 'No se pudo buscar el catálogo de artículos');
                 return;
@@ -237,8 +270,8 @@
     };
 
     const cargarTiendas = async () => {
-        const resp = await fetch(`/GrupoVan/Tiendas`);
-        const data = await resp.json();
+        const data = await fetchJson(`/GrupoVan/Tiendas`, {}, 'al cargar tiendas');
+        if (!data) return;
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar las tiendas');
             return;
@@ -291,8 +324,8 @@
 
     const cargarGruposTienda = async () => {
         if (!state.tiendaActual) return;
-        const resp = await fetch(`/GrupoVan/GruposPorTienda?tienda=${state.tiendaActual.PrjCode}`);
-        const data = await resp.json();
+        const data = await fetchJson(`/GrupoVan/GruposPorTienda?tienda=${state.tiendaActual.PrjCode}`, {}, 'al cargar grupos');
+        if (!data) return;
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar los grupos de la tienda');
             return;
@@ -412,13 +445,19 @@
 
     const cargarArticulosGrupo = async () => {
         if (!state.grupoActual) return;
-        const resp = await fetch(`/GrupoVan/ArticulosPorGrupo?grupo=${state.grupoActual.U_MGS_CL_GRPCOD}`);
-        const data = await resp.json();
+        const data = await fetchJson(`/GrupoVan/ArticulosPorGrupo?grupo=${state.grupoActual.U_MGS_CL_GRPCOD}`, {}, 'al cargar artículos');
+        if (!data) return;
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar los artículos del grupo');
             return;
         }
         state.articulosGrupo = JSON.parse(data.content || '[]');
+        const info = document.getElementById('infoArticulos');
+        if (!state.articulosGrupo.length) {
+            info.textContent = 'No hay artículos asignados a este grupo. Puedes agregarlos.';
+        } else {
+            info.textContent = '';
+        }
         const tieneCampos = state.articulosGrupo.some(a => 'U_MGS_CL_TIPO' in a || 'U_MGS_CL_PORC' in a);
         if (state.articulosGrupo.length > 0 && !tieneCampos) {
             state.camposTipoPorcDisponibles = false;
@@ -432,6 +471,8 @@
       const renderArticulos = (lista) => {
         const tbody = document.querySelector('#tablaArticulos tbody');
         tbody.innerHTML = '';
+        const info = document.getElementById('infoArticulos');
+        info.textContent = (!lista || lista.length === 0) ? 'No hay artículos asignados a este grupo. Puedes agregarlos.' : '';
           lista.forEach(a => {
               const tr = document.createElement('tr');
               if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
@@ -567,15 +608,15 @@
         const mensajes = [];
 
         if (payloadGrupos.items.length > 0) {
-            const resp = await fetch(`/GrupoVan/GuardarGruposPorTienda?prjCode=${state.tiendaActual.PrjCode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadGrupos) });
-            const data = await resp.json();
+            const data = await fetchJson(`/GrupoVan/GuardarGruposPorTienda?prjCode=${state.tiendaActual.PrjCode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadGrupos) }, 'al guardar grupos');
+            if (!data) return;
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los grupos'); return; }
             mensajes.push(data.message || 'Grupos actualizados');
         }
 
         if (state.grupoActual && payloadArts.items.length > 0) {
-            const resp = await fetch(`/GrupoVan/GuardarArticulosPorGrupo?grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) });
-            const data = await resp.json();
+            const data = await fetchJson(`/GrupoVan/GuardarArticulosPorGrupo?grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) }, 'al guardar artículos');
+            if (!data) return;
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los artículos'); return; }
             mensajes.push(data.message || 'Artículos actualizados');
         }
@@ -594,8 +635,8 @@
           document.getElementById('selectTipoGrupo').onchange = () => asegurarPorcentajePorDefecto(document.getElementById('inputPorcentajeGrupo'));
           document.getElementById('selectTipoArticulo').onchange = () => asegurarPorcentajePorDefecto(document.getElementById('inputPorcentajeArticulo'));
 
-          const respTipos = await fetch(`/GrupoVan/Tipos`);
-          const dataTipos = await respTipos.json();
+          const dataTipos = await fetchJson(`/GrupoVan/Tipos`, {}, 'al cargar tipos');
+          if (!dataTipos) return;
           if (!dataTipos.registered) {
               mostrarAlerta(dataTipos.message || 'No se pudieron cargar los tipos VAN');
               return;
@@ -603,8 +644,8 @@
           state.tipos = JSON.parse(dataTipos.content || '[]');
           llenarComboTipos();
 
-          const respMaestro = await fetch(`/GrupoVan/GruposMaestro`);
-          const dataMaestro = await respMaestro.json();
+          const dataMaestro = await fetchJson(`/GrupoVan/GruposMaestro`, {}, 'al cargar maestro de grupos');
+          if (!dataMaestro) return;
           if (!dataMaestro.registered) {
               mostrarAlerta(dataMaestro.message || 'No se pudo cargar el maestro de grupos');
               return;

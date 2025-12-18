@@ -32,6 +32,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -49,6 +50,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -66,6 +68,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -84,6 +87,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -104,6 +108,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -124,6 +129,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -144,6 +150,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, payload);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
 
@@ -164,6 +171,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, payload);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
             return Ok(resp);
         }
     }
