@@ -31,6 +31,8 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan
         public int LineId { get; set; }
         public string U_MGS_CL_GRPCOD { get; set; }
         public string U_MGS_CL_GRPNOM { get; set; }
+        public string U_MGS_CL_TIPO { get; set; }
+        public decimal? U_MGS_CL_PORC { get; set; }
     }
 
     public class VanArticuloDetalleDto
@@ -39,6 +41,8 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan
         public int LineId { get; set; }
         public string U_MGS_CL_ITEMCOD { get; set; }
         public string U_MGS_CL_ITEMNAM { get; set; }
+        public string U_MGS_CL_TIPO { get; set; }
+        public decimal? U_MGS_CL_PORC { get; set; }
     }
 
     public class GrupoVanBulkRequest

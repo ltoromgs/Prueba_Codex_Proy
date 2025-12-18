@@ -153,6 +153,24 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 return new ResponseInformation { Registered = false, Message = "No se recibieron registros para actualizar" };
             }
 
+            foreach (var item in items)
+            {
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPO))
+                {
+                    return new ResponseInformation { Registered = false, Message = "El tipo es obligatorio para cada grupo VAN" };
+                }
+
+                if (!item.U_MGS_CL_PORC.HasValue || item.U_MGS_CL_PORC.Value <= 0)
+                {
+                    item.U_MGS_CL_PORC = 100;
+                }
+
+                if (item.U_MGS_CL_PORC < 0 || item.U_MGS_CL_PORC > 100)
+                {
+                    return new ResponseInformation { Registered = false, Message = "El porcentaje de grupo debe estar entre 0 y 100" };
+                }
+            }
+
             var duplicados = items
                 .Where(x => !string.IsNullOrWhiteSpace(x.U_MGS_CL_GRPCOD))
                 .GroupBy(x => x.U_MGS_CL_GRPCOD.ToUpper())
@@ -171,6 +189,24 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             if (items == null || !items.Any())
             {
                 return new ResponseInformation { Registered = false, Message = "No se recibieron registros para actualizar" };
+            }
+
+            foreach (var item in items)
+            {
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPO))
+                {
+                    return new ResponseInformation { Registered = false, Message = "El tipo es obligatorio para cada artículo VAN" };
+                }
+
+                if (!item.U_MGS_CL_PORC.HasValue || item.U_MGS_CL_PORC.Value <= 0)
+                {
+                    item.U_MGS_CL_PORC = 100;
+                }
+
+                if (item.U_MGS_CL_PORC < 0 || item.U_MGS_CL_PORC > 100)
+                {
+                    return new ResponseInformation { Registered = false, Message = "El porcentaje del artículo debe estar entre 0 y 100" };
+                }
             }
 
             var duplicados = items

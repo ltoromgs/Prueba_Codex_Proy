@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using RusticaPortal_PRMVAN.Api.Entities.Dto;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan;
+using System.Globalization;
 
 namespace RusticaPortal_PRMVAN.Api.Services
 {
@@ -2444,16 +2445,18 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    grupos.Add(new VanGrupoDetalleDto
+                    while (reader.Read())
                     {
-                        DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
-                        LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
-                        U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty
-                    });
-                }
+                        grupos.Add(new VanGrupoDetalleDto
+                        {
+                            DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                            LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                            U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                            U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
+                            U_MGS_CL_TIPO = HasColumn(reader, "U_MGS_CL_TIPO") ? reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty : string.Empty,
+                            U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null
+                        });
+                    }
 
                 return new ResponseInformation
                 {
@@ -2504,16 +2507,18 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    articulos.Add(new VanArticuloDetalleDto
+                    while (reader.Read())
                     {
-                        DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
-                        LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
-                        U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
-                        U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty
-                    });
-                }
+                        articulos.Add(new VanArticuloDetalleDto
+                        {
+                            DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                            LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                            U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
+                            U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
+                            U_MGS_CL_TIPO = HasColumn(reader, "U_MGS_CL_TIPO") ? reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty : string.Empty,
+                            U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null
+                        });
+                    }
 
                 return new ResponseInformation
                 {
@@ -2558,7 +2563,19 @@ namespace RusticaPortal_PRMVAN.Api.Services
             };
         }
 
-       
+        private static bool HasColumn(IDataRecord reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetName(i).Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
     }
 }
     
