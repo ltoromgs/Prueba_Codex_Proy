@@ -365,6 +365,7 @@
               const tr = document.createElement('tr');
               if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
               if (state.grupoActual?.LineId === g.LineId) tr.classList.add('fila-activa');
+              if (g._toDelete) tr.classList.add('table-danger');
 
               tr.onclick = () => seleccionarGrupo(g);
 
@@ -411,22 +412,30 @@
 
             const tdAccion = document.createElement('td');
             const btn = document.createElement('button');
+            btn.type = 'button';
             btn.className = 'btn btn-outline-danger btn-sm';
             btn.textContent = 'Quitar';
-            btn.disabled = !!g.DocEntry;
             silenciarPropagacion(btn);
             btn.onclick = (ev) => {
+                ev.preventDefault();
                 ev.stopPropagation();
                 const idx = state.gruposTienda.findIndex(x => x.LineId === g.LineId);
                 if (idx >= 0) {
-                    state.gruposTienda.splice(idx,1);
-                    state.pending.grupos.delete(g.LineId);
-                    if (state.grupoActual?.LineId === g.LineId) {
-                        state.grupoActual = null;
-                        renderArticulos([]);
+                    if (g.DocEntry) {
+                        state.pending.grupos.add(g.LineId); // conserva en el payload y marca eliminado
+                        state.gruposTienda[idx]._toDelete = true;
+                        renderGrupos();
+                        actualizarHeader();
+                    } else {
+                        state.pending.grupos.add(g.LineId); // pendiente para borrar fila nueva
+                        state.gruposTienda.splice(idx,1);
+                        if (state.grupoActual?.LineId === g.LineId) {
+                            state.grupoActual = null;
+                            renderArticulos([]);
+                        }
+                        renderGrupos();
+                        actualizarHeader();
                     }
-                    renderGrupos();
-                    actualizarHeader();
                 }
             };
             tdAccion.appendChild(btn);
@@ -495,6 +504,7 @@
           lista.forEach(a => {
               const tr = document.createElement('tr');
               if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
+              if (a._toDelete) tr.classList.add('table-danger');
 
               const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
               const tdNombre = document.createElement('td'); tdNombre.textContent = a.U_MGS_CL_ITEMNAM;
@@ -536,17 +546,24 @@
               tdPorc.appendChild(inpPorc);
 
             const tdAccion = document.createElement('td');
-            const btn = document.createElement('button'); btn.className='btn btn-outline-danger btn-sm'; btn.textContent='Quitar';
-            btn.disabled = !!a.DocEntry;
+            const btn = document.createElement('button'); btn.type='button'; btn.className='btn btn-outline-danger btn-sm'; btn.textContent='Quitar';
             silenciarPropagacion(btn);
             btn.onclick = (ev) => {
+                ev.preventDefault();
                 ev.stopPropagation();
                 const idx = state.articulosGrupo.findIndex(x => x.LineId === a.LineId);
                 if (idx >= 0) {
-                    state.articulosGrupo.splice(idx,1);
-                    state.pending.articulos.delete(a.LineId);
-                    renderArticulos(state.articulosGrupo);
-                    actualizarHeader();
+                    if (a.DocEntry) {
+                        state.pending.articulos.add(a.LineId); // conserva en payload como pendiente de baja
+                        state.articulosGrupo[idx]._toDelete = true;
+                        renderArticulos(state.articulosGrupo);
+                        actualizarHeader();
+                    } else {
+                        state.pending.articulos.add(a.LineId); // pendiente para borrar fila nueva
+                        state.articulosGrupo.splice(idx,1);
+                        renderArticulos(state.articulosGrupo);
+                        actualizarHeader();
+                    }
                 }
             };
             tdAccion.appendChild(btn);
@@ -652,7 +669,7 @@
 
       document.addEventListener('DOMContentLoaded', async () => {
           document.getElementById('buscarTienda').oninput = renderTiendas;
-          document.getElementById('btnAgregarGrupo').onclick = agregarGrupo;
+          document.getElementById('btnAgregarGrupo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarGrupo(); }; // evita disparar cambio de contexto ni modal al agregar
           document.getElementById('btnAgregarArticulo').onclick = agregarArticulo;
           document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
           document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
