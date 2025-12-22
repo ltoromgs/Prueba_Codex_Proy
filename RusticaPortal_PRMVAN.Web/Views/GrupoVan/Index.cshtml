@@ -135,6 +135,9 @@
     .fila-pendiente {
         background-color: #fff3cd !important;
     }
+    .fila-activa {
+        background-color: #cfe2ff !important; /* destaca la fila seleccionada sin romper el DOM */
+    }
     #loadingOverlay {
         background: rgba(255,255,255,0.7);
         z-index: 9999;
@@ -203,6 +206,9 @@
       };
 
       const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
+
+        // Evita que los clicks en controles internos disparen el selector de fila y cierren el dropdown.
+        const silenciarPropagacion = (el) => ['click', 'mousedown', 'touchstart', 'focus'].forEach(evt => el.addEventListener(evt, e => e.stopPropagation()));
 
         const renderSugerenciasArticulos = () => {
             const lista = document.getElementById('listaArticulos');
@@ -358,7 +364,7 @@
           state.gruposTienda.forEach(g => {
               const tr = document.createElement('tr');
               if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
-              if (state.grupoActual?.LineId === g.LineId) tr.classList.add('table-active');
+              if (state.grupoActual?.LineId === g.LineId) tr.classList.add('fila-activa');
 
               tr.onclick = () => seleccionarGrupo(g);
 
@@ -372,6 +378,7 @@
               selTipo.className = 'form-select form-select-sm';
               selTipo.innerHTML = ['<option value="">Tipo</option>', ...state.tipos.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
               selTipo.value = g.U_MGS_CL_TIPO || '';
+              silenciarPropagacion(selTipo);
               selTipo.onchange = (e) => {
                   e.stopPropagation();
                   g.U_MGS_CL_TIPO = e.target.value;
@@ -393,6 +400,7 @@
               inpPorc.className = 'form-control form-control-sm';
               inpPorc.dataset.lineid = `${g.LineId}-grupo`;
               inpPorc.value = g.U_MGS_CL_PORC ?? '';
+              silenciarPropagacion(inpPorc);
               inpPorc.onchange = (e) => {
                   e.stopPropagation();
                   g.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
@@ -406,6 +414,7 @@
             btn.className = 'btn btn-outline-danger btn-sm';
             btn.textContent = 'Quitar';
             btn.disabled = !!g.DocEntry;
+            silenciarPropagacion(btn);
             btn.onclick = (ev) => {
                 ev.stopPropagation();
                 const idx = state.gruposTienda.findIndex(x => x.LineId === g.LineId);
@@ -495,6 +504,7 @@
               selTipo.className = 'form-select form-select-sm';
               selTipo.innerHTML = ['<option value="">Tipo</option>', ...state.tipos.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
               selTipo.value = a.U_MGS_CL_TIPO || '';
+              silenciarPropagacion(selTipo);
               selTipo.onchange = (e) => {
                   e.stopPropagation();
                   a.U_MGS_CL_TIPO = e.target.value;
@@ -516,6 +526,7 @@
               inpPorc.className = 'form-control form-control-sm';
               inpPorc.dataset.lineid = `${a.LineId}-art`;
               inpPorc.value = a.U_MGS_CL_PORC ?? '';
+              silenciarPropagacion(inpPorc);
               inpPorc.onchange = (e) => {
                   e.stopPropagation();
                   a.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
@@ -527,6 +538,7 @@
             const tdAccion = document.createElement('td');
             const btn = document.createElement('button'); btn.className='btn btn-outline-danger btn-sm'; btn.textContent='Quitar';
             btn.disabled = !!a.DocEntry;
+            silenciarPropagacion(btn);
             btn.onclick = (ev) => {
                 ev.stopPropagation();
                 const idx = state.articulosGrupo.findIndex(x => x.LineId === a.LineId);
