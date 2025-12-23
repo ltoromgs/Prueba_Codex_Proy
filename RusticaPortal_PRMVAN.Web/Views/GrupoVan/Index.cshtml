@@ -380,7 +380,10 @@
             return;
         }
         state.gruposTienda = JSON.parse(data.content || '[]');
-        state.gruposTienda.forEach(g => { g.rowKey = rowKeyGrupo(g); });
+        state.gruposTienda.forEach(g => {
+            g.rowKey = rowKeyGrupo(g);
+            if (typeof g.U_MGS_CL_ACTIVO === 'undefined') g.U_MGS_CL_ACTIVO = 'SI';
+        });
         const tieneCampos = state.gruposTienda.some(g => 'U_MGS_CL_TIPO' in g || 'U_MGS_CL_PORC' in g);
         if (state.gruposTienda.length > 0 && !tieneCampos) {
             state.camposTipoPorcDisponibles = false;
@@ -456,11 +459,12 @@
             btn.onclick = (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                const idx = state.gruposTienda.findIndex(x => x.LineId === g.LineId);
+                const idx = state.gruposTienda.findIndex(x => x.rowKey === g.rowKey);
                 if (idx >= 0) {
                     if (g.DocEntry) {
                         state.pending.grupos.add(g.rowKey); // conserva en el payload y marca eliminado
                         state.gruposTienda[idx]._toDelete = true;
+                        state.gruposTienda[idx].U_MGS_CL_ACTIVO = 'NO';
                         renderGrupos();
                         actualizarHeader();
                     } else {
@@ -483,7 +487,8 @@
     };
 
     const seleccionarGrupo = async (grupo) => {
-        if (pendientesTotal() > 0 && state.grupoActual && state.grupoActual.LineId !== grupo.LineId) {
+        const hayPendArt = state.pending.articulos.size > 0;
+        if (hayPendArt && state.grupoActual && state.grupoActual.LineId !== grupo.LineId) {
             const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
             document.getElementById('btnDescartar').onclick = async () => {
                 await descartarYRecargar();
@@ -517,7 +522,10 @@
             return;
         }
         state.articulosGrupo = JSON.parse(data.content || '[]');
-        state.articulosGrupo.forEach(a => { a.rowKey = rowKeyArticulo(a); });
+        state.articulosGrupo.forEach(a => {
+            a.rowKey = rowKeyArticulo(a);
+            if (typeof a.U_MGS_CL_ACTIVO === 'undefined') a.U_MGS_CL_ACTIVO = 'SI';
+        });
         const info = document.getElementById('infoArticulos');
         if (!state.articulosGrupo.length) {
             info.textContent = 'No hay artículos asignados a este grupo. Puedes agregarlos.';
@@ -590,11 +598,12 @@
             btn.onclick = (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                const idx = state.articulosGrupo.findIndex(x => x.LineId === a.LineId);
+                const idx = state.articulosGrupo.findIndex(x => x.rowKey === a.rowKey);
                 if (idx >= 0) {
                     if (a.DocEntry) {
                         state.pending.articulos.add(a.rowKey); // conserva en payload como pendiente de baja
                         state.articulosGrupo[idx]._toDelete = true;
+                        state.articulosGrupo[idx].U_MGS_CL_ACTIVO = 'NO';
                         renderArticulos(state.articulosGrupo);
                         actualizarHeader();
                     } else {
@@ -623,7 +632,7 @@
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo de VAN para el grupo'); return; }
         if (state.gruposTienda.some(x => x.U_MGS_CL_GRPCOD === grp.Code)) { mostrarAlerta('El grupo ya está asignado a la tienda'); return; }
         const docEntryBase = state.gruposTienda.find(x => x.DocEntry)?.DocEntry ?? null;
-        const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.gruposTienda), U_MGS_CL_GRPCOD: grp.Code, U_MGS_CL_GRPNOM: grp.Name, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel };
+        const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.gruposTienda), U_MGS_CL_GRPCOD: grp.Code, U_MGS_CL_GRPNOM: grp.Name, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel, U_MGS_CL_ACTIVO: 'SI' };
         nuevo.rowKey = rowKeyGrupo(nuevo);
         state.gruposTienda.push(nuevo);
         marcarPendiente('grupos', nuevo.rowKey);
@@ -647,7 +656,7 @@
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo para el artículo VAN'); return; }
         if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
         const docEntryBase = state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? state.grupoActual?.DocEntry ?? null;
-        const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.articulosGrupo), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel };
+        const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.articulosGrupo), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel, U_MGS_CL_ACTIVO: 'SI' };
         nuevo.rowKey = rowKeyArticulo(nuevo);
         state.articulosGrupo.push(nuevo);
         marcarPendiente('articulos', nuevo.rowKey);
@@ -672,7 +681,8 @@
                     U_MGS_CL_GRPCOD: g.U_MGS_CL_GRPCOD,
                     U_MGS_CL_GRPNOM: g.U_MGS_CL_GRPNOM,
                     U_MGS_CL_TIPO: g.U_MGS_CL_TIPO,
-                    U_MGS_CL_PORC: g.U_MGS_CL_PORC
+                    U_MGS_CL_PORC: g.U_MGS_CL_PORC,
+                    U_MGS_CL_ACTIVO: g.U_MGS_CL_ACTIVO ?? 'SI'
                 }))
         };
         const payloadArts = {
@@ -684,7 +694,8 @@
                     U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
                     U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
                     U_MGS_CL_TIPO: a.U_MGS_CL_TIPO,
-                    U_MGS_CL_PORC: a.U_MGS_CL_PORC
+                    U_MGS_CL_PORC: a.U_MGS_CL_PORC,
+                    U_MGS_CL_ACTIVO: a.U_MGS_CL_ACTIVO ?? 'SI'
                 }))
         };
 

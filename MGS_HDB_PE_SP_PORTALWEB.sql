@@ -287,6 +287,7 @@ BEGIN
         JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
         WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
         ORDER BY D."LineId";
 
 
@@ -303,6 +304,7 @@ BEGIN
         JOIN "@MGS_CL_VANADET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"
         WHERE H."U_MGS_CL_GRPCOD" = :vParam1
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
         ORDER BY D."LineId";
 
 
