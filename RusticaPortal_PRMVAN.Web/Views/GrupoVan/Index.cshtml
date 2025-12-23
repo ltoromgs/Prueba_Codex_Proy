@@ -161,6 +161,8 @@
                   articulos: new Set()
               }
           };
+          let tempGrupoId = 1;
+          let tempArticuloId = 1;
 
       const alertas = document.getElementById('alertas');
       const overlay = document.createElement('div');
@@ -206,6 +208,18 @@
       };
 
       const pendientesTotal = () => state.pending.grupos.size + state.pending.articulos.size;
+
+        const rowKeyGrupo = (g) => {
+            if (g.DocEntry) return `${g.DocEntry}_${g.LineId}`;
+            if (!g._tempId) g._tempId = `G${tempGrupoId++}`;
+            return `NEW_${g._tempId}`;
+        };
+
+        const rowKeyArticulo = (a) => {
+            if (a.DocEntry) return `${a.DocEntry}_${a.LineId}`;
+            if (!a._tempId) a._tempId = `A${tempArticuloId++}`;
+            return `NEW_${a._tempId}`;
+        };
 
         // Evita que los clicks en controles internos disparen el selector de fila y cierren el dropdown.
         const silenciarPropagacion = (el) => ['click', 'mousedown', 'touchstart', 'focus'].forEach(evt => el.addEventListener(evt, e => e.stopPropagation()));
@@ -272,8 +286,8 @@
         document.getElementById('btnActualizarTodo').disabled = pendientesTotal() === 0;
     };
 
-    const marcarPendiente = (tipo, lineId) => {
-        state.pending[tipo].add(lineId);
+    const marcarPendiente = (tipo, key) => {
+        state.pending[tipo].add(key);
         actualizarHeader();
     };
 
@@ -313,8 +327,8 @@
     const seleccionarTienda = (tienda) => {
         if (pendientesTotal() > 0) {
             const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
-            document.getElementById('btnDescartar').onclick = () => {
-                limpiarPendientes();
+            document.getElementById('btnDescartar').onclick = async () => {
+                await descartarYRecargar();
                 modal.hide();
                 cambiarTienda(tienda);
             };
@@ -322,6 +336,27 @@
             return;
         }
         cambiarTienda(tienda);
+    };
+
+    const recargarDatosActuales = async () => {
+        await cargarGruposTienda();
+        if (state.grupoActual) {
+            const match = state.gruposTienda.find(g => g.U_MGS_CL_GRPCOD === state.grupoActual.U_MGS_CL_GRPCOD && g.LineId === state.grupoActual.LineId && g.DocEntry === state.grupoActual.DocEntry);
+            state.grupoActual = match || null;
+        }
+        renderGrupos();
+        if (state.grupoActual) {
+            await cargarArticulosGrupo();
+            renderArticulos(state.articulosGrupo);
+        } else {
+            renderArticulos([]);
+        }
+        actualizarHeader();
+    };
+
+    const descartarYRecargar = async () => {
+        limpiarPendientes();
+        await recargarDatosActuales();
     };
 
     const cambiarTienda = async (tienda) => {
@@ -345,6 +380,7 @@
             return;
         }
         state.gruposTienda = JSON.parse(data.content || '[]');
+        state.gruposTienda.forEach(g => { g.rowKey = rowKeyGrupo(g); });
         const tieneCampos = state.gruposTienda.some(g => 'U_MGS_CL_TIPO' in g || 'U_MGS_CL_PORC' in g);
         if (state.gruposTienda.length > 0 && !tieneCampos) {
             state.camposTipoPorcDisponibles = false;
@@ -362,8 +398,9 @@
           const tbody = document.querySelector('#tablaGrupos tbody');
           tbody.innerHTML = '';
           state.gruposTienda.forEach(g => {
+              g.rowKey = g.rowKey || rowKeyGrupo(g);
               const tr = document.createElement('tr');
-              if (state.pending.grupos.has(g.LineId)) tr.classList.add('fila-pendiente');
+              if (state.pending.grupos.has(g.rowKey)) tr.classList.add('fila-pendiente');
               if (state.grupoActual?.LineId === g.LineId) tr.classList.add('fila-activa');
               if (g._toDelete) tr.classList.add('table-danger');
 
@@ -388,7 +425,7 @@
                       const inp = tr.querySelector('input[data-lineid="' + g.LineId + '-grupo"]');
                       if (inp) inp.value = 100;
                   }
-                  marcarPendiente('grupos', g.LineId);
+                  marcarPendiente('grupos', g.rowKey);
                   tr.classList.add('fila-pendiente');
               };
               tdTipo.appendChild(selTipo);
@@ -405,7 +442,7 @@
               inpPorc.onchange = (e) => {
                   e.stopPropagation();
                   g.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
-                  marcarPendiente('grupos', g.LineId);
+                  marcarPendiente('grupos', g.rowKey);
                   tr.classList.add('fila-pendiente');
               };
               tdPorc.appendChild(inpPorc);
@@ -422,12 +459,12 @@
                 const idx = state.gruposTienda.findIndex(x => x.LineId === g.LineId);
                 if (idx >= 0) {
                     if (g.DocEntry) {
-                        state.pending.grupos.add(g.LineId); // conserva en el payload y marca eliminado
+                        state.pending.grupos.add(g.rowKey); // conserva en el payload y marca eliminado
                         state.gruposTienda[idx]._toDelete = true;
                         renderGrupos();
                         actualizarHeader();
                     } else {
-                        state.pending.grupos.add(g.LineId); // pendiente para borrar fila nueva
+                        state.pending.grupos.delete(g.rowKey); // eliminar pendiente si se descarta fila nueva
                         state.gruposTienda.splice(idx,1);
                         if (state.grupoActual?.LineId === g.LineId) {
                             state.grupoActual = null;
@@ -448,8 +485,8 @@
     const seleccionarGrupo = async (grupo) => {
         if (pendientesTotal() > 0 && state.grupoActual && state.grupoActual.LineId !== grupo.LineId) {
             const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
-            document.getElementById('btnDescartar').onclick = () => {
-                limpiarPendientes();
+            document.getElementById('btnDescartar').onclick = async () => {
+                await descartarYRecargar();
                 modal.hide();
                 cambiarGrupo(grupo);
             };
@@ -480,6 +517,7 @@
             return;
         }
         state.articulosGrupo = JSON.parse(data.content || '[]');
+        state.articulosGrupo.forEach(a => { a.rowKey = rowKeyArticulo(a); });
         const info = document.getElementById('infoArticulos');
         if (!state.articulosGrupo.length) {
             info.textContent = 'No hay artículos asignados a este grupo. Puedes agregarlos.';
@@ -502,8 +540,9 @@
         const info = document.getElementById('infoArticulos');
         info.textContent = (!lista || lista.length === 0) ? 'No hay artículos asignados a este grupo. Puedes agregarlos.' : '';
           lista.forEach(a => {
+              a.rowKey = a.rowKey || rowKeyArticulo(a);
               const tr = document.createElement('tr');
-              if (state.pending.articulos.has(a.LineId)) tr.classList.add('fila-pendiente');
+              if (state.pending.articulos.has(a.rowKey)) tr.classList.add('fila-pendiente');
               if (a._toDelete) tr.classList.add('table-danger');
 
               const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
@@ -523,7 +562,7 @@
                       const inp = tr.querySelector('input[data-lineid="' + a.LineId + '-art"]');
                       if (inp) inp.value = 100;
                   }
-                  marcarPendiente('articulos', a.LineId);
+                  marcarPendiente('articulos', a.rowKey);
                   tr.classList.add('fila-pendiente');
               };
               tdTipo.appendChild(selTipo);
@@ -540,7 +579,7 @@
               inpPorc.onchange = (e) => {
                   e.stopPropagation();
                   a.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
-                  marcarPendiente('articulos', a.LineId);
+                  marcarPendiente('articulos', a.rowKey);
                   tr.classList.add('fila-pendiente');
               };
               tdPorc.appendChild(inpPorc);
@@ -554,12 +593,12 @@
                 const idx = state.articulosGrupo.findIndex(x => x.LineId === a.LineId);
                 if (idx >= 0) {
                     if (a.DocEntry) {
-                        state.pending.articulos.add(a.LineId); // conserva en payload como pendiente de baja
+                        state.pending.articulos.add(a.rowKey); // conserva en payload como pendiente de baja
                         state.articulosGrupo[idx]._toDelete = true;
                         renderArticulos(state.articulosGrupo);
                         actualizarHeader();
                     } else {
-                        state.pending.articulos.add(a.LineId); // pendiente para borrar fila nueva
+                        state.pending.articulos.delete(a.rowKey); // si era nuevo, retirar su pendiente al eliminarlo
                         state.articulosGrupo.splice(idx,1);
                         renderArticulos(state.articulosGrupo);
                         actualizarHeader();
@@ -585,8 +624,9 @@
         if (state.gruposTienda.some(x => x.U_MGS_CL_GRPCOD === grp.Code)) { mostrarAlerta('El grupo ya está asignado a la tienda'); return; }
         const docEntryBase = state.gruposTienda.find(x => x.DocEntry)?.DocEntry ?? null;
         const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.gruposTienda), U_MGS_CL_GRPCOD: grp.Code, U_MGS_CL_GRPNOM: grp.Name, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel };
+        nuevo.rowKey = rowKeyGrupo(nuevo);
         state.gruposTienda.push(nuevo);
-        marcarPendiente('grupos', nuevo.LineId);
+        marcarPendiente('grupos', nuevo.rowKey);
         renderGrupos();
         seleccionarGrupo(nuevo);
         document.getElementById('selectGrupoMaestro').value = '';
@@ -608,8 +648,9 @@
         if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
         const docEntryBase = state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? state.grupoActual?.DocEntry ?? null;
         const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.articulosGrupo), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel };
+        nuevo.rowKey = rowKeyArticulo(nuevo);
         state.articulosGrupo.push(nuevo);
-        marcarPendiente('articulos', nuevo.LineId);
+        marcarPendiente('articulos', nuevo.rowKey);
         renderArticulos(state.articulosGrupo);
         state.articuloSeleccionado = null;
         state.articulosMaestro = [];
@@ -624,7 +665,7 @@
           if (!state.tiendaActual) return;
           const payloadGrupos = {
               items: state.gruposTienda
-                .filter(g => state.pending.grupos.has(g.LineId))
+                .filter(g => state.pending.grupos.has(g.rowKey))
                 .map(g => ({
                     DocEntry: g.DocEntry,
                     LineId: g.LineId,
@@ -636,7 +677,7 @@
         };
         const payloadArts = {
             items: state.articulosGrupo
-                .filter(a => state.pending.articulos.has(a.LineId))
+                .filter(a => state.pending.articulos.has(a.rowKey))
                 .map(a => ({
                     DocEntry: a.DocEntry,
                     LineId: a.LineId,
