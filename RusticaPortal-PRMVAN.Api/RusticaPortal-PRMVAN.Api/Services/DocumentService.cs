@@ -2573,10 +2573,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
 
             var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
-            if (!existingDocEntry.HasValue)
-            {
-                existingDocEntry = await ObtenerDocEntryVanacab(login.Cfg, grupoCodigo);
-            }
+            //if (!existingDocEntry.HasValue)
+            //{
+            //    existingDocEntry = await ObtenerDocEntryVanacab(login.Cfg, grupoCodigo);
+            //}
             if (existingDocEntry.HasValue)
             {
                 foreach (var item in lista.Where(i => !i.DocEntry.HasValue))

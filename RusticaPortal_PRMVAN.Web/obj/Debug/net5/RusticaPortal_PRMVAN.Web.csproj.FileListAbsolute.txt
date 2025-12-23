@@ -126,3 +126,4 @@ C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal_PRMVAN.We
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal_PRMVAN.Web\obj\Debug\net5\RusticaPortal_PRMVAN.Web.pdb
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal_PRMVAN.Web\obj\Debug\net5\RusticaPortal_PRMVAN.Web.genruntimeconfig.cache
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal_PRMVAN.Web\obj\Debug\net5\RusticaPortal_PRMVAN.Web.csproj.AssemblyReference.cache
+C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal_PRMVAN.Web\obj\Debug\net5\Razor\Views\GrupoVan\Index.cshtml.g.cs
