@@ -74,6 +74,9 @@ namespace RusticaPortal_PRMVAN.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
+                    name: "grupovan",
+                    pattern: "GrupoVan/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
