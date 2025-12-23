@@ -423,6 +423,7 @@
               selTipo.onchange = (e) => {
                   e.stopPropagation();
                   g.U_MGS_CL_TIPO = e.target.value;
+                  g.U_MGS_CL_ACTIVO = 'SI';
                   if (!g.U_MGS_CL_PORC || Number(g.U_MGS_CL_PORC) === 0) {
                       g.U_MGS_CL_PORC = 100;
                       const inp = tr.querySelector('input[data-lineid="' + g.LineId + '-grupo"]');
@@ -445,6 +446,7 @@
               inpPorc.onchange = (e) => {
                   e.stopPropagation();
                   g.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
+                  g.U_MGS_CL_ACTIVO = 'SI';
                   marcarPendiente('grupos', g.rowKey);
                   tr.classList.add('fila-pendiente');
               };
@@ -463,8 +465,10 @@
                 if (idx >= 0) {
                     if (g.DocEntry) {
                         state.pending.grupos.add(g.rowKey); // conserva en el payload y marca eliminado
-                        state.gruposTienda[idx]._toDelete = true;
-                        state.gruposTienda[idx].U_MGS_CL_ACTIVO = 'NO';
+                        const target = state.gruposTienda[idx];
+                        const marcadoEliminar = !!target._toDelete;
+                        target._toDelete = !marcadoEliminar;
+                        target.U_MGS_CL_ACTIVO = marcadoEliminar ? 'SI' : 'NO'; // toggle revert/quit
                         renderGrupos();
                         actualizarHeader();
                     } else {
@@ -565,6 +569,7 @@
               selTipo.onchange = (e) => {
                   e.stopPropagation();
                   a.U_MGS_CL_TIPO = e.target.value;
+                  a.U_MGS_CL_ACTIVO = 'SI';
                   if (!a.U_MGS_CL_PORC || Number(a.U_MGS_CL_PORC) === 0) {
                       a.U_MGS_CL_PORC = 100;
                       const inp = tr.querySelector('input[data-lineid="' + a.LineId + '-art"]');
@@ -587,6 +592,7 @@
               inpPorc.onchange = (e) => {
                   e.stopPropagation();
                   a.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
+                  a.U_MGS_CL_ACTIVO = 'SI';
                   marcarPendiente('articulos', a.rowKey);
                   tr.classList.add('fila-pendiente');
               };
@@ -602,8 +608,10 @@
                 if (idx >= 0) {
                     if (a.DocEntry) {
                         state.pending.articulos.add(a.rowKey); // conserva en payload como pendiente de baja
-                        state.articulosGrupo[idx]._toDelete = true;
-                        state.articulosGrupo[idx].U_MGS_CL_ACTIVO = 'NO';
+                        const target = state.articulosGrupo[idx];
+                        const marcadoEliminar = !!target._toDelete;
+                        target._toDelete = !marcadoEliminar;
+                        target.U_MGS_CL_ACTIVO = marcadoEliminar ? 'SI' : 'NO';
                         renderArticulos(state.articulosGrupo);
                         actualizarHeader();
                     } else {

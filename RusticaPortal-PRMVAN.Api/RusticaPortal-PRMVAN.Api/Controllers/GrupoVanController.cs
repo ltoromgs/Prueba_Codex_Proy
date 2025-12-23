@@ -155,6 +155,10 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
             foreach (var item in items)
             {
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
                 if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPO))
                 {
                     return new ResponseInformation { Registered = false, Message = "El tipo es obligatorio para cada grupo VAN" };
@@ -193,6 +197,10 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
             foreach (var item in items)
             {
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
                 if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPO))
                 {
                     return new ResponseInformation { Registered = false, Message = "El tipo es obligatorio para cada artículo VAN" };

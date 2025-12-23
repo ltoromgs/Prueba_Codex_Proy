@@ -2566,6 +2566,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     item.U_MGS_CL_PORC = 100;
                 }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
             }
 
             var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
@@ -2589,7 +2593,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_GRPNOM,
                         i.U_MGS_CL_TIPO,
-                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
 
@@ -2614,7 +2619,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_GRPNOM,
                         i.U_MGS_CL_TIPO,
-                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
 
@@ -2649,6 +2655,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     item.U_MGS_CL_PORC = 100;
                 }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
             }
 
             var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
@@ -2672,7 +2682,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         i.U_MGS_CL_ITEMCOD,
                         i.U_MGS_CL_ITEMNAM,
                         i.U_MGS_CL_TIPO,
-                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
 
@@ -2697,7 +2708,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         i.U_MGS_CL_ITEMCOD,
                         i.U_MGS_CL_ITEMNAM,
                         i.U_MGS_CL_TIPO,
-                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
 
@@ -2791,5 +2803,3 @@ namespace RusticaPortal_PRMVAN.Api.Services
     }
 }
     
-
-
