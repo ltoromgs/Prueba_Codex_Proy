@@ -2573,6 +2573,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
 
             var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = await ObtenerDocEntryVanacab(login.Cfg, grupoCodigo);
+            }
             if (existingDocEntry.HasValue)
             {
                 foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
@@ -2792,6 +2796,28 @@ namespace RusticaPortal_PRMVAN.Api.Services
             catch
             {
                 return string.Empty;
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open) conn.Close();
+            }
+        }
+
+        private async Task<int?> ObtenerDocEntryVanacab(EmpresaConfig cfg, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+                using var cmd = new HanaCommand("SELECT TOP 1 \"DocEntry\" FROM \"@MGS_CL_VANACAB\" WHERE \"U_MGS_CL_GRPCOD\" = @code ORDER BY \"DocEntry\" DESC", conn);
+                cmd.Parameters.AddWithValue("@code", grupoCodigo ?? string.Empty);
+                var result = await cmd.ExecuteScalarAsync();
+                if (result == null || result == DBNull.Value) return null;
+                return Convert.ToInt32(result);
+            }
+            catch
+            {
+                return null;
             }
             finally
             {

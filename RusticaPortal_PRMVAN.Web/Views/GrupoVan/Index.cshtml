@@ -341,7 +341,11 @@
     const recargarDatosActuales = async () => {
         await cargarGruposTienda();
         if (state.grupoActual) {
-            const match = state.gruposTienda.find(g => g.U_MGS_CL_GRPCOD === state.grupoActual.U_MGS_CL_GRPCOD && g.LineId === state.grupoActual.LineId && g.DocEntry === state.grupoActual.DocEntry);
+            const match = state.gruposTienda.find(g =>
+                g.U_MGS_CL_GRPCOD === state.grupoActual.U_MGS_CL_GRPCOD &&
+                ((g.DocEntry && state.grupoActual.DocEntry && g.DocEntry === state.grupoActual.DocEntry && g.LineId === state.grupoActual.LineId) ||
+                 (!g.DocEntry && !state.grupoActual.DocEntry) ||
+                 g.U_MGS_CL_GRPCOD === state.grupoActual.U_MGS_CL_GRPCOD));
             state.grupoActual = match || null;
         }
         renderGrupos();
@@ -663,7 +667,7 @@
         if (!codigo || !nombre) { mostrarAlerta('Selecciona un artículo válido'); return; }
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo para el artículo VAN'); return; }
         if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
-        const docEntryBase = state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? state.grupoActual?.DocEntry ?? null;
+        const docEntryBase = state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? null; // no usar DocEntry de grupo; si no existe cabecera de artículos se deja null
         const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.articulosGrupo), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel, U_MGS_CL_ACTIVO: 'SI' };
         nuevo.rowKey = rowKeyArticulo(nuevo);
         state.articulosGrupo.push(nuevo);
@@ -708,12 +712,14 @@
         };
 
         const mensajes = [];
+        let huboCambios = false;
 
         if (payloadGrupos.items.length > 0) {
             const data = await fetchJson(`/GrupoVan/GuardarGruposPorTienda?prjCode=${state.tiendaActual.PrjCode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadGrupos) }, 'al guardar grupos');
             if (!data) return;
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los grupos'); return; }
             mensajes.push(data.message || 'Grupos actualizados');
+            huboCambios = true;
         }
 
         if (state.grupoActual && payloadArts.items.length > 0) {
@@ -721,10 +727,14 @@
             if (!data) return;
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los artículos'); return; }
             mensajes.push(data.message || 'Artículos actualizados');
+            huboCambios = true;
         }
 
-        limpiarPendientes();
-          if (mensajes.length) mostrarAlerta(mensajes.join(' | '), 'success');
+        if (huboCambios) {
+            await recargarDatosActuales(); // recarga desde BD y mantiene selección
+            limpiarPendientes();
+        }
+        if (mensajes.length) mostrarAlerta(mensajes.join(' | '), 'success');
       };
 
       document.addEventListener('DOMContentLoaded', async () => {
