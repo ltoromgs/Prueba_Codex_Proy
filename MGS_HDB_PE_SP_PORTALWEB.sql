@@ -1,4 +1,4 @@
-﻿-- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
+-- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
 -- matriz de factores, tiendas activas y otros auxiliares.
 alter PROCEDURE MGS_HDB_PE_SP_PORTALWEB (
     IN vTipo NVARCHAR(20),
@@ -165,7 +165,7 @@ BEGIN
             lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(lvPeriodoBaseDate, 1), 'YYYY-MM');
         END IF;
 
-	
+
         SELECT
             :lvPeriodoBase      AS "U_MGS_CL_PERIODO",
             :lvPeriodoDestino   AS "U_MGS_CL_PERIODO_DEST",
@@ -227,6 +227,85 @@ BEGIN
         ) F ON F."U_MGS_CL_TIENDA" = P."PrjCode"
         WHERE P."Active" = 'Y'
         ORDER BY P."PrjCode", P."PrjName";
+
+
+    ELSEIF vTipo = 'Get_VanTienda' THEN
+
+        SELECT
+            "PrjCode" AS "PrjCode",
+            "PrjName" AS "PrjName"
+        FROM "OPRJ"
+        WHERE "Active" = 'Y'
+        ORDER BY "PrjCode";
+
+
+    ELSEIF vTipo = 'Get_VanGrupoM' THEN
+
+        SELECT
+            "Code"           AS "Code",
+            "Name"           AS "Name"
+        FROM "@MGS_CL_VANGRP"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+
+    ELSEIF vTipo = 'Get_VanTipo' THEN
+
+        SELECT
+            "Code"           AS "Code",
+            "Name"           AS "Name"
+        FROM "@MGS_CL_VANTIPO"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+
+    ELSEIF vTipo = 'Get_VanItemM' THEN
+
+        SELECT
+            "ItemCode" AS "ItemCode",
+            "ItemName" AS "ItemName"
+        FROM "OITM"
+        WHERE "InvntItem" = 'Y'
+          AND (
+                :vParam1 = ''
+             OR UPPER("ItemCode") LIKE '%' || UPPER(:vParam1) || '%'
+             OR UPPER("ItemName") LIKE '%' || UPPER(:vParam1) || '%'
+          )
+        ORDER BY "ItemCode";
+
+
+    ELSEIF vTipo = 'Get_VanTdaGrp' THEN
+
+        SELECT
+            D."DocEntry"        AS "DocEntry",
+            D."LineId"          AS "LineId",
+            D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
+            G."Name"            AS "U_MGS_CL_GRPNOM",
+            IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
+        FROM "@MGS_CL_VANTCAB" H
+        JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
+        ORDER BY D."LineId";
+
+
+    ELSEIF vTipo = 'Get_VanGrpArt' THEN
+
+        SELECT
+            D."DocEntry"          AS "DocEntry",
+            D."LineId"            AS "LineId",
+            D."U_MGS_CL_ITEMCOD"  AS "U_MGS_CL_ITEMCOD",
+            O."ItemName"          AS "U_MGS_CL_ITEMNAM",
+            IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
+        FROM "@MGS_CL_VANACAB" H
+        JOIN "@MGS_CL_VANADET" D ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"
+        WHERE H."U_MGS_CL_GRPCOD" = :vParam1
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
+        ORDER BY D."LineId";
 
 
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN

@@ -1,10 +1,10 @@
-﻿using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Text;
-using Microsoft.Extensions.Configuration;
 using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace RusticaPortal_PRMVAN.Web.Services
 {
@@ -24,7 +24,12 @@ namespace RusticaPortal_PRMVAN.Web.Services
             try
             {
                 var url = $"{_baseUrl}{endpoint}";
-                var json = JsonConvert.SerializeObject(body);
+                var json = body switch
+                {
+                    JsonElement element => element.GetRawText(),
+                    string raw => raw,
+                    _ => JsonConvert.SerializeObject(body)
+                };
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(url, content);
@@ -60,4 +65,3 @@ namespace RusticaPortal_PRMVAN.Web.Services
         }
     }
 }
-
