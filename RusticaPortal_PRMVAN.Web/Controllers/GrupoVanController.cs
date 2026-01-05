@@ -113,16 +113,19 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ArticulosPorGrupo(string grupo)
+        public async Task<IActionResult> ArticulosPorGrupo(string tienda, string grupo)
         {
             var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
+            if (string.IsNullOrWhiteSpace(tienda))
+                return BadRequest(new { message = "Tienda requerida." });
+
             if (string.IsNullOrWhiteSpace(grupo))
                 return BadRequest(new { message = "Grupo requerido." });
 
-            var endpoint = QueryHelpers.AddQueryString($"/api/grupovan/grupo/{grupo}/articulos", new Dictionary<string, string?>
+            var endpoint = QueryHelpers.AddQueryString($"/api/grupovan/tienda/{tienda}/grupo/{grupo}/articulos", new Dictionary<string, string?>
             {
                 ["empresa"] = emp
             });
@@ -155,16 +158,19 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GuardarArticulosPorGrupo(string grpCode, [FromBody] object payload)
+        public async Task<IActionResult> GuardarArticulosPorGrupo(string tienda, string grpCode, [FromBody] object payload)
         {
             var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
+            if (string.IsNullOrWhiteSpace(tienda))
+                return BadRequest(new { message = "Tienda requerida." });
+
             if (string.IsNullOrWhiteSpace(grpCode))
                 return BadRequest(new { message = "Grupo requerido." });
 
-            var endpoint = QueryHelpers.AddQueryString($"/api/grupovan/grupo/{grpCode}/articulos/bulk", new Dictionary<string, string?>
+            var endpoint = QueryHelpers.AddQueryString($"/api/grupovan/tienda/{tienda}/grupo/{grpCode}/articulos/bulk", new Dictionary<string, string?>
             {
                 ["empresa"] = emp
             });

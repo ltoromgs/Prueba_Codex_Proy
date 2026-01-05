@@ -92,8 +92,8 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             return Ok(rp);
         }
 
-        [HttpGet("grupo/{grpCode}/articulos")]
-        public async Task<ActionResult<ResponseInformation>> GetArticulosPorGrupo(string grpCode, [FromQuery] string Empresa)
+        [HttpGet("tienda/{prjCode}/grupo/{grpCode}/articulos")]
+        public async Task<ActionResult<ResponseInformation>> GetArticulosPorGrupo(string prjCode, string grpCode, [FromQuery] string Empresa)
         {
             var validacion = await _documentService.ValidaDatos(Empresa);
             if (!validacion.Registered)
@@ -102,7 +102,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 return Ok(validacion);
             }
 
-            var rp = await _documentService.GetGrupoVanArticulos(Empresa, grpCode);
+            var rp = await _documentService.GetGrupoVanArticulos(Empresa, prjCode, grpCode);
             return Ok(rp);
         }
 
@@ -126,8 +126,8 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             return Ok(rp);
         }
 
-        [HttpPost("grupo/{grpCode}/articulos/bulk")]
-        public async Task<ActionResult<ResponseInformation>> GuardarArticulos(string grpCode, [FromQuery] string Empresa, [FromBody] ArticuloVanBulkRequest payload)
+        [HttpPost("tienda/{prjCode}/grupo/{grpCode}/articulos/bulk")]
+        public async Task<ActionResult<ResponseInformation>> GuardarArticulos(string prjCode, string grpCode, [FromQuery] string Empresa, [FromBody] ArticuloVanBulkRequest payload)
         {
             var error = ValidarArticulos(payload?.Items);
             if (error != null)
@@ -142,7 +142,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 return Ok(validacion);
             }
 
-            var rp = await _documentService.SetGrupoVanArticulosBulk(Empresa, grpCode, payload.Items);
+            var rp = await _documentService.SetGrupoVanArticulosBulk(Empresa, prjCode, grpCode, payload.Items);
             return Ok(rp);
         }
 

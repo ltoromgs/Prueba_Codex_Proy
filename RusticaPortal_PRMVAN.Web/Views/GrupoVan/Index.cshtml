@@ -153,6 +153,7 @@
               articulosGrupo: [],
               articulosMaestro: [],
               articuloSeleccionado: null,
+              articuloMaestroSeleccionado: null,
               tiendaActual: null,
               grupoActual: null,
               camposTipoPorcDisponibles: true,
@@ -232,7 +233,7 @@
         const seleccionarArticuloDesdeInput = () => {
             const val = document.getElementById('inputArticulo').value.trim();
             const encontrado = state.articulosMaestro.find(a => a.ItemCode.toLowerCase() === val.toLowerCase());
-            state.articuloSeleccionado = encontrado || null;
+            state.articuloMaestroSeleccionado = encontrado || null;
             document.getElementById('articuloSeleccionado').textContent = encontrado ? `${encontrado.ItemCode} - ${encontrado.ItemName}` : '';
         };
 
@@ -338,7 +339,7 @@
         cambiarTienda(tienda);
     };
 
-    const recargarDatosActuales = async () => {
+        const recargarDatosActuales = async () => {
         await cargarGruposTienda();
         if (state.grupoActual) {
             const match = state.gruposTienda.find(g =>
@@ -408,7 +409,7 @@
               g.rowKey = g.rowKey || rowKeyGrupo(g);
               const tr = document.createElement('tr');
               if (state.pending.grupos.has(g.rowKey)) tr.classList.add('fila-pendiente');
-              if (state.grupoActual?.LineId === g.LineId) tr.classList.add('fila-activa');
+              if (state.grupoActual?.rowKey === g.rowKey) tr.classList.add('fila-activa');
               if (g._toDelete) tr.classList.add('table-danger');
 
               tr.onclick = () => seleccionarGrupo(g);
@@ -496,7 +497,7 @@
 
     const seleccionarGrupo = async (grupo) => {
         const hayPendArt = state.pending.articulos.size > 0;
-        if (hayPendArt && state.grupoActual && state.grupoActual.LineId !== grupo.LineId) {
+        if (hayPendArt && state.grupoActual && state.grupoActual.rowKey !== grupo.rowKey) {
             const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
             document.getElementById('btnDescartar').onclick = async () => {
                 await descartarYRecargar();
@@ -514,6 +515,7 @@
             grupo.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === grupo.U_MGS_CL_GRPCOD)?.Name || '';
         }
         state.grupoActual = grupo;
+        state.articuloSeleccionado = null;
         actualizarHeader();
         renderGrupos();
         await cargarArticulosGrupo();
@@ -523,7 +525,7 @@
 
     const cargarArticulosGrupo = async () => {
         if (!state.grupoActual) return;
-        const data = await fetchJson(`/GrupoVan/ArticulosPorGrupo?grupo=${state.grupoActual.U_MGS_CL_GRPCOD}`, {}, 'al cargar artículos');
+        const data = await fetchJson(`/GrupoVan/ArticulosPorGrupo?tienda=${state.tiendaActual.PrjCode}&grupo=${state.grupoActual.U_MGS_CL_GRPCOD}`, {}, 'al cargar artículos');
         if (!data) return;
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudieron cargar los artículos del grupo');
@@ -533,7 +535,12 @@
         state.articulosGrupo.forEach(a => {
             a.rowKey = rowKeyArticulo(a);
             if (typeof a.U_MGS_CL_ACTIVO === 'undefined') a.U_MGS_CL_ACTIVO = 'SI';
+            if (typeof a.U_MGS_CL_GRPCOD === 'undefined') a.U_MGS_CL_GRPCOD = state.grupoActual.U_MGS_CL_GRPCOD;
         });
+        if (state.articuloSeleccionado) {
+            const match = state.articulosGrupo.find(a => a.rowKey === state.articuloSeleccionado.rowKey);
+            state.articuloSeleccionado = match || null;
+        }
         const info = document.getElementById('infoArticulos');
         if (!state.articulosGrupo.length) {
             info.textContent = 'No hay artículos asignados a este grupo. Puedes agregarlos.';
@@ -559,7 +566,12 @@
               a.rowKey = a.rowKey || rowKeyArticulo(a);
               const tr = document.createElement('tr');
               if (state.pending.articulos.has(a.rowKey)) tr.classList.add('fila-pendiente');
+              if (state.articuloSeleccionado?.rowKey === a.rowKey) tr.classList.add('fila-activa');
               if (a._toDelete) tr.classList.add('table-danger');
+              tr.onclick = () => {
+                  state.articuloSeleccionado = a;
+                  renderArticulos(state.articulosGrupo);
+              };
 
               const tdCodigo = document.createElement('td'); tdCodigo.className = 'sticky-col'; tdCodigo.textContent = a.U_MGS_CL_ITEMCOD;
               const tdNombre = document.createElement('td'); tdNombre.textContent = a.U_MGS_CL_ITEMNAM;
@@ -658,8 +670,8 @@
     const agregarArticulo = () => {
         if (!state.grupoActual) { mostrarAlerta('Primero selecciona un grupo VAN.'); return; }
         seleccionarArticuloDesdeInput();
-        const codigo = state.articuloSeleccionado?.ItemCode;
-        const nombre = state.articuloSeleccionado?.ItemName;
+        const codigo = state.articuloMaestroSeleccionado?.ItemCode;
+        const nombre = state.articuloMaestroSeleccionado?.ItemName;
         const tipoSel = document.getElementById('selectTipoArticulo').value;
         const porcInput = document.getElementById('inputPorcentajeArticulo');
         asegurarPorcentajePorDefecto(porcInput);
@@ -668,12 +680,21 @@
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo para el artículo VAN'); return; }
         if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
         const docEntryBase = state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? null; // no usar DocEntry de grupo; si no existe cabecera de artículos se deja null
-        const nuevo = { DocEntry: docEntryBase, LineId: siguienteLineId(state.articulosGrupo), U_MGS_CL_ITEMCOD: codigo, U_MGS_CL_ITEMNAM: nombre, U_MGS_CL_TIPO: tipoSel, U_MGS_CL_PORC: porcSel, U_MGS_CL_ACTIVO: 'SI' };
+        const nuevo = {
+            DocEntry: docEntryBase,
+            LineId: siguienteLineId(state.articulosGrupo),
+            U_MGS_CL_GRPCOD: state.grupoActual.U_MGS_CL_GRPCOD,
+            U_MGS_CL_ITEMCOD: codigo,
+            U_MGS_CL_ITEMNAM: nombre,
+            U_MGS_CL_TIPO: tipoSel,
+            U_MGS_CL_PORC: porcSel,
+            U_MGS_CL_ACTIVO: 'SI'
+        };
         nuevo.rowKey = rowKeyArticulo(nuevo);
         state.articulosGrupo.push(nuevo);
         marcarPendiente('articulos', nuevo.rowKey);
         renderArticulos(state.articulosGrupo);
-        state.articuloSeleccionado = null;
+        state.articuloMaestroSeleccionado = null;
         state.articulosMaestro = [];
         document.getElementById('articuloSeleccionado').textContent = '';
         document.getElementById('inputArticulo').value = '';
@@ -703,6 +724,7 @@
                 .map(a => ({
                     DocEntry: a.DocEntry,
                     LineId: a.LineId,
+                    U_MGS_CL_GRPCOD: a.U_MGS_CL_GRPCOD,
                     U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
                     U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
                     U_MGS_CL_TIPO: a.U_MGS_CL_TIPO,
@@ -723,7 +745,7 @@
         }
 
         if (state.grupoActual && payloadArts.items.length > 0) {
-            const data = await fetchJson(`/GrupoVan/GuardarArticulosPorGrupo?grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) }, 'al guardar artículos');
+            const data = await fetchJson(`/GrupoVan/GuardarArticulosPorGrupo?tienda=${state.tiendaActual.PrjCode}&grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) }, 'al guardar artículos');
             if (!data) return;
             if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los artículos'); return; }
             mensajes.push(data.message || 'Artículos actualizados');
