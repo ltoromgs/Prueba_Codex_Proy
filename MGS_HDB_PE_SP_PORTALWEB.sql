@@ -1,5 +1,3 @@
--- Script consolidado para RusticaPortal: incluye ramas de menú, cuentas,
--- matriz de factores, tiendas activas y otros auxiliares.
 alter PROCEDURE MGS_HDB_PE_SP_PORTALWEB (
     IN vTipo NVARCHAR(20),
     IN vParam1 NVARCHAR(50),
@@ -293,19 +291,28 @@ BEGIN
 
     ELSEIF vTipo = 'Get_VanGrpArt' THEN
 
+		 
         SELECT
             D."DocEntry"          AS "DocEntry",
             D."LineId"            AS "LineId",
+            D."U_MGS_CL_GRPCOD"   AS "U_MGS_CL_GRPCOD",
             D."U_MGS_CL_ITEMCOD"  AS "U_MGS_CL_ITEMCOD",
-            O."ItemName"          AS "U_MGS_CL_ITEMNAM",
+            CASE
+                WHEN IFNULL(D."U_MGS_CL_ITEMNAM", '') = '' THEN O."ItemName"
+                ELSE D."U_MGS_CL_ITEMNAM"
+            END AS "U_MGS_CL_ITEMNAM",
             IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
-            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
-        FROM "@MGS_CL_VANACAB" H
-        JOIN "@MGS_CL_VANADET" D ON D."DocEntry" = H."DocEntry"
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC",
+            IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_VANTIAD" D
+        INNER JOIN "@MGS_CL_VANTCAB" H ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"
-        WHERE H."U_MGS_CL_GRPCOD" = :vParam1
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND D."U_MGS_CL_GRPCOD" = :vParam2
           AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
         ORDER BY D."LineId";
+            
+        
 
 
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN

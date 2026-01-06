@@ -2484,7 +2484,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
-        public async Task<ResponseInformation> GetGrupoVanArticulos(string empresa, string grupoCodigo)
+        public async Task<ResponseInformation> GetGrupoVanArticulos(string empresa, string tiendaCodigo, string grupoCodigo)
         {
             if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
             {
@@ -2504,8 +2504,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 };
 
                 cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpArt";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
                 cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
                 cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
@@ -2516,10 +2516,12 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         {
                             DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
                             LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                            U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
                             U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
                             U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
                             U_MGS_CL_TIPO = HasColumn(reader, "U_MGS_CL_TIPO") ? reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty : string.Empty,
-                            U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null
+                            U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null,
+                            U_MGS_CL_ACTIVO = HasColumn(reader, "U_MGS_CL_ACTIVO") ? reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty : string.Empty
                         });
                     }
 
@@ -2573,10 +2575,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
 
             var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
-            //if (!existingDocEntry.HasValue)
-            //{
-            //    existingDocEntry = await ObtenerDocEntryVanacab(login.Cfg, grupoCodigo);
-            //}
             if (existingDocEntry.HasValue)
             {
                 foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
@@ -2639,7 +2637,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
-        public async Task<ResponseInformation> SetGrupoVanArticulosBulk(string empresa, string grupoCodigo, IEnumerable<VanArticuloDetalleDto> items)
+        public async Task<ResponseInformation> SetGrupoVanArticulosBulk(string empresa, string tiendaCodigo, string grupoCodigo, IEnumerable<VanArticuloDetalleDto> items)
         {
             var login = await LoginEmpresa(empresa);
             if (!login.Ok)
@@ -2663,6 +2661,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     item.U_MGS_CL_ACTIVO = "SI";
                 }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_GRPCOD))
+                {
+                    item.U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty;
+                }
             }
 
             var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
@@ -2680,9 +2682,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
             {
                 var updateReq = new
                 {
-                    MGS_CL_VANADETCollection = lista.Select(i => new
+                    MGS_CL_VANTIADCollection = lista.Select(i => new
                     {
                         i.LineId,
+                        i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_ITEMCOD,
                         i.U_MGS_CL_ITEMNAM,
                         i.U_MGS_CL_TIPO,
@@ -2693,7 +2696,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
                 var requestInformation = new RequestInformation
                 {
-                    Route = $"MGS_CL_VANACAB({existingDocEntry})",
+                    Route = $"MGS_CL_VANTIAD({existingDocEntry})",
                     Token = login.Token,
                     Doc = JsonConvert.SerializeObject(updateReq, settings)
                 };
@@ -2702,13 +2705,11 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
             else
             {
-                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
                 var createReq = new
                 {
-                    U_MGS_CL_GRPCOD = grupoCodigo,
-                    U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? grupoCodigo : nombreGrupo,
-                    MGS_CL_VANADETCollection = lista.Select(i => new
+                    MGS_CL_VANTIADCollection = lista.Select(i => new
                     {
+                        i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_ITEMCOD,
                         i.U_MGS_CL_ITEMNAM,
                         i.U_MGS_CL_TIPO,
@@ -2719,7 +2720,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
                 var requestInformation = new RequestInformation
                 {
-                    Route = "MGS_CL_VANACAB",
+                    Route = "MGS_CL_VANTIAD",
                     Token = login.Token,
                     Doc = JsonConvert.SerializeObject(createReq, settings)
                 };
@@ -2767,64 +2768,26 @@ namespace RusticaPortal_PRMVAN.Api.Services
             try
             {
                 await conn.OpenAsync();
-                using var cmd = new HanaCommand("SELECT \"PrjName\" FROM \"OPRJ\" WHERE \"PrjCode\" = @code", conn);
-                cmd.Parameters.AddWithValue("@code", tiendaCodigo ?? string.Empty);
+                using var cmd = new HanaCommand(
+    "SELECT \"PrjName\" FROM \"OPRJ\" WHERE \"PrjCode\" = :code",
+    conn
+);
+                cmd.Parameters.Add(new HanaParameter(":code", HanaDbType.NVarChar, 20)
+                {
+                    Value = tiendaCodigo
+                });
                 var result = await cmd.ExecuteScalarAsync();
                 return result?.ToString();
             }
-            catch
+            catch (Exception ex)
             {
-                return string.Empty;
+                throw new Exception($"Error al obtener nombre de tienda ({tiendaCodigo}): {ex.Message}", ex);
             }
             finally
             {
                 if (conn.State == ConnectionState.Open) conn.Close();
             }
         }
-
-        private async Task<string> ObtenerNombreGrupo(EmpresaConfig cfg, string grupoCodigo)
-        {
-            using var conn = new HanaConnection(cfg.ConnectionString);
-            try
-            {
-                await conn.OpenAsync();
-                using var cmd = new HanaCommand("SELECT \"Name\" FROM \"@MGS_CL_VANGRP\" WHERE \"Code\" = @code", conn);
-                cmd.Parameters.AddWithValue("@code", grupoCodigo ?? string.Empty);
-                var result = await cmd.ExecuteScalarAsync();
-                return result?.ToString();
-            }
-            catch
-            {
-                return string.Empty;
-            }
-            finally
-            {
-                if (conn.State == ConnectionState.Open) conn.Close();
-            }
-        }
-
-        private async Task<int?> ObtenerDocEntryVanacab(EmpresaConfig cfg, string grupoCodigo)
-        {
-            using var conn = new HanaConnection(cfg.ConnectionString);
-            try
-            {
-                await conn.OpenAsync();
-                using var cmd = new HanaCommand("SELECT TOP 1 \"DocEntry\" FROM \"@MGS_CL_VANACAB\" WHERE \"U_MGS_CL_GRPCOD\" = @code ORDER BY \"DocEntry\" DESC", conn);
-                cmd.Parameters.AddWithValue("@code", grupoCodigo ?? string.Empty);
-                var result = await cmd.ExecuteScalarAsync();
-                if (result == null || result == DBNull.Value) return null;
-                return Convert.ToInt32(result);
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                if (conn.State == ConnectionState.Open) conn.Close();
-            }
-        }
-
 
     }
 }
