@@ -409,7 +409,10 @@
               g.rowKey = g.rowKey || rowKeyGrupo(g);
               const tr = document.createElement('tr');
               if (state.pending.grupos.has(g.rowKey)) tr.classList.add('fila-pendiente');
-              if (state.grupoActual?.rowKey === g.rowKey) tr.classList.add('fila-activa');
+              if (state.grupoActual?.rowKey === g.rowKey) {
+                  tr.classList.add('fila-activa');
+                  tr.classList.add('table-primary');
+              }
               if (g._toDelete) tr.classList.add('table-danger');
 
               tr.onclick = () => seleccionarGrupo(g);

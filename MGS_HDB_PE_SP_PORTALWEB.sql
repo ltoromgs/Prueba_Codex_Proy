@@ -315,6 +315,1069 @@ BEGIN
         
 
 
+    ELSEIF vTipo = 'Get_VanTdaNom' THEN
+
+        SELECT
+            "PrjName" AS "PrjName"
+        FROM "OPRJ"
+        WHERE "PrjCode" = :vParam1;
+
+
+    ELSEIF vTipo = 'Get_VanCab' THEN
+
+        SELECT
+            "DocEntry" AS "DocEntry"
+        FROM "@MGS_CL_VANTCAB"
+        WHERE "U_MGS_CL_TIENDA" = :vParam1;
+
+
+    ELSEIF vTipo = 'Get_VanGrpEx' THEN
+
+        SELECT
+            COUNT(1) AS "Total"
+        FROM "@MGS_CL_VANTCAB" H
+        JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND D."U_MGS_CL_GRPCOD" = :vParam2
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI';
+
+
+    ELSEIF vTipo = 'Get_VanGrpNom' THEN
+
+        SELECT
+            "Name" AS "Name"
+        FROM "@MGS_CL_VANGRP"
+        WHERE "Code" = :vParam1;
+
+
+    ELSEIF vTipo = 'Get_ClienteMon' THEN
+
+        SELECT
+            B."CardCode" AS "CardCode",
+            CASE WHEN A."U_MGS_CL_MONPRO" = '1' THEN 'USD' ELSE 'SOL' END AS "CurCode",
+            A."PrjName" AS "Proyecto_Nombre",
+            CASE WHEN A."Active" = 'Y' THEN 'SI' ELSE 'NO' END AS "Activo",
+            A."U_MGS_CL_ESTPRO" AS "Estado",
+            A."U_MGS_CL_MONPRO" AS "Moneda"
+        FROM "OPRJ" A
+        INNER JOIN "OCRD" B ON A."U_MGS_CL_RUCPRO" = B."LicTradNum"
+        WHERE A."PrjCode" = :vParam1
+          AND B."CardType" = 'C';
+
+
+    ELSEIF vTipo = 'Get_OVByPrj' THEN
+
+        IF :vParam2 = 'Y' THEN
+            SELECT TOP 1
+                "DocEntry" AS "DocEntry"
+            FROM "RDR1"
+            WHERE "Project" = :vParam1
+            ORDER BY "DocEntry" DESC;
+        ELSE
+            SELECT TOP 1
+                T0."DocEntry" AS "DocEntry"
+            FROM "PRQ1" T0
+            INNER JOIN "OPRQ" T1 ON T1."DocEntry" = T0."DocEntry"
+            WHERE T1."CANCELED" = 'N'
+              AND T1."DocStatus" = 'O'
+              AND T0."Project" = :vParam1
+            ORDER BY T0."DocEntry" DESC;
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_OVByCnt' THEN
+
+        SELECT
+            "DocEntry" AS "DocEntry"
+        FROM "ORDR"
+        WHERE "U_MGS_CL_CODINTPYP" = :vParam1
+          AND "CANCELED" = 'N';
+
+
+    ELSEIF vTipo = 'Get_ValidaRuc' THEN
+
+        IF :vParam2 = 'Projects' THEN
+            SELECT TOP 1
+                B."CardCode" AS "CardCode"
+            FROM "OCRD" B
+            WHERE B."LicTradNum" = :vParam1
+              AND B."CardType" = 'C';
+        ELSEIF :vParam2 = 'JournalEntries' THEN
+            SELECT TOP 1
+                B."AcctCode" AS "CardCode"
+            FROM "OACT" B
+            WHERE B."AcctCode" = :vParam1;
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocCabPRQ' THEN
+
+        SELECT
+            "Cabecera"."DocNum",
+            "Cabecera"."DocDate",
+            IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+            "Cabecera"."TaxDate",
+            IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+            "Cabecera"."DocEntry",
+            "Cabecera"."DocDueDate",
+            MAX("Detalle"."Project") AS "Project",
+            IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+            "Cabecera"."DocCur",
+            (SELECT SUM("d0"."LineTotal")
+             FROM "PRQ1" "d0"
+             WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+            (SELECT SUM("d0"."TotalSumSy")
+             FROM "PRQ1" "d0"
+             WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+            CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                 WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+            IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+            IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+            IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+            IFNULL(t1."USER_CODE",'') AS "UserCreator"
+        FROM "OPRQ" "Cabecera"
+        INNER JOIN "PRQ1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+        LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+        INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+        WHERE "Cabecera"."CANCELED" = 'N'
+          AND "Cabecera"."DocType" LIKE '%'
+          AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+          AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+          AND "Detalle"."DocEntry" IS NOT NULL
+          AND IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') <> ''
+        GROUP BY
+            "Cabecera"."DocNum",
+            "Cabecera"."DocDate",
+            "Cabecera"."NumAtCard",
+            "Cabecera"."TaxDate",
+            "Cabecera"."U_MGS_CL_CODINTPYP",
+            "Cabecera"."DocEntry",
+            "Cabecera"."DocDueDate",
+            t0."Name",
+            "Cabecera"."DocCur",
+            "Cabecera"."DocStatus",
+            "Cabecera"."CardCode",
+            "Cabecera"."CardName",
+            "Cabecera"."JrnlMemo",
+            t1."USER_CODE";
+
+
+    ELSEIF vTipo = 'Get_DocCabPCH' THEN
+
+        IF :vParam2 = '1' THEN
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "PCH1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "PCH1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "OPCH" "Cabecera"
+            INNER JOIN "PCH1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE '%'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE"
+            UNION
+            SELECT
+                MAX("CABHIST"."Code") AS "DocNum",
+                MAX("CABHIST"."U_MGS_CL_FECCON") AS "DocDate",
+                "CABHIST"."U_MGS_CL_NRODOC" AS "NumAtCard",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "TaxDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRO") AS "Cod_PyP",
+                '0' AS "DocEntry",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "DocDueDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRY") AS "Project",
+                t0."Name" AS "tipoDoc",
+                "CABHIST"."U_MGS_CL_MONEDA" AS "DocCur",
+                (SELECT SUM("ch"."U_MGS_CL_COSTOT")
+                 FROM "@MGS_CL_HISCOM" "ch"
+                 WHERE "ch"."U_MGS_CL_CODPRO" = MAX("CABHIST"."U_MGS_CL_CODPRO")
+                   AND "ch"."U_MGS_CL_NRODOC" = "CABHIST"."U_MGS_CL_NRODOC") AS "TotalSol",
+                CAST('0' AS DECIMAL(18,6)) AS "TotalDol",
+                '' AS "Status",
+                MAX("CABHIST"."U_MGS_CL_RUCDNI") AS "Ruc",
+                MAX("CABHIST"."U_MGS_CL_PROVEE") AS "Proveedor",
+                'INFORMACION DEL HISTORICO' AS "JrnlMemo",
+                '' AS "UserCreator"
+            FROM "@MGS_CL_HISCOM" "CABHIST"
+            INNER JOIN "OIDC" t0 ON t0."Code" = "CABHIST"."U_MGS_CL_TIPDOC"
+            WHERE "CABHIST"."U_MGS_CL_CODPRY" LIKE '%' || :vParam1 || '%'
+            GROUP BY
+                "CABHIST"."U_MGS_CL_NRODOC",
+                t0."Name",
+                "CABHIST"."U_MGS_CL_MONEDA";
+        ELSE
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "PCH1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "PCH1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "OPCH" "Cabecera"
+            INNER JOIN "PCH1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE '%'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE";
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocCabRPC' THEN
+
+        IF :vParam2 = '1' THEN
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "RPC1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "RPC1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "ORPC" "Cabecera"
+            INNER JOIN "RPC1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE '%'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+              AND IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') <> ''
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE"
+            UNION
+            SELECT
+                MAX("CABHIST"."Code") AS "DocNum",
+                MAX("CABHIST"."U_MGS_CL_FECCON") AS "DocDate",
+                "CABHIST"."U_MGS_CL_NRODOC" AS "NumAtCard",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "TaxDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRO") AS "Cod_PyP",
+                '0' AS "DocEntry",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "DocDueDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRY") AS "Project",
+                t0."Name" AS "tipoDoc",
+                "CABHIST"."U_MGS_CL_MONEDA" AS "DocCur",
+                (SELECT SUM("ch"."U_MGS_CL_COSTOT")
+                 FROM "@MGS_CL_HISCOM" "ch"
+                 WHERE "ch"."U_MGS_CL_CODPRO" = MAX("CABHIST"."U_MGS_CL_CODPRO")
+                   AND "ch"."U_MGS_CL_NRODOC" = "CABHIST"."U_MGS_CL_NRODOC") AS "TotalSol",
+                CAST('0' AS DECIMAL(18,6)) AS "TotalDol",
+                '' AS "Status",
+                MAX("CABHIST"."U_MGS_CL_RUCDNI") AS "Ruc",
+                MAX("CABHIST"."U_MGS_CL_PROVEE") AS "Proveedor",
+                'INFORMACION DEL HISTORICO' AS "JrnlMemo",
+                '' AS "UserCreator"
+            FROM "@MGS_CL_HISCOM" "CABHIST"
+            INNER JOIN "OIDC" t0 ON t0."Code" = "CABHIST"."U_MGS_CL_TIPDOC"
+            WHERE "CABHIST"."U_MGS_CL_CODPRY" LIKE '%' || :vParam1 || '%'
+            GROUP BY
+                "CABHIST"."U_MGS_CL_NRODOC",
+                t0."Name",
+                "CABHIST"."U_MGS_CL_MONEDA";
+        ELSE
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "RPC1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "RPC1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "ORPC" "Cabecera"
+            INNER JOIN "RPC1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE '%'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+              AND IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') <> ''
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE";
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocCabINV' THEN
+
+        IF :vParam2 = '1' THEN
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "INV1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "INV1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "OINV" "Cabecera"
+            INNER JOIN "INV1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE 'I'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE"
+            UNION
+            SELECT
+                MAX("CABHIST"."Code") AS "DocNum",
+                MAX("CABHIST"."U_MGS_CL_FECCON") AS "DocDate",
+                "CABHIST"."U_MGS_CL_NRODOC" AS "NumAtCard",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "TaxDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRO") AS "Cod_PyP",
+                '0' AS "DocEntry",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "DocDueDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRY") AS "Project",
+                t0."Name" AS "tipoDoc",
+                "CABHIST"."U_MGS_CL_MONEDA" AS "DocCur",
+                (SELECT SUM("ch"."U_MGS_CL_COSTOT")
+                 FROM "@MGS_CL_HISVEN" "ch"
+                 WHERE "ch"."U_MGS_CL_CODPRO" = MAX("CABHIST"."U_MGS_CL_CODPRO")
+                   AND "ch"."U_MGS_CL_NRODOC" = "CABHIST"."U_MGS_CL_NRODOC") AS "TotalSol",
+                (SELECT SUM("ch"."U_MGS_CL_COTUSD")
+                 FROM "@MGS_CL_HISVEN" "ch"
+                 WHERE "ch"."U_MGS_CL_CODPRO" = MAX("CABHIST"."U_MGS_CL_CODPRO")
+                   AND "ch"."U_MGS_CL_NRODOC" = "CABHIST"."U_MGS_CL_NRODOC") AS "TotalDol",
+                '' AS "Status",
+                MAX("CABHIST"."U_MGS_CL_RUCDNI") AS "Ruc",
+                MAX("CABHIST"."U_MGS_CL_PROVEE") AS "Proveedor",
+                'INFORMACION DEL HISTORICO' AS "JrnlMemo",
+                '' AS "UserCreator"
+            FROM "@MGS_CL_HISVEN" "CABHIST"
+            INNER JOIN "OIDC" t0 ON t0."Code" = "CABHIST"."U_MGS_CL_TIPDOC"
+            WHERE "CABHIST"."U_MGS_CL_CODPRY" LIKE '%' || :vParam1 || '%'
+            GROUP BY
+                "CABHIST"."U_MGS_CL_NRODOC",
+                t0."Name",
+                "CABHIST"."U_MGS_CL_MONEDA";
+        ELSE
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "INV1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "INV1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "OINV" "Cabecera"
+            INNER JOIN "INV1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE 'I'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE";
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocCabRIN' THEN
+
+        IF :vParam2 = '1' THEN
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "RIN1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "RIN1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "ORIN" "Cabecera"
+            INNER JOIN "RIN1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE 'I'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+              AND IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') <> ''
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE"
+            UNION
+            SELECT
+                MAX("CABHIST"."Code") AS "DocNum",
+                MAX("CABHIST"."U_MGS_CL_FECCON") AS "DocDate",
+                "CABHIST"."U_MGS_CL_NRODOC" AS "NumAtCard",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "TaxDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRO") AS "Cod_PyP",
+                '0' AS "DocEntry",
+                MAX("CABHIST"."U_MGS_CL_FECDOC") AS "DocDueDate",
+                MAX("CABHIST"."U_MGS_CL_CODPRY") AS "Project",
+                t0."Name" AS "tipoDoc",
+                "CABHIST"."U_MGS_CL_MONEDA" AS "DocCur",
+                (SELECT SUM("ch"."U_MGS_CL_COSTOT")
+                 FROM "@MGS_CL_HISVEN" "ch"
+                 WHERE "ch"."U_MGS_CL_CODPRO" = MAX("CABHIST"."U_MGS_CL_CODPRO")
+                   AND "ch"."U_MGS_CL_NRODOC" = "CABHIST"."U_MGS_CL_NRODOC") AS "TotalSol",
+                (SELECT SUM("ch"."U_MGS_CL_COTUSD")
+                 FROM "@MGS_CL_HISVEN" "ch"
+                 WHERE "ch"."U_MGS_CL_CODPRO" = MAX("CABHIST"."U_MGS_CL_CODPRO")
+                   AND "ch"."U_MGS_CL_NRODOC" = "CABHIST"."U_MGS_CL_NRODOC") AS "TotalDol",
+                '' AS "Status",
+                MAX("CABHIST"."U_MGS_CL_RUCDNI") AS "Ruc",
+                MAX("CABHIST"."U_MGS_CL_PROVEE") AS "Proveedor",
+                'INFORMACION DEL HISTORICO' AS "JrnlMemo",
+                '' AS "UserCreator"
+            FROM "@MGS_CL_HISVEN" "CABHIST"
+            INNER JOIN "OIDC" t0 ON t0."Code" = "CABHIST"."U_MGS_CL_TIPDOC"
+            WHERE "CABHIST"."U_MGS_CL_CODPRY" LIKE '%' || :vParam1 || '%'
+            GROUP BY
+                "CABHIST"."U_MGS_CL_NRODOC",
+                t0."Name",
+                "CABHIST"."U_MGS_CL_MONEDA";
+        ELSE
+            SELECT
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                IFNULL("Cabecera"."NumAtCard",'') AS "NumAtCard",
+                "Cabecera"."TaxDate",
+                IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') AS "Cod_PyP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                MAX("Detalle"."Project") AS "Project",
+                IFNULL(t0."Name",'Solicitud de compra') AS "tipoDoc",
+                "Cabecera"."DocCur",
+                (SELECT SUM("d0"."LineTotal")
+                 FROM "RIN1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalSol",
+                (SELECT SUM("d0"."TotalSumSy")
+                 FROM "RIN1" "d0"
+                 WHERE "d0"."DocEntry" = "Cabecera"."DocEntry") AS "TotalDol",
+                CASE WHEN "Cabecera"."DocStatus" = 'O' THEN 'ABIERTO'
+                     WHEN "Cabecera"."DocStatus" = 'C' THEN 'CERRADO' END AS "Status",
+                IFNULL("Cabecera"."CardCode",'') AS "Ruc",
+                IFNULL("Cabecera"."CardName",'') AS "Proveedor",
+                IFNULL("Cabecera"."JrnlMemo",'') AS "JrnlMemo",
+                IFNULL(t1."USER_CODE",'') AS "UserCreator"
+            FROM "ORIN" "Cabecera"
+            INNER JOIN "RIN1" "Detalle" ON "Cabecera"."DocEntry" = "Detalle"."DocEntry"
+            LEFT JOIN "OIDC" t0 ON "Cabecera"."Indicator" = t0."Code"
+            INNER JOIN "OUSR" t1 ON "Cabecera"."UserSign" = t1."USERID"
+            WHERE "Cabecera"."CANCELED" = 'N'
+              AND "Cabecera"."DocType" LIKE 'I'
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND ("Detalle"."Project" <> 'GENERICO' AND "Detalle"."Project" LIKE '%' || :vParam1 || '%')
+              AND "Detalle"."DocEntry" IS NOT NULL
+              AND IFNULL("Cabecera"."U_MGS_CL_CODINTPYP",'') <> ''
+            GROUP BY
+                "Cabecera"."DocNum",
+                "Cabecera"."DocDate",
+                "Cabecera"."NumAtCard",
+                "Cabecera"."TaxDate",
+                "Cabecera"."U_MGS_CL_CODINTPYP",
+                "Cabecera"."DocEntry",
+                "Cabecera"."DocDueDate",
+                t0."Name",
+                "Cabecera"."DocCur",
+                "Cabecera"."DocStatus",
+                "Cabecera"."CardCode",
+                "Cabecera"."CardName",
+                "Cabecera"."JrnlMemo",
+                t1."USER_CODE";
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocDetPRQ' THEN
+
+        SELECT
+            IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+            IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+            "Detalle"."Quantity",
+            "Detalle"."Price",
+            IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+            IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+            "Detalle"."Project",
+            IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+            ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+            "Detalle"."Quantity" * 100 AS "Porcentaje",
+            IFNULL(t2."Name",'') AS "UnidadNegocio",
+            IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+            IFNULL(t4."Name",'') AS "Familia",
+            IFNULL(t3."Name",'') AS "EstadoProyecto"
+        FROM "PRQ1" "Detalle"
+        LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+        LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+        LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+        LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+        WHERE "Detalle"."DocEntry" = :vParam1
+          AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+          AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+        ORDER BY "Project" ASC;
+
+
+    ELSEIF vTipo = 'Get_DocDetPCH' THEN
+
+        IF :vParam3 = '1' THEN
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "PCH1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            UNION ALL
+            SELECT
+                "Detalle"."U_MGS_CL_ARTIID" AS "ItemCode",
+                '' AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."U_MGS_CL_CANTID" AS "Quantity",
+                "Detalle"."U_MGS_CL_COSUNI" AS "Price",
+                0 AS "cantidad_Inicial",
+                0 AS "costo_Unit_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_CODPRY", '') AS "Project",
+                '' AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."U_MGS_CL_COSTOT") AS "LineTotal",
+                0 AS "Porcentaje",
+                IFNULL(t2."Name", '') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE", '') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name", '') AS "EstadoProyecto"
+            FROM "@MGS_CL_HISCOM" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."U_MGS_CL_CODPRO" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."U_MGS_CL_NRODOC" = :vParam4
+              AND "Detalle"."U_MGS_CL_CODPRY" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        ELSE
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "PCH1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocDetRPC' THEN
+
+        IF :vParam3 = '1' THEN
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "RPC1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            UNION ALL
+            SELECT
+                "Detalle"."U_MGS_CL_ARTIID" AS "ItemCode",
+                '' AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."U_MGS_CL_CANTID" AS "Quantity",
+                "Detalle"."U_MGS_CL_COSUNI" AS "Price",
+                0 AS "cantidad_Inicial",
+                0 AS "costo_Unit_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_CODPRY", '') AS "Project",
+                '' AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."U_MGS_CL_COSTOT") AS "LineTotal",
+                0 AS "Porcentaje",
+                IFNULL(t2."Name", '') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE", '') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name", '') AS "EstadoProyecto"
+            FROM "@MGS_CL_HISCOM" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."U_MGS_CL_CODPRO" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."U_MGS_CL_NRODOC" = :vParam4
+              AND "Detalle"."U_MGS_CL_CODPRY" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        ELSE
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "RPC1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocDetINV' THEN
+
+        IF :vParam3 = '1' THEN
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "INV1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            UNION ALL
+            SELECT
+                "Detalle"."U_MGS_CL_TARIID" AS "ItemCode",
+                '' AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."U_MGS_CL_CANTID" AS "Quantity",
+                "Detalle"."U_MGS_CL_COSUNI" AS "Price",
+                0 AS "cantidad_Inicial",
+                0 AS "costo_Unit_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_CODPRY", '') AS "Project",
+                '' AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."U_MGS_CL_COSTOT") AS "LineTotal",
+                0 AS "Porcentaje",
+                IFNULL(t2."Name", '') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE", '') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name", '') AS "EstadoProyecto"
+            FROM "@MGS_CL_HISVEN" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."U_MGS_CL_CODPRO" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."U_MGS_CL_NRODOC" = :vParam4
+              AND "Detalle"."U_MGS_CL_CODPRY" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        ELSE
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "INV1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_DocDetRIN' THEN
+
+        IF :vParam3 = '1' THEN
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "RIN1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            UNION ALL
+            SELECT
+                "Detalle"."U_MGS_CL_TARIID" AS "ItemCode",
+                '' AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."U_MGS_CL_CANTID" AS "Quantity",
+                "Detalle"."U_MGS_CL_COSUNI" AS "Price",
+                0 AS "cantidad_Inicial",
+                0 AS "costo_Unit_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_CODPRY", '') AS "Project",
+                '' AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."U_MGS_CL_COSTOT") AS "LineTotal",
+                0 AS "Porcentaje",
+                IFNULL(t2."Name", '') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE", '') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name", '') AS "EstadoProyecto"
+            FROM "@MGS_CL_HISVEN" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."U_MGS_CL_CODPRO" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."U_MGS_CL_NRODOC" = :vParam4
+              AND "Detalle"."U_MGS_CL_CODPRY" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        ELSE
+            SELECT
+                IFNULL("Detalle"."ItemCode", "Detalle"."U_MGS_LC_SERCOM") AS "ItemCode",
+                IFNULL("Detalle"."U_MGS_CL_NITEMPYP",'') AS "U_MGS_CL_NITEMPYP",
+                "Detalle"."Quantity",
+                "Detalle"."Price",
+                IFNULL("Detalle"."U_MGS_CL_CANINI", 0) AS "cantidad_Inicial",
+                IFNULL("Detalle"."U_MGS_CL_PREINI", 0) AS "costo_Unit_Inicial",
+                "Detalle"."Project",
+                IFNULL("Detalle"."U_MGS_CL_TIPBENPRO",'') AS "U_MGS_CL_TIPBENPRO",
+                ("Detalle"."Quantity" * "Detalle"."Price") AS "LineTotal",
+                "Detalle"."Quantity" * 100 AS "Porcentaje",
+                IFNULL(t2."Name",'') AS "UnidadNegocio",
+                IFNULL(t1."U_MGS_CL_JEFE",'') AS "JefeCuenta",
+                IFNULL(t4."Name",'') AS "Familia",
+                IFNULL(t3."Name",'') AS "EstadoProyecto"
+            FROM "RIN1" "Detalle"
+            LEFT JOIN "OPRJ" t1 ON "Detalle"."Project" = t1."PrjCode"
+            LEFT JOIN "@MGS_CL_UNINEG" t2 ON t1."U_MGS_CL_UNINEG" = t2."Code"
+            LEFT JOIN "@MGS_CL_ESTPRO" t3 ON t3."Code" = t1."U_MGS_CL_ESTPRO"
+            LEFT JOIN "@MGS_CL_FAMILI" t4 ON t4."Code" = t1."U_MGS_CL_FAMILI"
+            WHERE "Detalle"."DocEntry" = :vParam1
+              AND IFNULL("Detalle"."U_MGS_CL_ESTADO",'') <> '01'
+              AND "Detalle"."Project" LIKE '%' || :vParam2 || '%'
+            ORDER BY "Project" ASC;
+        END IF;
+
+
+    ELSEIF vTipo = 'Get_AmtAvail' THEN
+
+        SELECT
+            TABLA."contrato",
+            TABLA."Project",
+            TABLA."categoriaCosto",
+            TABLA."LineNum",
+            TABLA."montoPresu",
+            TABLA."montoOC",
+            TABLA."montoFact",
+            (TABLA."montoPresu" - TABLA."montoOC" - TABLA."montoFact") AS "montoDisp"
+        FROM (
+            SELECT
+                IFNULL(T0."U_MGS_CL_CODINTPYP",'') AS "contrato",
+                T1."Project",
+                T1."ItemCode" AS "categoriaCosto",
+                T1."LineNum",
+                SUM(T1."LineTotal") AS "montoPresu",
+                IFNULL((
+                    SELECT SUM(T2."LineTotal")
+                    FROM "OPOR" T3
+                    INNER JOIN "POR1" T2 ON T3."DocEntry" = T2."DocEntry"
+                    WHERE T3."CANCELED" = 'N'
+                      AND T2."Project" = T1."Project"
+                      AND T2."ItemCode" = T1."ItemCode"
+                ), 0) AS "montoOC",
+                IFNULL((
+                    SELECT SUM("LineTotal")
+                    FROM "OPCH" T4
+                    INNER JOIN "PCH1" T5 ON T4."DocEntry" = T5."DocEntry"
+                    WHERE T5."BaseType" = -1
+                      AND T4."CANCELED" = 'N'
+                      AND T5."Project" = T1."Project"
+                      AND T5."ItemCode" = T1."ItemCode"
+                ), 0) AS "montoFact"
+            FROM "OPRQ" T0
+            INNER JOIN "PRQ1" T1 ON T0."DocEntry" = T1."DocEntry"
+            WHERE T0."CANCELED" = 'N'
+              AND (T0."DocStatus" = 'O' OR (T0."DocStatus" = 'C' AND IFNULL(T0."U_MGS_CL_CODINTPYP",'') <> ''))
+              AND IFNULL(T1."U_MGS_CL_ESTADO",'') <> '01'
+              AND T1."Project" = :vParam1
+            GROUP BY T0."U_MGS_CL_CODINTPYP", T1."Project", T1."ItemCode", T1."LineNum"
+        ) AS TABLA
+        ORDER BY TABLA."LineNum";
+
+
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN
     
         /*SELECT 

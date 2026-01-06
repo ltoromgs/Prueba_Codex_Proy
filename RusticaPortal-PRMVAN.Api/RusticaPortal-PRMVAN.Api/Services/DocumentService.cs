@@ -73,16 +73,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     });
                 }
 
-                if (!tipos.Any())
-                {
-                    return new ResponseInformation
-                    {
-                        Registered = false,
-                        Message = "No se encontraron tipos de VAN.",
-                        Content = string.Empty
-                    };
-                }
-
                 return new ResponseInformation
                 {
                     Registered = true,
@@ -95,7 +85,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Error en base de datos.",
+                    Message = "Error al cargar tipos VAN.",
                     Content = ex.Message
                 };
             }
@@ -108,7 +98,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
         public async Task<AditionalInfomation> GetClienteMoneda(string project, string BaseDatos)
         {
-            string result = "";
             string HANAConnectionString = "";
             HANAConnectionString = BaseDatos == "1" ? _configuration["ConnectionStringsSAP"] : _configuration["ConnectionStringsSAP2"];
             HanaConnection conn = new HanaConnection(HANAConnectionString);
@@ -120,11 +109,17 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     conn.Open();
 
-                    bool method1 = true;
-                    string query = " SELECT  B.\"CardCode\", CASE WHEN \"U_MGS_CL_MONPRO\" = '1' THEN 'USD' ELSE 'SOL' END AS \"CurCode\", A.\"PrjName\" AS \"Proyecto_Nombre\",CASE WHEN A.\"Active\" = 'Y' THEN 'SI' ELSE 'NO' END AS \"Activo\",\"U_MGS_CL_ESTPRO\" AS \"Estado\", \"U_MGS_CL_MONPRO\" AS \"Moneda\" FROM OPRJ A INNER JOIN OCRD B ON A.\"U_MGS_CL_RUCPRO\" = B.\"LicTradNum\" WHERE A.\"PrjCode\"='" + project+ "' AND B.\"CardType\" = 'C' ";
+                    using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_ClienteMon";
+                    cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = project ?? string.Empty;
+                    cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
-                    HanaCommand cmd = new HanaCommand(query, conn);
-                    HanaDataReader reader = cmd.ExecuteReader();
+                    using var reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -168,22 +163,17 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     conn.Open();
 
-                    bool method1 = true;
-                    string query = "";
-                    if (esOV)
+                    using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
                     {
-                        query = " SELECT TOP 1 \"DocEntry\" FROM RDR1 WHERE \"Project\" = '" + project + "' ORDER BY \"DocEntry\" DESC ";
-                    }
-                    else
-                    {
-                        query = " SELECT TOP 1 T0.\"DocEntry\" ";
-                        query += "FROM PRQ1 T0 ";
-                        query += "INNER JOIN OPRQ T1 ON T1.\"DocEntry\" = T0.\"DocEntry\" ";
-                        query += "WHERE T1.\"CANCELED\" = \'N\' AND  T1.\"DocStatus\" = 'O' AND  T0.\"Project\" = '" + project + "' ";
-                        query += " ORDER BY T0.\"DocEntry\"  DESC ";
-                    }
-                    HanaCommand cmd = new HanaCommand(query, conn);
-                    HanaDataReader reader = cmd.ExecuteReader();
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_OVByPrj";
+                    cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = project ?? string.Empty;
+                    cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = esOV ? "Y" : "N";
+                    cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                    using var reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -221,12 +211,17 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     conn.Open();
 
-                    bool method1 = true;
-                    string query = "";
-                    query = " SELECT \"DocEntry\" FROM ORDR WHERE \"U_MGS_CL_CODINTPYP\" = '" + contract + "' AND \"CANCELED\"='N' ";
+                    using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_OVByCnt";
+                    cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = contract ?? string.Empty;
+                    cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
-                    HanaCommand cmd = new HanaCommand(query, conn);
-                    HanaDataReader reader = cmd.ExecuteReader();
+                    using var reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -472,7 +467,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
         public async Task<ResponseInformation> ValidaRUC(string BaseDatos, string ruc, RequestInformation requestInformation)
         {
             string result = "";
-            string query = "";
             string HANAConnectionString = "";
             HANAConnectionString = BaseDatos == "1" ? _configuration["ConnectionStringsSAP"] : _configuration["ConnectionStringsSAP2"];
             HanaConnection conn = new HanaConnection(HANAConnectionString);
@@ -484,15 +478,17 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     conn.Open();
 
-                    if (requestInformation.Route == "Projects") { 
-                        query = " SELECT TOP 1 B.\"CardCode\" FROM OCRD B WHERE B.\"LicTradNum\" ='" + ruc + "' AND B.\"CardType\" = 'C' ";
-                    }else if (requestInformation.Route == "JournalEntries")
+                    using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
                     {
-                         query = " SELECT TOP 1 B.\"AcctCode\" AS \"CardCode\" FROM OACT B WHERE B.\"AcctCode\" ='" + ruc + "'";
-                    }
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_ValidaRuc";
+                    cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = ruc ?? string.Empty;
+                    cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = requestInformation.Route ?? string.Empty;
+                    cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
-                    HanaCommand cmd = new HanaCommand(query, conn);
-                    HanaDataReader reader = cmd.ExecuteReader();
+                    using var reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -953,13 +949,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
             //string result = "";
             string HANAConnectionString = "";
             DocumentGetDTO result = new DocumentGetDTO();
-            var tableName = "";
-            var tableDet = "";
-            var tableNameHist = "";
-            var campoArticulo = "";
-            var campoTotalDol = "";
-
-            var DocType = ""; //articulos y servicios
+            var vTipoCabecera = string.Empty;
+            var vTipoDetalle = string.Empty;
             HANAConnectionString = BaseDatos == "1" ? _configuration["ConnectionStringsSAP"] : _configuration["ConnectionStringsSAP2"];
 
             HanaConnection conn = new HanaConnection(HANAConnectionString);
@@ -970,159 +961,48 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 switch (requestInformation.Route)
                 {
                     case "PurchaseRequests": //Solicitud de compras
-                        tableName = "OPRQ";
-                        tableDet = "PRQ1";
-                        DocType = "'%'"; //articulos y servicios
-                       // tableNameHist = "@MGS_CL_HISCOM";
-                        campoArticulo = "ItemCode";
-                        campoTotalDol = "CAST('0' AS DECIMAL(18,6))";
-
+                        vTipoCabecera = "Get_DocCabPRQ";
+                        vTipoDetalle = "Get_DocDetPRQ";
                         break;
 
                     case "PurchaseInvoices": //factura de compras
-                         tableName = "OPCH";
-                         tableDet = "PCH1";
-                         DocType = "'%'"; //articulos y servicios
-                        tableNameHist = "@MGS_CL_HISCOM";
-                        campoArticulo = "U_MGS_CL_ARTIID";
-                        campoTotalDol = "CAST('0' AS DECIMAL(18,6))";
-
+                        vTipoCabecera = "Get_DocCabPCH";
+                        vTipoDetalle = "Get_DocDetPCH";
                         break;
                     case "PurchaseCreditNote": //nota de credito de compras
-                        tableName = "ORPC";
-                        tableDet = "RPC1";
-                        DocType = "'%'"; //articulos y servicios
-                        tableNameHist = "@MGS_CL_HISCOM";
-                        campoArticulo = "U_MGS_CL_ARTIID";
-                        campoTotalDol = "CAST('0' AS DECIMAL(18,6))";
-
+                        vTipoCabecera = "Get_DocCabRPC";
+                        vTipoDetalle = "Get_DocDetRPC";
                         break;
                     case "SalesInvoice": //factura de ventas
-                        tableName = "OINV";
-                        tableDet = "INV1";
-                        DocType = "'I'"; //solo articulos
-                        tableNameHist = "@MGS_CL_HISVEN";
-                        campoArticulo = "U_MGS_CL_TARIID";
-        //                campoTotalDol = "\"U_MGS_CL_COTUSD\"";
-                        campoTotalDol = "(SELECT SUM(\"ch\".\"U_MGS_CL_COTUSD\") FROM ";
-                        campoTotalDol += "\"" + tableNameHist + "\" \"ch\" ";
-                        campoTotalDol += " where \"ch\".\"U_MGS_CL_CODPRO\" = MAX(\"CABHIST\".\"U_MGS_CL_CODPRO\") ";
-                        campoTotalDol += "and  \"ch\".\"U_MGS_CL_NRODOC\" = \"CABHIST\".\"U_MGS_CL_NRODOC\" )";
-
+                        vTipoCabecera = "Get_DocCabINV";
+                        vTipoDetalle = "Get_DocDetINV";
                         break;
                     case "SalesCreditNote": //nota de credito de ventas
-                        tableName = "ORIN";
-                        tableDet = "RIN1";
-                        DocType = "'I'"; //solo articulos
-                        tableNameHist = "@MGS_CL_HISVEN";
-                        campoArticulo = "U_MGS_CL_TARIID";
-                 //       campoTotalDol = "\"U_MGS_CL_COTUSD\"";
-                        campoTotalDol = "(SELECT SUM(\"ch\".\"U_MGS_CL_COTUSD\") FROM ";
-                        campoTotalDol += "\"" + tableNameHist + "\" \"ch\" ";
-                        campoTotalDol += " where \"ch\".\"U_MGS_CL_CODPRO\" = MAX(\"CABHIST\".\"U_MGS_CL_CODPRO\") ";
-                        campoTotalDol += "and  \"ch\".\"U_MGS_CL_NRODOC\" = \"CABHIST\".\"U_MGS_CL_NRODOC\" )";                        
-
+                        vTipoCabecera = "Get_DocCabRIN";
+                        vTipoDetalle = "Get_DocDetRIN";
                         break;                    
+                }
+
+                if (string.IsNullOrWhiteSpace(vTipoCabecera) || string.IsNullOrWhiteSpace(vTipoDetalle))
+                {
+                    return result;
                 }
 
                 if (conn.State.Equals(ConnectionState.Closed))
                 {
                     conn.Open();
 
-                    bool method1 = true;
-                    string query = "";
-                           query =    "SELECT " ;
-                           query +=    "\"Cabecera\".\"DocNum\", " ;
-                           query +=    "\"Cabecera\".\"DocDate\",  " ;
-                           query += "IFNULL(\"Cabecera\".\"NumAtCard\",'') AS  \"NumAtCard\", ";
-                           query +=    "\"Cabecera\".\"TaxDate\", " ;
-                           query +=    "IFNULL(\"Cabecera\".\"U_MGS_CL_CODINTPYP\",'') AS \"Cod_PyP\", " ;
-                           query +=    "\"Cabecera\".\"DocEntry\", " ;
-                           query +=    "\"Cabecera\".\"DocDueDate\", " ;
-                           query +=    " MAX(\"Detalle\".\"Project\") AS \"Project\", " ;
-                           query +=    "IFNULL(t0.\"Name\",'Solicitud de compra') AS \"tipoDoc\", ";
-                           query +=    "\"Cabecera\".\"DocCur\", " ;
-                           query +=    "(select sum(\"d0\".\"LineTotal\") " ;
-                           query +=     "FROM  \"" + tableDet + "\" \"d0\" " ;
-                           query +=    " WHERE \"d0\".\"DocEntry\" = \"Cabecera\".\"DocEntry\") AS \"TotalSol\", " ;
-                           query +=     "(select sum(\"d0\".\"TotalSumSy\") FROM " ;
-                           query +=    "\"" + tableDet + "\" \"d0\" " ;
-                           query +=    " WHERE \"d0\".\"DocEntry\" = \"Cabecera\".\"DocEntry\") AS \"TotalDol\", " ;
-                           query +=    "CASE WHEN \"Cabecera\".\"DocStatus\" = 'O' THEN 'ABIERTO' " ;
-                           query +=    "WHEN \"Cabecera\".\"DocStatus\" = 'C' THEN 'CERRADO' END AS \"Status\", " ;
-                           query += "IFNULL(\"Cabecera\".\"CardCode\",'') AS \"Ruc\" , ";
-                           query += "IFNULL(\"Cabecera\".\"CardName\",'') AS \"Proveedor\", ";
-                           query += "IFNULL(\"Cabecera\".\"JrnlMemo\" ,'') AS \"JrnlMemo\" ";
-                           query += ",IFNULL(t1.\"USER_CODE\",'') AS  \"UserCreator\" ";
+                    using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = vTipoCabecera;
+                    cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = project ?? string.Empty;
+                    cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = BaseDatos ?? string.Empty;
+                    cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                    cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
-                           query +="FROM " ;
-                           query +=    "\"" + tableName + "\" \"Cabecera\" " ;
-                           query +="INNER JOIN " ;
-                           query +=     "\"" + tableDet + "\" \"Detalle\" " ;
-                           query +=    " ON \"Cabecera\".\"DocEntry\" = \"Detalle\".\"DocEntry\" " ;
-                           query +="LEFT JOIN " ;
-                           query +=     "OIDC t0 " ;
-                           query +=    " ON \"Cabecera\".\"Indicator\" = t0.\"Code\" " ;
-                           query += "INNER JOIN OUSR t1 ON \"Cabecera\".\"UserSign\" = t1.\"USERID\"";
-                           query +="WHERE " ;
-                           query +=    "\"Cabecera\".\"CANCELED\" = 'N' AND  " ;
-                           //query +=    "\"Cabecera\".\"DocDate\" >=  '2024-03-01' AND " ;
-                           query +=    "\"Cabecera\".\"DocType\" LIKE " + DocType + " AND   IFNULL(\"Detalle\".\"U_MGS_CL_ESTADO\",'') <> '01'  AND";
-                           query += "( \"Detalle\".\"Project\" <> 'GENERICO' AND \"Detalle\".\"Project\" LIKE '%" + project + "%' ) AND " ;
-                           query += "\"Detalle\".\"DocEntry\" IS NOT NULL ";
-                            if ((requestInformation.Route != "PurchaseInvoices") && (requestInformation.Route != "SalesInvoice"))
-                            {  //historico solo aplica para arellano
-                                query += "AND IFNULL(\"Cabecera\".\"U_MGS_CL_CODINTPYP\",'') <> ''  ";
-                            }
-                           query +=" GROUP BY " ;
-                           query +=    "\"Cabecera\".\"DocNum\", " ;
-                           query +=    "\"Cabecera\".\"DocDate\", " ;
-                           query +=    "\"Cabecera\".\"NumAtCard\", " ;
-                           query +=    "\"Cabecera\".\"TaxDate\", " ;
-                           query +=     "\"Cabecera\".\"U_MGS_CL_CODINTPYP\", " ;
-                           query +=    "\"Cabecera\".\"DocEntry\", " ;
-                           query +=    "\"Cabecera\".\"DocDueDate\", t0.\"Name\" , " ;
-                           query +=    "\"Cabecera\".\"DocCur\", " ;
-                           query +=    "\"Cabecera\".\"DocStatus\", " ;
-                           query +=    "\"Cabecera\".\"CardCode\" , " ;
-                           query +=    "\"Cabecera\".\"CardName\", " ;
-                           query +=    "\"Cabecera\".\"JrnlMemo\" " ;
-                           query +=    ",t1.\"USER_CODE\" ";
-                    //  query +=     "order by \"Cabecera\".\"DocNum\" desc";
-
-                    if (BaseDatos == "1" && (requestInformation.Route != "PurchaseRequests")) {  //historico solo aplica para arellano
-                            query += "union                                                                            ";
-                            query +=     "select                                                                       ";
-                            query +=     "MAX(\"CABHIST\".\"Code\") AS \"DocNum\",                                          ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_FECCON\") AS \"DocDate\",                              ";
-                            query +=     "\"CABHIST\".\"U_MGS_CL_NRODOC\" AS\"NumAtCard\",                             ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_FECDOC\") AS \"TaxDate\",                              ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_CODPRO\") AS \"Cod_PyP\",                              ";
-                            query +=     "'0' AS \"DocEntry\" ,                                       ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_FECDOC\") AS \"DocDueDate\" ,                          ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_CODPRY\") AS \"Project\",                         ";
-                            query +=     "t0.\"Name\" AS \"tipoDoc\",                                                  ";
-                            query +=     "\"CABHIST\".\"U_MGS_CL_MONEDA\" AS \"DocCur\",                               ";
-                            query +=     "(SELECT SUM(\"ch\".\"U_MGS_CL_COSTOT\") FROM ";
-                            query +=    "\"" + tableNameHist + "\" \"ch\" ";
-                            query +=     " where \"ch\".\"U_MGS_CL_CODPRO\" = MAX(\"CABHIST\".\"U_MGS_CL_CODPRO\") and  \"ch\".\"U_MGS_CL_NRODOC\" = \"CABHIST\".\"U_MGS_CL_NRODOC\" ) AS \"TotalSol\",                             ";
-                            query +=      campoTotalDol + " AS \"TotalDol\",                                                           ";
-                            query +=     "'' AS \"Status\",                                                            ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_RUCDNI\") AS \"Ruc\",                                  ";
-                            query +=     "MAX(\"CABHIST\".\"U_MGS_CL_PROVEE\") AS \"Proveedor\",                            ";
-                            query +=     "'INFORMACION DEL HISTORICO' AS \"JrnlMemo\",                                 ";
-                            query +=     "'' AS \"USER_CODE\"                                                          ";
-                            query +=      "FROM ";
-                            query +=      "\"" + tableNameHist + "\" \"CABHIST\" ";                   
-                            query +=     " INNER JOIN OIDC t0  ON t0.\"Code\" = \"CABHIST\".\"U_MGS_CL_TIPDOC\"        ";
-                            query +=     " WHERE \"CABHIST\".\"U_MGS_CL_CODPRY\"  LIKE '%" + project + "%'";
-                            query +=     " GROUP BY                               ";
-                            query +=     " \"CABHIST\".\"U_MGS_CL_NRODOC\",       ";
-                            query +=     " t0.\"Name\",                           ";
-                            query +=     " \"CABHIST\".\"U_MGS_CL_MONEDA\"            ";
-                    }
-                    HanaCommand cmd = new HanaCommand(query, conn);
-                    HanaDataReader reader = cmd.ExecuteReader();
+                    using var reader = cmd.ExecuteReader();
 
                     // Objeto que representará la cabecera
                     List<Value1> lisCab = new List<Value1>();
@@ -1153,66 +1033,17 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
 
                         ////detalle
-                        string queryDetalle = "";
-                        queryDetalle = "SELECT ";
-                        queryDetalle += "IFNULL(\"Detalle\".\"ItemCode\", \"Detalle\".\"U_MGS_LC_SERCOM\" ) AS \"ItemCode\", ";
-                        queryDetalle += "IFNULL(\"Detalle\".\"U_MGS_CL_NITEMPYP\",'') AS \"U_MGS_CL_NITEMPYP\" ,";
-                        queryDetalle += "\"Detalle\".\"Quantity\", ";
-                        queryDetalle += "\"Detalle\".\"Price\", ";
-                        queryDetalle += " IFNULL(\"Detalle\".\"U_MGS_CL_CANINI\", 0) AS \"cantidad_Inicial\", ";
-                        queryDetalle += " IFNULL(\"Detalle\".\"U_MGS_CL_PREINI\", 0) AS \"costo_Unit_Inicial\", ";
-                        queryDetalle += "\"Detalle\".\"Project\", ";
-                        queryDetalle += "IFNULL(\"Detalle\".\"U_MGS_CL_TIPBENPRO\",'') AS \"U_MGS_CL_TIPBENPRO\",";
-                        queryDetalle += "(\"Detalle\".\"Quantity\" * \"Detalle\".\"Price\")  AS \"LineTotal\", ";
-                        queryDetalle += "\"Detalle\".\"Quantity\" * 100 AS \"Porcentaje\", ";
-                        queryDetalle += "IFNULL(t2.\"Name\",'') AS \"UnidadNegocio\", ";
-                        queryDetalle += "IFNULL(t1.\"U_MGS_CL_JEFE\",'') AS  \"JefeCuenta\", ";
-                        queryDetalle += " IFNULL(t4.\"Name\",'') AS  \"Familia\" ";
-                        queryDetalle += ", IFNULL(t3.\"Name\",'') AS  \"EstadoProyecto\" ";
-                        queryDetalle += "FROM ";
-                        queryDetalle +=  "\"" + tableDet + "\" \"Detalle\" ";
-                        queryDetalle += "LEFT JOIN ";
-                        queryDetalle += "OPRJ t1 ";
-                        queryDetalle += " ON \"Detalle\".\"Project\" = t1.\"PrjCode\" ";
-                        queryDetalle += "LEFT JOIN ";
-                        queryDetalle += "\"@MGS_CL_UNINEG\" t2 ";
-                        queryDetalle += " ON t1.\"U_MGS_CL_UNINEG\" = t2.\"Code\" ";
-                        queryDetalle += "  LEFT JOIN \"@MGS_CL_ESTPRO\" t3 ON t3.\"Code\" = t1.\"U_MGS_CL_ESTPRO\" ";
-                        queryDetalle += "  LEFT JOIN \"@MGS_CL_FAMILI\" t4 ON t4.\"Code\" = t1.\"U_MGS_CL_FAMILI\" ";
-                        queryDetalle += "WHERE ";
-                        queryDetalle += "\"Detalle\".\"DocEntry\" = " + cab.DocEntry + " AND IFNULL(\"Detalle\".\"U_MGS_CL_ESTADO\",'') <> '01'  AND \"Detalle\".\"Project\" LIKE '%" + project + "%'";
+                        using var cmdDetalle = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                        {
+                            CommandType = CommandType.StoredProcedure
+                        };
+                        cmdDetalle.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = vTipoDetalle;
+                        cmdDetalle.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = cab.DocEntry.ToString();
+                        cmdDetalle.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = project ?? string.Empty;
+                        cmdDetalle.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = BaseDatos ?? string.Empty;
+                        cmdDetalle.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = cab.NumAtCard ?? string.Empty;
 
-                        if (BaseDatos == "1" && (requestInformation.Route != "PurchaseRequests"))
-                        
-                            {  //historico solo aplica para arellano
-                            queryDetalle += "union   all                                                                         ";
-                            queryDetalle += " select \"Detalle\".\"" + campoArticulo + "\" AS \"ItemCode\",                                                                   ";
-                            queryDetalle += " '' AS \"U_MGS_CL_NITEMPYP\" ,                                                                                             ";
-                            queryDetalle += " \"Detalle\".\"U_MGS_CL_CANTID\" AS \"Quantity\",                                                                          ";
-                            queryDetalle += " \"Detalle\".\"U_MGS_CL_COSUNI\" AS \"Price\",                                                                             ";
-                            queryDetalle += "  0 AS \"cantidad_Inicial\", ";
-                            queryDetalle += " 0 AS \"costo_Unit_Inicial\", ";
-                            queryDetalle += " IFNULL(\"Detalle\".\"U_MGS_CL_CODPRY\", '') AS \"Project\",                                                               ";
-                            queryDetalle += " '' AS \"U_MGS_CL_TIPBENPRO\",                                                                                             ";
-                            queryDetalle += " (\"Detalle\".\"U_MGS_CL_COSTOT\")  AS \"LineTotal\",                                                                      ";
-                            queryDetalle += " 0 AS \"Porcentaje\",                                                                                                      ";
-                            queryDetalle += " IFNULL(t2.\"Name\", '') AS \"UnidadNegocio\",                                                                             ";
-                            queryDetalle += " IFNULL(t1.\"U_MGS_CL_JEFE\", '') AS  \"JefeCuenta\",                                                                      ";
-                            queryDetalle += " IFNULL(t4.\"Name\",'') AS  \"Familia\", ";
-                            queryDetalle += " IFNULL(t3.\"Name\", '') AS  \"EstadoProyecto\"                                                                           ";
-                            queryDetalle += " FROM ";
-                            queryDetalle += "\"" + tableNameHist + "\" \"Detalle\" ";
-                            queryDetalle += " LEFT JOIN OPRJ t1  ON \"Detalle\".\"U_MGS_CL_CODPRO\" = t1.\"PrjCode\"                                                    ";
-                            queryDetalle += " LEFT JOIN \"@MGS_CL_UNINEG\" t2 ON t1.\"U_MGS_CL_UNINEG\" = t2.\"Code\"                                                   ";
-                            queryDetalle += " LEFT JOIN \"@MGS_CL_ESTPRO\" t3 ON t3.\"Code\" = t1.\"U_MGS_CL_ESTPRO\"                                                   ";
-                            queryDetalle += "  LEFT JOIN \"@MGS_CL_FAMILI\" t4 ON t4.\"Code\" = t1.\"U_MGS_CL_FAMILI\" ";
-                            queryDetalle += " WHERE \"Detalle\".\"U_MGS_CL_NRODOC\" = '" + cab.NumAtCard + "'  AND   \"Detalle\".\"U_MGS_CL_CODPRY\" LIKE '%" + project + "%'";
-                        }
-                        queryDetalle +=" ORDER BY \"Project\" asc";
-
-
-                            cmd = new HanaCommand(queryDetalle, conn);
-                        HanaDataReader readerdet = cmd.ExecuteReader();
+                        using var readerdet = cmdDetalle.ExecuteReader();
 
                         List<DocumentLineD> lisDet = new List<DocumentLineD>();
 
@@ -1274,13 +1105,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
         //string result = "";
         string HANAConnectionString = "";
             AmountAvailableGetDTO result = new AmountAvailableGetDTO();
-        var tableName = "";
-        var tableDet = "";
-        var tableNameHist = "";
-        var campoArticulo = "";
-        var campoTotalDol = "";
-
-        var DocType = ""; //articulos y servicios
         HANAConnectionString = BaseDatos == "1" ? _configuration["ConnectionStringsSAP"] : _configuration["ConnectionStringsSAP2"];
 
         HanaConnection conn = new HanaConnection(HANAConnectionString);
@@ -1293,37 +1117,17 @@ namespace RusticaPortal_PRMVAN.Api.Services
             {
                 conn.Open();
 
-                bool method1 = true;
-                string query = "";
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_AmtAvail";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = project ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
-
-                query = "SELECT TABLA.\"contrato\", TABLA.\"Project\", TABLA.\"categoriaCosto\",  TABLA.\"LineNum\", TABLA.\"montoPresu\",                                                 "; //TABLA.\"Price\" as precioUnit,    
-                    query += "TABLA.\"montoOC\" ,  TABLA.\"montoFact\",                                                                                                                            ";
-                query += "(TABLA.\"montoPresu\" - TABLA.\"montoOC\" - TABLA.\"montoFact\" )  \"montoDisp\"                                                                                     ";
-                query += "FROM                                                                                                                                                                 ";
-                query += "(SELECT IFNULL(T0.\"U_MGS_CL_CODINTPYP\",'') AS \"contrato\", T1.\"Project\", T1.\"ItemCode\" AS \"categoriaCosto\", T1.\"LineNum\", SUM(T1.\"LineTotal\") AS \"montoPresu\"  "; //,  //T1.\"Price\",
-                    query += " ,   IFNULL((SELECT SUM(T2.\"LineTotal\")                                                                                                                               ";
-                query += "    FROM OPOR T3                                                                                                                                                     ";
-                query += "    INNER JOIN POR1 T2 ON T3.\"DocEntry\" = T2.\"DocEntry\"                                                                                                          ";
-                query += "    WHERE T3.\"CANCELED\" = 'N' AND T2.\"Project\" = T1.\"Project\" AND T2.\"ItemCode\" = T1.\"ItemCode\" ), 0) AS \"montoOC\",       "; //AND T2.\"Price\" = T1.\"Price\"
-                query += "IFNULL((SELECT SUM(\"LineTotal\")                                                                                                                                    ";
-                query += "    FROM OPCH T4                                                                                                                                                     ";
-                query += "    INNER JOIN PCH1 T5 ON T4.\"DocEntry\" = T5.\"DocEntry\"                                                                                                          ";
-                query += "    WHERE T5.\"BaseType\" = -1  AND T4.\"CANCELED\" = 'N'                                                                                                            ";
-                query += "    AND T5.\"Project\" = T1.\"Project\" AND T5.\"ItemCode\" = T1.\"ItemCode\"),0) AS \"montoFact\"                                                                   ";
-                query += "FROM OPRQ T0                                                                                                                                                         ";
-                query += "INNER JOIN PRQ1 T1 ON T0.\"DocEntry\" = T1.\"DocEntry\"                                                                                                              ";
-               // query += "WHERE T0.\"CANCELED\" = 'N'  AND IFNULL(T1.\"U_MGS_CL_ESTADO\",'') <> '01' AND T1.\"Project\" = '" + project + "'                                                                                                 ";
-                query += "WHERE T0.\"CANCELED\" = 'N' AND (T0.\"DocStatus\" = 'O' OR (T0.\"DocStatus\" = 'C' and IFNULL(T0.\"U_MGS_CL_CODINTPYP\",'') <> ''))                                                                                                 ";
-                query += "AND IFNULL(T1.\"U_MGS_CL_ESTADO\",'') <> '01' AND T1.\"Project\" = '" + project + "'                                                                                                  ";
-                query += "GROUP BY T0.\"U_MGS_CL_CODINTPYP\", T1.\"Project\", T1.\"ItemCode\", T1.\"LineNum\"                                                               "; // T1.\"Price\"     
-                query += ") AS TABLA                                                                                                                                                           ";
-                query += "ORDER BY TABLA.\"LineNum\"                                                                                                                                          ";
-
-                                                                                                                                               
-
-                    HanaCommand cmd = new HanaCommand(query, conn);
-                    HanaDataReader reader = cmd.ExecuteReader();
+                using var reader = cmd.ExecuteReader();
 
                     List<Value2> lisCab = new List<Value2>();
                     
@@ -1654,7 +1458,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Error en base de datos.",
+                    Message = "Error al cargar tiendas.",
                     Content = ex.Message
                 };
             }
@@ -1996,7 +1800,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Error en base de datos.",
+                    Message = "Error al cargar grupos VAN.",
                     Content = ex.Message
                 };
             }
@@ -2083,7 +1887,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Error en base de datos.",
+                    Message = "Error al cargar artículos maestro.",
                     Content = ex.Message
                 };
             }
@@ -2263,16 +2067,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     });
                 }
 
-                if (!tiendas.Any())
-                {
-                    return new ResponseInformation
-                    {
-                        Registered = false,
-                        Message = "No se encontraron tiendas.",
-                        Content = string.Empty
-                    };
-                }
-
                 return new ResponseInformation
                 {
                     Registered = true,
@@ -2285,7 +2079,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Error en base de datos.",
+                    Message = "Error al cargar grupos por tienda.",
                     Content = ex.Message
                 };
             }
@@ -2331,16 +2125,6 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     });
                 }
 
-                if (!grupos.Any())
-                {
-                    return new ResponseInformation
-                    {
-                        Registered = false,
-                        Message = "No se encontraron grupos VAN.",
-                        Content = string.Empty
-                    };
-                }
-
                 return new ResponseInformation
                 {
                     Registered = true,
@@ -2353,7 +2137,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Error en base de datos.",
+                    Message = "Error al cargar artículos del grupo.",
                     Content = ex.Message
                 };
             }
@@ -2667,46 +2451,30 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 }
             }
 
-            var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
-            if (existingDocEntry.HasValue)
-            {
-                foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
-                {
-                    item.DocEntry = existingDocEntry;
-                }
-            }
-
             var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            var existingDocEntry = await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+            var grupoExiste = existingDocEntry.HasValue && await ExisteGrupoVan(login.Cfg, tiendaCodigo, grupoCodigo);
 
-            if (existingDocEntry.HasValue)
+            if (!existingDocEntry.HasValue)
             {
-                var updateReq = new
-                {
-                    MGS_CL_VANTIADCollection = lista.Select(i => new
-                    {
-                        i.LineId,
-                        i.U_MGS_CL_GRPCOD,
-                        i.U_MGS_CL_ITEMCOD,
-                        i.U_MGS_CL_ITEMNAM,
-                        i.U_MGS_CL_TIPO,
-                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
-                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
-                    })
-                };
-
-                var requestInformation = new RequestInformation
-                {
-                    Route = $"MGS_CL_VANTIAD({existingDocEntry})",
-                    Token = login.Token,
-                    Doc = JsonConvert.SerializeObject(updateReq, settings)
-                };
-
-                return await UpdateInfo(requestInformation, "PYP", login.Cfg);
-            }
-            else
-            {
+                var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaCodigo);
+                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
+                var itemBase = lista.FirstOrDefault();
                 var createReq = new
                 {
+                    U_MGS_CL_TIENDA = tiendaCodigo,
+                    U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaCodigo : nombreTienda,
+                    MGS_CL_VANTDETCollection = new[]
+                    {
+                        new
+                        {
+                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                            U_MGS_CL_TIPO = itemBase?.U_MGS_CL_TIPO ?? string.Empty,
+                            U_MGS_CL_PORC = itemBase?.U_MGS_CL_PORC ?? 100,
+                            U_MGS_CL_ACTIVO = "SI"
+                        }
+                    },
                     MGS_CL_VANTIADCollection = lista.Select(i => new
                     {
                         i.U_MGS_CL_GRPCOD,
@@ -2720,13 +2488,69 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
                 var requestInformation = new RequestInformation
                 {
-                    Route = "MGS_CL_VANTIAD",
+                    Route = "MGS_CL_VANTCAB",
                     Token = login.Token,
                     Doc = JsonConvert.SerializeObject(createReq, settings)
                 };
 
                 return await PostInfo(requestInformation, "PYP", login.Cfg);
             }
+
+            if (!grupoExiste)
+            {
+                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
+                var itemBase = lista.FirstOrDefault();
+                var grupoReq = new
+                {
+                    MGS_CL_VANTDETCollection = new[]
+                    {
+                        new
+                        {
+                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                            U_MGS_CL_TIPO = itemBase?.U_MGS_CL_TIPO ?? string.Empty,
+                            U_MGS_CL_PORC = itemBase?.U_MGS_CL_PORC ?? 100,
+                            U_MGS_CL_ACTIVO = "SI"
+                        }
+                    }
+                };
+
+                var requestGrupo = new RequestInformation
+                {
+                    Route = $"MGS_CL_VANTCAB({existingDocEntry.Value})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(grupoReq, settings)
+                };
+
+                var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
+                if (!grupoResp.Registered)
+                {
+                    return grupoResp;
+                }
+            }
+
+            var updateReq = new
+            {
+                MGS_CL_VANTIADCollection = lista.Select(i => new
+                {
+                    i.LineId,
+                    i.U_MGS_CL_GRPCOD,
+                    i.U_MGS_CL_ITEMCOD,
+                    i.U_MGS_CL_ITEMNAM,
+                    i.U_MGS_CL_TIPO,
+                    U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                    U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                })
+            };
+
+            var requestInformationFinal = new RequestInformation
+            {
+                Route = $"MGS_CL_VANTCAB({existingDocEntry.Value})",
+                Token = login.Token,
+                Doc = JsonConvert.SerializeObject(updateReq, settings)
+            };
+
+            return await UpdateInfo(requestInformationFinal, "PYP", login.Cfg);
         }
 
         private static bool HasColumn(IDataRecord reader, string columnName)
@@ -2768,16 +2592,21 @@ namespace RusticaPortal_PRMVAN.Api.Services
             try
             {
                 await conn.OpenAsync();
-                using var cmd = new HanaCommand(
-    "SELECT \"PrjName\" FROM \"OPRJ\" WHERE \"PrjCode\" = :code",
-    conn
-);
-                cmd.Parameters.Add(new HanaParameter(":code", HanaDbType.NVarChar, 20)
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
                 {
-                    Value = tiendaCodigo
-                });
-                var result = await cmd.ExecuteScalarAsync();
-                return result?.ToString();
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTdaNom";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                if (reader.Read())
+                {
+                    return reader["PrjName"]?.ToString();
+                }
+                return string.Empty;
             }
             catch (Exception ex)
             {
@@ -2787,6 +2616,70 @@ namespace RusticaPortal_PRMVAN.Api.Services
             {
                 if (conn.State == ConnectionState.Open) conn.Close();
             }
+        }
+
+        private async Task<int?> ObtenerDocEntryVanCab(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanCab";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read() && !reader.IsDBNull(reader.GetOrdinal("DocEntry")))
+            {
+                return Convert.ToInt32(reader["DocEntry"]);
+            }
+            return null;
+        }
+
+        private async Task<bool> ExisteGrupoVan(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpEx";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var count = reader.IsDBNull(reader.GetOrdinal("Total")) ? 0 : Convert.ToInt32(reader["Total"]);
+                return count > 0;
+            }
+            return false;
+        }
+
+        private async Task<string> ObtenerNombreGrupo(EmpresaConfig cfg, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpNom";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                return reader["Name"]?.ToString() ?? string.Empty;
+            }
+            return string.Empty;
         }
 
     }
