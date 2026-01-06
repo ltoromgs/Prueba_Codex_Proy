@@ -142,7 +142,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             {
                 if (conn.State.Equals(ConnectionState.Open))
                     conn.Close();
-                result = null;
+                //result = null;
                 //throw;
             }
             return ai;

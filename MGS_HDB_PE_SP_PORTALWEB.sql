@@ -365,7 +365,7 @@ BEGIN
         WHERE "Code" = :vParam1;
 
 
-    ELSEIF vTipo = 'Get_ClienteMon' THEN
+   /* ELSEIF vTipo = 'Get_ClienteMon' THEN
 
         SELECT
             B."CardCode" AS "CardCode",
@@ -378,7 +378,7 @@ BEGIN
         INNER JOIN "OCRD" B ON A."U_MGS_CL_RUCPRO" = B."LicTradNum"
         WHERE A."PrjCode" = :vParam1
           AND B."CardType" = 'C';
-
+*/
 
     ELSEIF vTipo = 'Get_OVByPrj' THEN
 
@@ -400,7 +400,7 @@ BEGIN
         END IF;
 
 
-    ELSEIF vTipo = 'Get_OVByCnt' THEN
+   /* ELSEIF vTipo = 'Get_OVByCnt' THEN
 
         SELECT
             "DocEntry" AS "DocEntry"
