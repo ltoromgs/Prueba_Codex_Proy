@@ -466,7 +466,7 @@
             btn.className = 'btn btn-outline-danger btn-sm';
             btn.textContent = 'Quitar';
             silenciarPropagacion(btn);
-            btn.onclick = (ev) => {
+            btn.onclick = async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
                 const idx = state.gruposTienda.findIndex(x => x.rowKey === g.rowKey);
@@ -475,6 +475,10 @@
                         state.pending.grupos.add(g.rowKey); // conserva en el payload y marca eliminado
                         const target = state.gruposTienda[idx];
                         const marcadoEliminar = !!target._toDelete;
+                        if (!marcadoEliminar) {
+                            const confirmado = await confirmarDesactivarGrupo(target);
+                            if (!confirmado) return;
+                        }
                         target._toDelete = !marcadoEliminar;
                         target.U_MGS_CL_ACTIVO = marcadoEliminar ? 'SI' : 'NO'; // toggle revert/quit
                         renderGrupos();
@@ -558,6 +562,36 @@
             if (typeof a.U_MGS_CL_PORC === 'undefined') a.U_MGS_CL_PORC = '';
             if (typeof a.U_MGS_CL_TIPO === 'undefined') a.U_MGS_CL_TIPO = '';
         });
+    };
+
+    const confirmarDesactivarGrupo = async (grupo) => {
+        if (!grupo?.DocEntry) return true;
+        const data = await fetchJson(`/GrupoVan/ArticulosActivosPorGrupo?tienda=${state.tiendaActual.PrjCode}&grupo=${grupo.U_MGS_CL_GRPCOD}`, {}, 'al validar artículos del grupo');
+        if (!data) return false;
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudo validar los artículos del grupo');
+            return false;
+        }
+        const info = JSON.parse(data.content || '{}');
+        if (info?.TieneArticulos) {
+            return confirm('Este grupo tiene artículos asociados. Si continúas, se desactivarán también. ¿Deseas continuar?');
+        }
+        return true;
+    };
+
+    const validarArticuloExclusivo = async (codigo) => {
+        const data = await fetchJson(`/GrupoVan/ArticuloAsignacion?tienda=${state.tiendaActual.PrjCode}&itemCode=${encodeURIComponent(codigo)}&grupo=${state.grupoActual.U_MGS_CL_GRPCOD}`, {}, 'al validar artículo');
+        if (!data) return false;
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudo validar el artículo');
+            return false;
+        }
+        const info = JSON.parse(data.content || '{}');
+        if (info?.Existe) {
+            mostrarAlerta(`El artículo ya está asignado al grupo ${info.GrupoCodigo}. No puede repetirse en otra asignación de la misma tienda.`);
+            return false;
+        }
+        return true;
     };
 
       const renderArticulos = (lista) => {
@@ -670,7 +704,7 @@
         document.getElementById('inputPorcentajeGrupo').value = '100';
     };
 
-    const agregarArticulo = () => {
+    const agregarArticulo = async () => {
         if (!state.grupoActual) { mostrarAlerta('Primero selecciona un grupo VAN.'); return; }
         seleccionarArticuloDesdeInput();
         const codigo = state.articuloMaestroSeleccionado?.ItemCode;
@@ -682,7 +716,9 @@
         if (!codigo || !nombre) { mostrarAlerta('Selecciona un artículo válido'); return; }
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo para el artículo VAN'); return; }
         if (state.articulosGrupo.some(x => x.U_MGS_CL_ITEMCOD === codigo)) { mostrarAlerta('El artículo ya está en el grupo'); return; }
-        const docEntryBase = state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? null; // no usar DocEntry de grupo; si no existe cabecera de artículos se deja null
+        const valido = await validarArticuloExclusivo(codigo);
+        if (!valido) return;
+        const docEntryBase = state.grupoActual?.DocEntry ?? state.articulosGrupo.find(x => x.DocEntry)?.DocEntry ?? null;
         const nuevo = {
             DocEntry: docEntryBase,
             LineId: siguienteLineId(state.articulosGrupo),
@@ -765,7 +801,7 @@
       document.addEventListener('DOMContentLoaded', async () => {
           document.getElementById('buscarTienda').oninput = renderTiendas;
           document.getElementById('btnAgregarGrupo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarGrupo(); }; // evita disparar cambio de contexto ni modal al agregar
-          document.getElementById('btnAgregarArticulo').onclick = agregarArticulo;
+          document.getElementById('btnAgregarArticulo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarArticulo(); };
           document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
           document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
           document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;

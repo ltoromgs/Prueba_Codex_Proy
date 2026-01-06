@@ -311,6 +311,21 @@ BEGIN
           AND D."U_MGS_CL_GRPCOD" = :vParam2
           AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
         ORDER BY D."LineId";
+
+
+    ELSEIF vTipo = 'Get_VanItemTienda' THEN
+
+        SELECT
+            D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
+            G."Name" AS "U_MGS_CL_GRPNOM"
+        FROM "@MGS_CL_VANTIAD" D
+        JOIN "@MGS_CL_VANTCAB" H ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND D."U_MGS_CL_ITEMCOD" = :vParam2
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
+          AND (:vParam3 = '' OR D."U_MGS_CL_GRPCOD" <> :vParam3)
+        LIMIT 1;
             
         
 

@@ -106,6 +106,34 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             return Ok(rp);
         }
 
+        [HttpGet("tienda/{prjCode}/grupo/{grpCode}/articulos-activos")]
+        public async Task<ActionResult<ResponseInformation>> GetArticulosActivosPorGrupo(string prjCode, string grpCode, [FromQuery] string Empresa)
+        {
+            var validacion = await _documentService.ValidaDatos(Empresa);
+            if (!validacion.Registered)
+            {
+                _logger.LogWarning("Validación fallida para empresa {Empresa}", Empresa);
+                return Ok(validacion);
+            }
+
+            var rp = await _documentService.GetGrupoVanArticulosActivos(Empresa, prjCode, grpCode);
+            return Ok(rp);
+        }
+
+        [HttpGet("tienda/{prjCode}/articulo/{itemCode}/asignacion")]
+        public async Task<ActionResult<ResponseInformation>> GetArticuloAsignacion(string prjCode, string itemCode, [FromQuery] string Empresa, [FromQuery] string grupo = "")
+        {
+            var validacion = await _documentService.ValidaDatos(Empresa);
+            if (!validacion.Registered)
+            {
+                _logger.LogWarning("Validación fallida para empresa {Empresa}", Empresa);
+                return Ok(validacion);
+            }
+
+            var rp = await _documentService.GetGrupoVanArticuloAsignacion(Empresa, prjCode, itemCode, grupo);
+            return Ok(rp);
+        }
+
         [HttpPost("tienda/{prjCode}/grupos/bulk")]
         public async Task<ActionResult<ResponseInformation>> GuardarGrupos(string prjCode, [FromQuery] string Empresa, [FromBody] GrupoVanBulkRequest payload)
         {

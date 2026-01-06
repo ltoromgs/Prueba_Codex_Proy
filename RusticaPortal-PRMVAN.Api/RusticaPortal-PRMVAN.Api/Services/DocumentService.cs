@@ -2332,6 +2332,77 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
+        public async Task<ResponseInformation> GetGrupoVanArticulosActivos(string empresa, string tiendaCodigo, string grupoCodigo)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            try
+            {
+                var articulos = await ObtenerArticulosActivosPorGrupo(login.Cfg, tiendaCodigo, grupoCodigo);
+                var resultado = new
+                {
+                    Total = articulos.Count,
+                    TieneArticulos = articulos.Count > 0
+                };
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = "Consulta exitosa",
+                    Content = JsonConvert.SerializeObject(resultado)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanArticuloAsignacion(string empresa, string tiendaCodigo, string itemCode, string grupoCodigo)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            try
+            {
+                var asignacion = await ObtenerGrupoArticuloActivo(login.Cfg, tiendaCodigo, itemCode, grupoCodigo);
+                var resultado = new
+                {
+                    Existe = !string.IsNullOrWhiteSpace(asignacion.GrupoCodigo),
+                    GrupoCodigo = asignacion.GrupoCodigo,
+                    GrupoNombre = asignacion.GrupoNombre
+                };
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = "Consulta exitosa",
+                    Content = JsonConvert.SerializeObject(resultado)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+        }
+
         public async Task<ResponseInformation> SetGrupoVanPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<VanGrupoDetalleDto> items)
         {
             var login = await LoginEmpresa(empresa);
@@ -2391,7 +2462,70 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     Doc = JsonConvert.SerializeObject(updateReq, settings)
                 };
 
-                return await UpdateInfo(requestInformation, "PYP", login.Cfg);
+                var updateResponse = await UpdateInfo(requestInformation, "PYP", login.Cfg);
+                if (!updateResponse.Registered)
+                {
+                    return updateResponse;
+                }
+
+                var gruposDesactivados = lista
+                    .Where(g => string.Equals(g.U_MGS_CL_ACTIVO, "NO", StringComparison.OrdinalIgnoreCase))
+                    .Select(g => g.U_MGS_CL_GRPCOD)
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (gruposDesactivados.Any())
+                {
+                    var docEntryCab = existingDocEntry ?? await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+                    if (!docEntryCab.HasValue)
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = "No se encontró la cabecera VAN para desactivar artículos.",
+                            Content = string.Empty
+                        };
+                    }
+
+                    foreach (var grupo in gruposDesactivados)
+                    {
+                        var articulosActivos = await ObtenerArticulosActivosPorGrupo(login.Cfg, tiendaCodigo, grupo);
+                        if (articulosActivos.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var updateArticulosReq = new
+                        {
+                            MGS_CL_VANTIADCollection = articulosActivos.Select(a => new
+                            {
+                                a.LineId,
+                                a.U_MGS_CL_GRPCOD,
+                                a.U_MGS_CL_ITEMCOD,
+                                a.U_MGS_CL_ITEMNAM,
+                                a.U_MGS_CL_TIPO,
+                                U_MGS_CL_PORC = a.U_MGS_CL_PORC ?? 0,
+                                U_MGS_CL_ACTIVO = "NO"
+                            })
+                        };
+
+                        var requestArticulos = new RequestInformation
+                        {
+                            Route = $"MGS_CL_VANTCAB({docEntryCab.Value})",
+                            Token = login.Token,
+                            Doc = JsonConvert.SerializeObject(updateArticulosReq, settings)
+                        };
+
+                        var respArticulos = await UpdateInfo(requestArticulos, "PYP", login.Cfg);
+                        if (!respArticulos.Registered)
+                        {
+                            return respArticulos;
+                        }
+                    }
+                }
+
+                return updateResponse;
             }
             else
             {
@@ -2453,7 +2587,25 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
             var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             var existingDocEntry = await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            }
             var grupoExiste = existingDocEntry.HasValue && await ExisteGrupoVan(login.Cfg, tiendaCodigo, grupoCodigo);
+
+            foreach (var item in lista.Where(i => string.Equals(i.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase)))
+            {
+                var grupoAsignado = await ObtenerGrupoArticuloActivo(login.Cfg, tiendaCodigo, item.U_MGS_CL_ITEMCOD, item.U_MGS_CL_GRPCOD);
+                if (!string.IsNullOrWhiteSpace(grupoAsignado.GrupoCodigo))
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = $"El artículo ya está asignado al grupo {grupoAsignado.GrupoCodigo}. No puede repetirse en otra asignación de la misma tienda.",
+                        Content = string.Empty
+                    };
+                }
+            }
 
             if (!existingDocEntry.HasValue)
             {
@@ -2637,6 +2789,59 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return Convert.ToInt32(reader["DocEntry"]);
             }
             return null;
+        }
+
+        private async Task<List<VanArticuloDetalleDto>> ObtenerArticulosActivosPorGrupo(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpArt";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            var articulos = new List<VanArticuloDetalleDto>();
+            while (reader.Read())
+            {
+                articulos.Add(new VanArticuloDetalleDto
+                {
+                    DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                    LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                    U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPO = HasColumn(reader, "U_MGS_CL_TIPO") ? reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty : string.Empty,
+                    U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null,
+                    U_MGS_CL_ACTIVO = HasColumn(reader, "U_MGS_CL_ACTIVO") ? reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty : string.Empty
+                });
+            }
+            return articulos;
+        }
+
+        private async Task<(string GrupoCodigo, string GrupoNombre)> ObtenerGrupoArticuloActivo(EmpresaConfig cfg, string tiendaCodigo, string itemCode, string grupoExclusion)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanItemTienda";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = itemCode ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = grupoExclusion ?? string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                return (reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty, reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty);
+            }
+            return (string.Empty, string.Empty);
         }
 
         private async Task<bool> ExisteGrupoVan(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
