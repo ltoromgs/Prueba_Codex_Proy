@@ -2768,14 +2768,20 @@ namespace RusticaPortal_PRMVAN.Api.Services
             try
             {
                 await conn.OpenAsync();
-                using var cmd = new HanaCommand("SELECT \"PrjName\" FROM \"OPRJ\" WHERE \"PrjCode\" = @code", conn);
-                cmd.Parameters.AddWithValue("@code", tiendaCodigo ?? string.Empty);
+                using var cmd = new HanaCommand(
+    "SELECT \"PrjName\" FROM \"OPRJ\" WHERE \"PrjCode\" = :code",
+    conn
+);
+                cmd.Parameters.Add(new HanaParameter(":code", HanaDbType.NVarChar, 20)
+                {
+                    Value = tiendaCodigo
+                });
                 var result = await cmd.ExecuteScalarAsync();
                 return result?.ToString();
             }
-            catch
+            catch (Exception ex)
             {
-                return string.Empty;
+                throw new Exception($"Error al obtener nombre de tienda ({tiendaCodigo}): {ex.Message}", ex);
             }
             finally
             {
