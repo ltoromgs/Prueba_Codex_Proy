@@ -345,6 +345,18 @@ BEGIN
         FROM "@MGS_CL_VANTCAB"
         WHERE "U_MGS_CL_TIENDA" = :vParam1;
 
+    ELSEIF vTipo = 'Get_VanGrpDet' THEN
+
+        SELECT
+            D."LineId" AS "LineId",
+            IFNULL(D."U_MGS_CL_ACTIVO",'NO') AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_VANTCAB" H
+        JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND D."U_MGS_CL_GRPCOD" = :vParam2
+        ORDER BY D."LineId"
+        LIMIT 1;
+
 
     ELSEIF vTipo = 'Get_VanGrpEx' THEN
 

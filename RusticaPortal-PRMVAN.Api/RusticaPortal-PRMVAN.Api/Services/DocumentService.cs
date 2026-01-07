@@ -2429,12 +2429,37 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 }
             }
 
-            var existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            var existingDocEntry = await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            }
             if (existingDocEntry.HasValue)
             {
                 foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
                 {
                     item.DocEntry = existingDocEntry;
+                }
+
+                foreach (var item in lista)
+                {
+                    if (string.IsNullOrWhiteSpace(item.U_MGS_CL_GRPCOD))
+                    {
+                        continue;
+                    }
+
+                    if (item.LineId <= 0)
+                    {
+                        var detalle = await ObtenerGrupoVanDetalle(login.Cfg, tiendaCodigo, item.U_MGS_CL_GRPCOD);
+                        if (detalle.LineId.HasValue)
+                        {
+                            item.LineId = detalle.LineId.Value;
+                            if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                            {
+                                item.U_MGS_CL_ACTIVO = "SI";
+                            }
+                        }
+                    }
                 }
             }
 
@@ -2864,6 +2889,29 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return count > 0;
             }
             return false;
+        }
+
+        private async Task<(int? LineId, string Activo)> ObtenerGrupoVanDetalle(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpDet";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var lineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? (int?)null : Convert.ToInt32(reader["LineId"]);
+                var activo = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty;
+                return (lineId, activo);
+            }
+            return (null, string.Empty);
         }
 
         private async Task<string> ObtenerNombreGrupo(EmpresaConfig cfg, string grupoCodigo)
