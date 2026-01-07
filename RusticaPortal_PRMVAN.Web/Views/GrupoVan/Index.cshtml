@@ -43,7 +43,7 @@
                             <select id="selectTipoGrupo" class="form-select"></select>
                         </div>
                         <div class="col-sm-2">
-                            <input id="inputPorcentajeGrupo" type="number" class="form-control" placeholder="%" min="0" max="100" value="100" />
+                            <input id="inputPorcentajeGrupo" type="number" class="form-control" placeholder="%" min="1" max="100" value="100" />
                         </div>
                         <div class="col-sm-2 d-grid">
                             <button id="btnAgregarGrupo" class="btn btn-success">+</button>
@@ -82,7 +82,7 @@
                             <select id="selectTipoArticulo" class="form-select"></select>
                         </div>
                         <div class="col-sm-3">
-                            <input id="inputPorcentajeArticulo" type="number" class="form-control" placeholder="%" min="0" max="100" value="100" />
+                            <input id="inputPorcentajeArticulo" type="number" class="form-control" placeholder="%" min="1" max="100" value="100" />
                         </div>
                         <div class="col-sm-2 d-grid">
                             <button id="btnAgregarArticulo" class="btn btn-success">+</button>
@@ -343,11 +343,11 @@
         });
     };
 
-    const asegurarPorcentajePorDefecto = (input) => {
+    const obtenerPorcentajeValido = (input) => {
         const valor = parseFloat(input.value);
-        if (isNaN(valor) || valor <= 0) {
-            input.value = '100';
-            return 100;
+        if (!Number.isFinite(valor) || valor < 1 || valor > 100) {
+            mostrarAlerta('El porcentaje debe estar entre 1 y 100');
+            return null;
         }
         return valor;
     };
@@ -519,10 +519,11 @@
                 g.U_MGS_CL_TIPO = e.target.value;
                 g.U_MGS_CL_ACTIVO = 'SI';
 
-                if (!g.U_MGS_CL_PORC || Number(g.U_MGS_CL_PORC) === 0) {
-                    g.U_MGS_CL_PORC = 100;
-                    const inp = tr.querySelector('input[data-lineid="' + g.LineId + '-grupo"]');
-                    if (inp) inp.value = 100;
+                const inp = tr.querySelector('input[data-lineid="' + g.LineId + '-grupo"]');
+                if (inp) {
+                    const porcActual = obtenerPorcentajeValido(inp);
+                    if (porcActual === null) return;
+                    g.U_MGS_CL_PORC = porcActual;
                 }
 
                 marcarPendiente('grupos', g.rowKey);
@@ -533,7 +534,7 @@
             const tdPorc = document.createElement('td');
             const inpPorc = document.createElement('input');
             inpPorc.type = 'number';
-            inpPorc.min = '0';
+            inpPorc.min = '1';
             inpPorc.max = '100';
             inpPorc.className = 'form-control form-control-sm';
             inpPorc.dataset.lineid = `${g.LineId}-grupo`;
@@ -541,7 +542,12 @@
             silenciarPropagacion(inpPorc);
             inpPorc.onchange = (e) => {
                 e.stopPropagation();
-                g.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
+                const porcActual = obtenerPorcentajeValido(e.target);
+                if (porcActual === null) {
+                    e.target.value = g.U_MGS_CL_PORC ?? '';
+                    return;
+                }
+                g.U_MGS_CL_PORC = porcActual;
                 g.U_MGS_CL_ACTIVO = 'SI';
                 marcarPendiente('grupos', g.rowKey);
                 tr.classList.add('fila-pendiente');
@@ -747,10 +753,11 @@
                 a.U_MGS_CL_TIPO = e.target.value;
                 a.U_MGS_CL_ACTIVO = 'SI';
 
-                if (!a.U_MGS_CL_PORC || Number(a.U_MGS_CL_PORC) === 0) {
-                    a.U_MGS_CL_PORC = 100;
-                    const inp = tr.querySelector('input[data-lineid="' + a.LineId + '-art"]');
-                    if (inp) inp.value = 100;
+                const inp = tr.querySelector('input[data-lineid="' + a.LineId + '-art"]');
+                if (inp) {
+                    const porcActual = obtenerPorcentajeValido(inp);
+                    if (porcActual === null) return;
+                    a.U_MGS_CL_PORC = porcActual;
                 }
 
                 marcarPendiente('articulos', a.rowKey);
@@ -761,7 +768,7 @@
             const tdPorc = document.createElement('td');
             const inpPorc = document.createElement('input');
             inpPorc.type = 'number';
-            inpPorc.min = '0';
+            inpPorc.min = '1';
             inpPorc.max = '100';
             inpPorc.className = 'form-control form-control-sm';
             inpPorc.dataset.lineid = `${a.LineId}-art`;
@@ -769,7 +776,12 @@
             silenciarPropagacion(inpPorc);
             inpPorc.onchange = (e) => {
                 e.stopPropagation();
-                a.U_MGS_CL_PORC = asegurarPorcentajePorDefecto(e.target);
+                const porcActual = obtenerPorcentajeValido(e.target);
+                if (porcActual === null) {
+                    e.target.value = a.U_MGS_CL_PORC ?? '';
+                    return;
+                }
+                a.U_MGS_CL_PORC = porcActual;
                 a.U_MGS_CL_ACTIVO = 'SI';
                 marcarPendiente('articulos', a.rowKey);
                 tr.classList.add('fila-pendiente');
@@ -823,8 +835,8 @@
         const tipoSel = document.getElementById('selectTipoGrupo').value;
 
         const porcInput = document.getElementById('inputPorcentajeGrupo');
-        asegurarPorcentajePorDefecto(porcInput);
-        const porcSel = parseFloat(porcInput.value);
+        const porcSel = obtenerPorcentajeValido(porcInput);
+        if (porcSel === null) return;
 
         if (!grp) return;
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo de VAN para el grupo'); return; }
@@ -868,8 +880,8 @@
         const tipoSel = document.getElementById('selectTipoArticulo').value;
 
         const porcInput = document.getElementById('inputPorcentajeArticulo');
-        asegurarPorcentajePorDefecto(porcInput);
-        const porcSel = parseFloat(porcInput.value);
+        const porcSel = obtenerPorcentajeValido(porcInput);
+        if (porcSel === null) return;
 
         if (!codigo || !nombre) { mostrarAlerta('Selecciona un artículo válido'); return; }
         if (!tipoSel) { mostrarAlerta('Selecciona un tipo para el artículo VAN'); return; }
@@ -945,6 +957,11 @@
         const mensajes = [];
         let huboCambios = false;
 
+        if (payloadGrupos.items.some(g => !Number.isFinite(Number(g.U_MGS_CL_PORC)) || Number(g.U_MGS_CL_PORC) < 1 || Number(g.U_MGS_CL_PORC) > 100)) {
+            mostrarAlerta('El porcentaje debe estar entre 1 y 100');
+            return;
+        }
+
         if (payloadGrupos.items.length > 0) {
             const data = await fetchJson(
                 `/GrupoVan/GuardarGruposPorTienda?prjCode=${state.tiendaActual.PrjCode}`,
@@ -957,6 +974,11 @@
 
             mensajes.push(data.message || 'Grupos actualizados');
             huboCambios = true;
+        }
+
+        if (payloadArts.items.some(a => !Number.isFinite(Number(a.U_MGS_CL_PORC)) || Number(a.U_MGS_CL_PORC) < 1 || Number(a.U_MGS_CL_PORC) > 100)) {
+            mostrarAlerta('El porcentaje debe estar entre 1 y 100');
+            return;
         }
 
         if (state.grupoActual && payloadArts.items.length > 0) {
@@ -990,9 +1012,6 @@
 
         document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
         document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;
-
-        document.getElementById('selectTipoGrupo').onchange = () => asegurarPorcentajePorDefecto(document.getElementById('inputPorcentajeGrupo'));
-        document.getElementById('selectTipoArticulo').onchange = () => asegurarPorcentajePorDefecto(document.getElementById('inputPorcentajeArticulo'));
 
         const dataTipos = await fetchJson(`/GrupoVan/Tipos`, {}, 'al cargar tipos');
         if (!dataTipos) return;
