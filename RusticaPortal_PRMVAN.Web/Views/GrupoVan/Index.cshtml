@@ -228,8 +228,13 @@
         return maxActual + 1;
     };
 
+    const limpiarAlertas = () => {
+        alertas.innerHTML = '';
+    };
+
     const mostrarAlerta = (mensaje, tipo = 'danger') => {
         if (!mensaje) return;
+        limpiarAlertas();
         alertas.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">${mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
     };
 
@@ -444,13 +449,29 @@
     };
 
     const cambiarTienda = async (tienda) => {
+        limpiarAlertas();
         state.tiendaActual = tienda;
         state.grupoActual = null;
+        state.articulosGrupo = [];
+        state.articulosMaestro = [];
+        state.articuloMaestroSeleccionado = null;
+        state.articuloSeleccionado = null;
         state.camposTipoPorcDisponibles = true;
+
+        document.getElementById('selectGrupoMaestro').value = '';
+        document.getElementById('selectTipoGrupo').value = '';
+        document.getElementById('inputPorcentajeGrupo').value = '100';
+        document.getElementById('inputArticulo').value = '';
+        document.getElementById('selectTipoArticulo').value = '';
+        document.getElementById('inputPorcentajeArticulo').value = '100';
+        document.getElementById('articuloSeleccionado').textContent = '';
+        renderSugerenciasArticulos();
+
         actualizarHeader();
         await cargarGruposTienda();
         renderGrupos();
         renderArticulos([]);
+        document.getElementById('infoArticulos').textContent = 'Selecciona un grupo para ver los artículos.';
         renderTiendas();
         notificarCamposTipoPorc();
     };
@@ -620,11 +641,19 @@
     };
 
     const cambiarGrupo = async (grupo) => {
+        limpiarAlertas();
         if (!grupo.U_MGS_CL_GRPNOM) {
             grupo.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === grupo.U_MGS_CL_GRPCOD)?.Name || '';
         }
         state.grupoActual = grupo;
         state.articuloSeleccionado = null;
+        state.articuloMaestroSeleccionado = null;
+        state.articulosMaestro = [];
+        document.getElementById('inputArticulo').value = '';
+        document.getElementById('selectTipoArticulo').value = '';
+        document.getElementById('inputPorcentajeArticulo').value = '100';
+        document.getElementById('articuloSeleccionado').textContent = '';
+        renderSugerenciasArticulos();
         actualizarHeader();
         renderGrupos();
         await cargarArticulosGrupo();
@@ -954,8 +983,9 @@
                 }))
         };
 
-        const mensajes = [];
         let huboCambios = false;
+        let okGrupos = true;
+        let okArticulos = true;
 
         if (payloadGrupos.items.some(g => !Number.isFinite(Number(g.U_MGS_CL_PORC)) || Number(g.U_MGS_CL_PORC) < 1 || Number(g.U_MGS_CL_PORC) > 100)) {
             mostrarAlerta('El porcentaje debe estar entre 1 y 100');
@@ -970,9 +1000,12 @@
             );
 
             if (!data) return;
-            if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los grupos'); return; }
+            if (!data.registered) {
+                okGrupos = false;
+                mostrarAlerta(`Error al guardar grupos: ${data.message || 'No se pudieron actualizar los grupos'}`);
+                return;
+            }
 
-            mensajes.push(data.message || 'Grupos actualizados');
             huboCambios = true;
         }
 
@@ -981,7 +1014,7 @@
             return;
         }
 
-        if (state.grupoActual && payloadArts.items.length > 0) {
+        if (okGrupos && state.grupoActual && payloadArts.items.length > 0) {
             const data = await fetchJson(
                 `/GrupoVan/GuardarArticulosPorGrupo?tienda=${state.tiendaActual.PrjCode}&grpCode=${state.grupoActual.U_MGS_CL_GRPCOD}`,
                 { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadArts) },
@@ -989,9 +1022,12 @@
             );
 
             if (!data) return;
-            if (!data.registered) { mostrarAlerta(data.message || 'No se pudieron actualizar los artículos'); return; }
+            if (!data.registered) {
+                okArticulos = false;
+                mostrarAlerta(`Error al guardar artículos: ${data.message || 'No se pudieron actualizar los artículos'}`);
+                return;
+            }
 
-            mensajes.push(data.message || 'Artículos actualizados');
             huboCambios = true;
         }
 
@@ -1000,7 +1036,9 @@
             limpiarPendientes();
         }
 
-        if (mensajes.length) mostrarAlerta(mensajes.join(' | '), 'success');
+        if (huboCambios && okGrupos && okArticulos) {
+            mostrarAlerta('Se actualizó con éxito.', 'success');
+        }
     };
 
     document.addEventListener('DOMContentLoaded', async () => {
