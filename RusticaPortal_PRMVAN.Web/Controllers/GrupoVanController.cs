@@ -136,6 +136,55 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             return Ok(resp);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ArticulosActivosPorGrupo(string tienda, string grupo)
+        {
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            if (string.IsNullOrEmpty(emp))
+                return BadRequest(new { message = "Empresa no encontrada en sesión." });
+
+            if (string.IsNullOrWhiteSpace(tienda))
+                return BadRequest(new { message = "Tienda requerida." });
+
+            if (string.IsNullOrWhiteSpace(grupo))
+                return BadRequest(new { message = "Grupo requerido." });
+
+            var endpoint = QueryHelpers.AddQueryString($"/api/grupovan/tienda/{tienda}/grupo/{grupo}/articulos-activos", new Dictionary<string, string?>
+            {
+                ["empresa"] = emp
+            });
+
+            var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
+            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
+            return Ok(resp);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ArticuloAsignacion(string tienda, string itemCode, string grupo)
+        {
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            if (string.IsNullOrEmpty(emp))
+                return BadRequest(new { message = "Empresa no encontrada en sesión." });
+
+            if (string.IsNullOrWhiteSpace(tienda))
+                return BadRequest(new { message = "Tienda requerida." });
+
+            if (string.IsNullOrWhiteSpace(itemCode))
+                return BadRequest(new { message = "Artículo requerido." });
+
+            var endpoint = QueryHelpers.AddQueryString($"/api/grupovan/tienda/{tienda}/articulo/{itemCode}/asignacion", new Dictionary<string, string?>
+            {
+                ["empresa"] = emp,
+                ["grupo"] = grupo
+            });
+
+            var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
+            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered) return BadRequest(resp);
+            return Ok(resp);
+        }
+
         [HttpPost]
         public async Task<IActionResult> GuardarGruposPorTienda(string prjCode, [FromBody] object payload)
         {
