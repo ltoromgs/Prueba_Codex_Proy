@@ -1,0 +1,7 @@
+2026-01-09 10:45:03.762 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-09 10:45:03.963 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-09 10:45:03.965 -05:00 [INF] Now listening on: https://localhost:7287
+2026-01-09 10:45:03.966 -05:00 [INF] Now listening on: http://localhost:5116
+2026-01-09 10:45:03.967 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-09 10:45:03.967 -05:00 [INF] Hosting environment: Development
+2026-01-09 10:45:03.967 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api
