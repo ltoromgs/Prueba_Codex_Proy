@@ -57,4 +57,10 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan
     {
         public List<VanArticuloDetalleDto> Items { get; set; } = new();
     }
+
+    public class CopiarTiendaVanRequest
+    {
+        public string TiendaOrigen { get; set; }
+        public string TiendaDestino { get; set; }
+    }
 }

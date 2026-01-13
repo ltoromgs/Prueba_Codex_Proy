@@ -14,6 +14,7 @@
                 <span class="text-secondary">Pendientes</span>
                 <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
             </div>
+            <button id="btnCopiarTienda" class="btn btn-outline-secondary">Copiar a tienda</button>
             <button id="btnActualizarTodo" class="btn btn-primary" disabled>Actualizar todo</button>
         </div>
     </div>
@@ -157,6 +158,33 @@
                     <button type="button" class="btn btn-danger" id="btnConfirmAceptar">
                         Sí, continuar
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: copiar configuración -->
+    <div class="modal fade" id="modalCopiarTienda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Copiar configuración a tienda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tienda origen</label>
+                        <select class="form-select" id="selectTiendaOrigen"></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Tienda destino</label>
+                        <select class="form-select" id="selectTiendaDestino"></select>
+                    </div>
+                    <div class="text-muted small mt-2">Se reemplazará la información en la tienda destino.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnEjecutarCopia">Copiar</button>
                 </div>
             </div>
         </div>
@@ -393,6 +421,18 @@
         renderTiendas();
     };
 
+    const renderTiendasCopiar = () => {
+        const origen = document.getElementById('selectTiendaOrigen');
+        const destino = document.getElementById('selectTiendaDestino');
+        const opciones = ['<option value="">Selecciona...</option>', ...state.tiendas.map(t => `<option value="${t.PrjCode}">${t.PrjCode} - ${t.PrjName}</option>`)];
+        origen.innerHTML = opciones.join('');
+        destino.innerHTML = opciones.join('');
+
+        if (state.tiendaActual?.PrjCode) {
+            origen.value = state.tiendaActual.PrjCode;
+        }
+    };
+
     const renderTiendas = () => {
         const cont = document.getElementById('tiendasLista');
         cont.innerHTML = '';
@@ -446,6 +486,12 @@
     const descartarYRecargar = async () => {
         limpiarPendientes();
         await recargarDatosActuales();
+    };
+
+    const abrirModalCopiar = () => {
+        renderTiendasCopiar();
+        const modal = new bootstrap.Modal(document.getElementById('modalCopiarTienda'));
+        modal.show();
     };
 
     const cambiarTienda = async (tienda) => {
@@ -1041,12 +1087,79 @@
         }
     };
 
+    const copiarConfiguracion = async () => {
+        const origen = document.getElementById('selectTiendaOrigen').value;
+        const destino = document.getElementById('selectTiendaDestino').value;
+
+        if (!origen || !destino) {
+            mostrarAlerta('Selecciona tienda origen y destino para copiar.');
+            return;
+        }
+
+        if (origen === destino) {
+            mostrarAlerta('La tienda origen y destino deben ser diferentes.');
+            return;
+        }
+
+        const confirmado = await confirmarModal({
+            titulo: 'Copiar configuración',
+            mensaje: 'Se reemplazará la información de la tienda destino.',
+            detalle: `Origen: ${origen} → Destino: ${destino}`,
+            textoAceptar: 'Sí, copiar',
+            claseAceptar: 'btn-warning'
+        });
+
+        if (!confirmado) {
+            return;
+        }
+
+        const data = await fetchJson(
+            `/GrupoVan/CopiarTienda`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tiendaOrigen: origen, tiendaDestino: destino }) },
+            'al copiar configuración'
+        );
+
+        if (!data) return;
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudo copiar la configuración');
+            return;
+        }
+
+        const modalEl = document.getElementById('modalCopiarTienda');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal?.hide();
+
+        const tiendaDestino = state.tiendas.find(t => t.PrjCode === destino);
+        if (tiendaDestino) {
+            await cambiarTienda(tiendaDestino);
+        } else {
+            await cargarTiendas();
+        }
+
+        limpiarPendientes();
+        mostrarAlerta('Se copió la configuración con éxito.', 'success');
+    };
+
     document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('buscarTienda').oninput = renderTiendas;
 
         document.getElementById('btnAgregarGrupo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarGrupo(); };
         document.getElementById('btnAgregarArticulo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarArticulo(); };
         document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
+        document.getElementById('btnCopiarTienda').onclick = async () => {
+            if (pendientesTotal() > 0) {
+                const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
+                document.getElementById('btnDescartar').onclick = async () => {
+                    await descartarYRecargar();
+                    modal.hide();
+                    abrirModalCopiar();
+                };
+                modal.show();
+                return;
+            }
+            abrirModalCopiar();
+        };
+        document.getElementById('btnEjecutarCopia').onclick = copiarConfiguracion;
 
         document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
         document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;
