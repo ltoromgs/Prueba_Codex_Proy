@@ -180,11 +180,14 @@
                         <label class="form-label">Tienda destino</label>
                         <select class="form-select" id="selectTiendaDestino"></select>
                     </div>
-                    <div class="text-muted small mt-2">Se reemplazará la información en la tienda destino.</div>
+                    <div class="alert alert-warning d-flex align-items-center gap-2 mt-3 mb-0" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <div>Se reemplazará la información en la tienda destino.</div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnEjecutarCopia">Copiar</button>
+                    <button type="button" class="btn btn-primary" id="btnEjecutarCopia">Sí, copiar</button>
                 </div>
             </div>
         </div>
@@ -210,7 +213,20 @@
 
     #loadingOverlay {
         background: rgba(255,255,255,0.7);
-        z-index: 9999;
+        z-index: 1045;
+    }
+
+    #alertas {
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal {
+        z-index: 1055;
+    }
+
+    .modal-backdrop {
+        z-index: 1050;
     }
 </style>
 
@@ -492,6 +508,22 @@
         renderTiendasCopiar();
         const modal = new bootstrap.Modal(document.getElementById('modalCopiarTienda'));
         modal.show();
+    };
+
+    const setEstadoBotonCopia = (loading) => {
+        const btn = document.getElementById('btnEjecutarCopia');
+        if (!btn) return;
+        if (loading) {
+            btn.disabled = true;
+            btn.dataset.originalText = btn.dataset.originalText || btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sí, copiar';
+        } else {
+            btn.disabled = false;
+            if (btn.dataset.originalText) {
+                btn.innerHTML = btn.dataset.originalText;
+                delete btn.dataset.originalText;
+            }
+        }
     };
 
     const cambiarTienda = async (tienda) => {
@@ -1101,17 +1133,7 @@
             return;
         }
 
-        const confirmado = await confirmarModal({
-            titulo: 'Copiar configuración',
-            mensaje: 'Se reemplazará la información de la tienda destino.',
-            detalle: `Origen: ${origen} → Destino: ${destino}`,
-            textoAceptar: 'Sí, copiar',
-            claseAceptar: 'btn-warning'
-        });
-
-        if (!confirmado) {
-            return;
-        }
+        setEstadoBotonCopia(true);
 
         const data = await fetchJson(
             `/GrupoVan/CopiarTienda`,
@@ -1119,9 +1141,13 @@
             'al copiar configuración'
         );
 
-        if (!data) return;
+        if (!data) {
+            setEstadoBotonCopia(false);
+            return;
+        }
         if (!data.registered) {
             mostrarAlerta(data.message || 'No se pudo copiar la configuración');
+            setEstadoBotonCopia(false);
             return;
         }
 
@@ -1138,6 +1164,7 @@
 
         limpiarPendientes();
         mostrarAlerta('Se copió la configuración con éxito.', 'success');
+        setEstadoBotonCopia(false);
     };
 
     document.addEventListener('DOMContentLoaded', async () => {
