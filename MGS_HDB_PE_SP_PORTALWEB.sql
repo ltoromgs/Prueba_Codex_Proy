@@ -247,6 +247,7 @@ BEGIN
         ORDER BY "Code";
 
 
+    -- Contrato columnas Get_VanTipo: Code, Name
     ELSEIF vTipo = 'Get_VanTipo' THEN
 
         SELECT
@@ -257,6 +258,7 @@ BEGIN
         ORDER BY "Code";
 
 
+    -- Contrato columnas Get_VanItemM: ItemCode, ItemName
     ELSEIF vTipo = 'Get_VanItemM' THEN
 
         SELECT
@@ -272,6 +274,7 @@ BEGIN
         ORDER BY "ItemCode";
 
 
+    -- Contrato columnas Get_VanTdaGrp: DocEntry, LineId, U_MGS_CL_GRPCOD, U_MGS_CL_GRPNOM, U_MGS_CL_TIPO, U_MGS_CL_PORC, U_MGS_CL_ACTIVO
     ELSEIF vTipo = 'Get_VanTdaGrp' THEN
 
         SELECT
@@ -280,7 +283,8 @@ BEGIN
             D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
             G."Name"            AS "U_MGS_CL_GRPNOM",
             IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
-            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC",
+            IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"
         FROM "@MGS_CL_VANTCAB" H
         JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
@@ -289,6 +293,7 @@ BEGIN
         ORDER BY D."LineId";
 
 
+    -- Contrato columnas Get_VanGrpArt: DocEntry, LineId, U_MGS_CL_GRPCOD, U_MGS_CL_ITEMCOD, U_MGS_CL_ITEMNAM, U_MGS_CL_TIPO, U_MGS_CL_PORC, U_MGS_CL_ACTIVO
     ELSEIF vTipo = 'Get_VanGrpArt' THEN
 
 		 
@@ -313,6 +318,7 @@ BEGIN
         ORDER BY D."LineId";
 
 
+    -- Contrato columnas Get_VanItemTienda: U_MGS_CL_GRPCOD, U_MGS_CL_GRPNOM
     ELSEIF vTipo = 'Get_VanItemTienda' THEN
 
         SELECT
@@ -330,6 +336,7 @@ BEGIN
         
 
 
+    -- Contrato columnas Get_VanTdaNom: PrjName
     ELSEIF vTipo = 'Get_VanTdaNom' THEN
 
         SELECT
@@ -338,6 +345,7 @@ BEGIN
         WHERE "PrjCode" = :vParam1;
 
 
+    -- Contrato columnas Get_VanCab: DocEntry
     ELSEIF vTipo = 'Get_VanCab' THEN
 
         SELECT
@@ -345,6 +353,7 @@ BEGIN
         FROM "@MGS_CL_VANTCAB"
         WHERE "U_MGS_CL_TIENDA" = :vParam1;
 
+    -- Contrato columnas Get_VanGrpDet: LineId, U_MGS_CL_ACTIVO
     ELSEIF vTipo = 'Get_VanGrpDet' THEN
 
         SELECT
@@ -358,6 +367,7 @@ BEGIN
         LIMIT 1;
 
 
+    -- Contrato columnas Get_VanGrpEx: Total
     ELSEIF vTipo = 'Get_VanGrpEx' THEN
 
         SELECT
@@ -369,6 +379,7 @@ BEGIN
           AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI';
 
 
+    -- Contrato columnas Get_VanGrpNom: Name
     ELSEIF vTipo = 'Get_VanGrpNom' THEN
 
         SELECT

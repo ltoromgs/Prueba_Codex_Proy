@@ -565,9 +565,12 @@
 
         state.gruposTienda = JSON.parse(data.content || '[]');
 
+        if (state.gruposTienda.length === 0) {
+            mostrarAlerta('No hay grupos activos para la tienda', 'info');
+        }
+
         state.gruposTienda.forEach(g => {
             g.rowKey = rowKeyGrupo(g);
-            if (typeof g.U_MGS_CL_ACTIVO === 'undefined') g.U_MGS_CL_ACTIVO = 'SI';
         });
 
         const tieneCampos = state.gruposTienda.some(g => 'U_MGS_CL_TIPO' in g || 'U_MGS_CL_PORC' in g);
@@ -579,8 +582,6 @@
             if (!g.U_MGS_CL_GRPNOM) {
                 g.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === g.U_MGS_CL_GRPCOD)?.Name || '';
             }
-            if (typeof g.U_MGS_CL_PORC === 'undefined') g.U_MGS_CL_PORC = '';
-            if (typeof g.U_MGS_CL_TIPO === 'undefined') g.U_MGS_CL_TIPO = '';
         });
     };
 
@@ -754,8 +755,6 @@
 
         state.articulosGrupo.forEach(a => {
             a.rowKey = rowKeyArticulo(a);
-            if (typeof a.U_MGS_CL_ACTIVO === 'undefined') a.U_MGS_CL_ACTIVO = 'SI';
-            if (typeof a.U_MGS_CL_GRPCOD === 'undefined') a.U_MGS_CL_GRPCOD = state.grupoActual.U_MGS_CL_GRPCOD;
         });
 
         if (state.articuloSeleccionado) {
@@ -775,10 +774,6 @@
             state.camposTipoPorcDisponibles = false;
         }
 
-        state.articulosGrupo.forEach(a => {
-            if (typeof a.U_MGS_CL_PORC === 'undefined') a.U_MGS_CL_PORC = '';
-            if (typeof a.U_MGS_CL_TIPO === 'undefined') a.U_MGS_CL_TIPO = '';
-        });
     };
 
     const confirmarDesactivarGrupo = async (grupo) => {
