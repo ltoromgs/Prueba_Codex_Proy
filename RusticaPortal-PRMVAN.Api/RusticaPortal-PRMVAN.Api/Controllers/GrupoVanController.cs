@@ -174,6 +174,30 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             return Ok(rp);
         }
 
+        [HttpPost("copiar-tienda")]
+        public async Task<ActionResult<ResponseInformation>> CopiarTienda([FromQuery] string Empresa, [FromBody] CopiarTiendaVanRequest payload)
+        {
+            if (payload == null || string.IsNullOrWhiteSpace(payload.TiendaOrigen) || string.IsNullOrWhiteSpace(payload.TiendaDestino))
+            {
+                return BadRequest(new ResponseInformation { Registered = false, Message = "Debe indicar tienda origen y destino." });
+            }
+
+            if (string.Equals(payload.TiendaOrigen, payload.TiendaDestino, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new ResponseInformation { Registered = false, Message = "No se puede copiar a la misma tienda." });
+            }
+
+            var validacion = await _documentService.ValidaDatos(Empresa);
+            if (!validacion.Registered)
+            {
+                _logger.LogWarning("Validación fallida para empresa {Empresa}", Empresa);
+                return Ok(validacion);
+            }
+
+            var rp = await _documentService.CopiarGrupoVanTienda(Empresa, payload.TiendaOrigen, payload.TiendaDestino);
+            return Ok(rp);
+        }
+
         private ResponseInformation ValidarGrupos(IEnumerable<VanGrupoDetalleDto> items)
         {
             if (items == null || !items.Any())

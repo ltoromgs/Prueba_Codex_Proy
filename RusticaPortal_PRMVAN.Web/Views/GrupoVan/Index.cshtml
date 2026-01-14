@@ -14,6 +14,7 @@
                 <span class="text-secondary">Pendientes</span>
                 <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
             </div>
+            <button id="btnCopiarTienda" class="btn btn-outline-secondary">Copiar a tienda</button>
             <button id="btnActualizarTodo" class="btn btn-primary" disabled>Actualizar todo</button>
         </div>
     </div>
@@ -162,6 +163,36 @@
         </div>
     </div>
 
+    <!-- Modal: copiar configuración -->
+    <div class="modal fade" id="modalCopiarTienda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Copiar configuración a tienda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tienda origen</label>
+                        <select class="form-select" id="selectTiendaOrigen"></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Tienda destino</label>
+                        <select class="form-select" id="selectTiendaDestino"></select>
+                    </div>
+                    <div class="alert alert-warning d-flex align-items-center gap-2 mt-3 mb-0" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <div>Se reemplazará la información en la tienda destino.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnEjecutarCopia">Sí, copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <style>
@@ -182,7 +213,20 @@
 
     #loadingOverlay {
         background: rgba(255,255,255,0.7);
-        z-index: 9999;
+        z-index: 1045;
+    }
+
+    #alertas {
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal {
+        z-index: 1055;
+    }
+
+    .modal-backdrop {
+        z-index: 1050;
     }
 </style>
 
@@ -393,6 +437,18 @@
         renderTiendas();
     };
 
+    const renderTiendasCopiar = () => {
+        const origen = document.getElementById('selectTiendaOrigen');
+        const destino = document.getElementById('selectTiendaDestino');
+        const opciones = ['<option value="">Selecciona...</option>', ...state.tiendas.map(t => `<option value="${t.PrjCode}">${t.PrjCode} - ${t.PrjName}</option>`)];
+        origen.innerHTML = opciones.join('');
+        destino.innerHTML = opciones.join('');
+
+        if (state.tiendaActual?.PrjCode) {
+            origen.value = state.tiendaActual.PrjCode;
+        }
+    };
+
     const renderTiendas = () => {
         const cont = document.getElementById('tiendasLista');
         cont.innerHTML = '';
@@ -448,6 +504,28 @@
         await recargarDatosActuales();
     };
 
+    const abrirModalCopiar = () => {
+        renderTiendasCopiar();
+        const modal = new bootstrap.Modal(document.getElementById('modalCopiarTienda'));
+        modal.show();
+    };
+
+    const setEstadoBotonCopia = (loading) => {
+        const btn = document.getElementById('btnEjecutarCopia');
+        if (!btn) return;
+        if (loading) {
+            btn.disabled = true;
+            btn.dataset.originalText = btn.dataset.originalText || btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sí, copiar';
+        } else {
+            btn.disabled = false;
+            if (btn.dataset.originalText) {
+                btn.innerHTML = btn.dataset.originalText;
+                delete btn.dataset.originalText;
+            }
+        }
+    };
+
     const cambiarTienda = async (tienda) => {
         limpiarAlertas();
         state.tiendaActual = tienda;
@@ -487,9 +565,12 @@
 
         state.gruposTienda = JSON.parse(data.content || '[]');
 
+        if (state.gruposTienda.length === 0) {
+            mostrarAlerta('No hay grupos activos para la tienda', 'info');
+        }
+
         state.gruposTienda.forEach(g => {
             g.rowKey = rowKeyGrupo(g);
-            if (typeof g.U_MGS_CL_ACTIVO === 'undefined') g.U_MGS_CL_ACTIVO = 'SI';
         });
 
         const tieneCampos = state.gruposTienda.some(g => 'U_MGS_CL_TIPO' in g || 'U_MGS_CL_PORC' in g);
@@ -501,8 +582,6 @@
             if (!g.U_MGS_CL_GRPNOM) {
                 g.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === g.U_MGS_CL_GRPCOD)?.Name || '';
             }
-            if (typeof g.U_MGS_CL_PORC === 'undefined') g.U_MGS_CL_PORC = '';
-            if (typeof g.U_MGS_CL_TIPO === 'undefined') g.U_MGS_CL_TIPO = '';
         });
     };
 
@@ -676,8 +755,6 @@
 
         state.articulosGrupo.forEach(a => {
             a.rowKey = rowKeyArticulo(a);
-            if (typeof a.U_MGS_CL_ACTIVO === 'undefined') a.U_MGS_CL_ACTIVO = 'SI';
-            if (typeof a.U_MGS_CL_GRPCOD === 'undefined') a.U_MGS_CL_GRPCOD = state.grupoActual.U_MGS_CL_GRPCOD;
         });
 
         if (state.articuloSeleccionado) {
@@ -697,10 +774,6 @@
             state.camposTipoPorcDisponibles = false;
         }
 
-        state.articulosGrupo.forEach(a => {
-            if (typeof a.U_MGS_CL_PORC === 'undefined') a.U_MGS_CL_PORC = '';
-            if (typeof a.U_MGS_CL_TIPO === 'undefined') a.U_MGS_CL_TIPO = '';
-        });
     };
 
     const confirmarDesactivarGrupo = async (grupo) => {
@@ -1041,12 +1114,74 @@
         }
     };
 
+    const copiarConfiguracion = async () => {
+        const origen = document.getElementById('selectTiendaOrigen').value;
+        const destino = document.getElementById('selectTiendaDestino').value;
+
+        if (!origen || !destino) {
+            mostrarAlerta('Selecciona tienda origen y destino para copiar.');
+            return;
+        }
+
+        if (origen === destino) {
+            mostrarAlerta('La tienda origen y destino deben ser diferentes.');
+            return;
+        }
+
+        setEstadoBotonCopia(true);
+
+        const data = await fetchJson(
+            `/GrupoVan/CopiarTienda`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tiendaOrigen: origen, tiendaDestino: destino }) },
+            'al copiar configuración'
+        );
+
+        if (!data) {
+            setEstadoBotonCopia(false);
+            return;
+        }
+        if (!data.registered) {
+            mostrarAlerta(data.message || 'No se pudo copiar la configuración');
+            setEstadoBotonCopia(false);
+            return;
+        }
+
+        const modalEl = document.getElementById('modalCopiarTienda');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal?.hide();
+
+        const tiendaDestino = state.tiendas.find(t => t.PrjCode === destino);
+        if (tiendaDestino) {
+            await cambiarTienda(tiendaDestino);
+        } else {
+            await cargarTiendas();
+        }
+
+        limpiarPendientes();
+        mostrarAlerta('Se copió la configuración con éxito.', 'success');
+        setEstadoBotonCopia(false);
+    };
+
     document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('buscarTienda').oninput = renderTiendas;
 
         document.getElementById('btnAgregarGrupo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarGrupo(); };
         document.getElementById('btnAgregarArticulo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarArticulo(); };
         document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
+        document.getElementById('btnCopiarTienda').onclick = async () => {
+            if (pendientesTotal() > 0) {
+                const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
+                document.getElementById('btnDescartar').onclick = async () => {
+                    await descartarYRecargar();
+                    modal.hide();
+                    abrirModalCopiar();
+                };
+                modal.show();
+                return;
+            }
+            abrirModalCopiar();
+        };
+        document.getElementById('btnEjecutarCopia').onclick = copiarConfiguracion;
 
         document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
         document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;
