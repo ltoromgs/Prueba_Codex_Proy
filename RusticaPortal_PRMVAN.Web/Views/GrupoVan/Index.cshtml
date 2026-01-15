@@ -184,6 +184,7 @@
                         <i class="bi bi-exclamation-triangle"></i>
                         <div>Se reemplazará la información en la tienda destino.</div>
                     </div>
+                    <div id="copyAlert" class="alert d-none mt-3 mb-0" role="alert"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -504,8 +505,24 @@
         await recargarDatosActuales();
     };
 
+    const showCopyAlert = (message, type = 'warning') => {
+        const alertEl = document.getElementById('copyAlert');
+        if (!alertEl || !message) return;
+        alertEl.className = `alert alert-${type} mt-3 mb-0`;
+        alertEl.textContent = message;
+        alertEl.classList.remove('d-none');
+    };
+
+    const clearCopyAlert = () => {
+        const alertEl = document.getElementById('copyAlert');
+        if (!alertEl) return;
+        alertEl.textContent = '';
+        alertEl.className = 'alert d-none mt-3 mb-0';
+    };
+
     const abrirModalCopiar = () => {
         renderTiendasCopiar();
+        clearCopyAlert();
         const modal = new bootstrap.Modal(document.getElementById('modalCopiarTienda'));
         modal.show();
     };
@@ -1115,51 +1132,76 @@
     };
 
     const copiarConfiguracion = async () => {
+        clearCopyAlert();
         const origen = document.getElementById('selectTiendaOrigen').value;
         const destino = document.getElementById('selectTiendaDestino').value;
 
         if (!origen || !destino) {
-            mostrarAlerta('Selecciona tienda origen y destino para copiar.');
+            showCopyAlert('Selecciona tienda origen y destino para copiar.', 'warning');
             return;
         }
 
         if (origen === destino) {
-            mostrarAlerta('La tienda origen y destino deben ser diferentes.');
+            showCopyAlert('La tienda origen y destino no pueden ser la misma.', 'warning');
             return;
         }
 
         setEstadoBotonCopia(true);
 
-        const data = await fetchJson(
-            `/GrupoVan/CopiarTienda`,
-            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tiendaOrigen: origen, tiendaDestino: destino }) },
-            'al copiar configuración'
-        );
+        try {
+            const resp = await fetch(
+                `/GrupoVan/CopiarTienda`,
+                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tiendaOrigen: origen, tiendaDestino: destino }) }
+            );
 
-        if (!data) {
+            if (!resp.ok) {
+                let message = 'Error al copiar configuración.';
+                try {
+                    const errorData = await resp.json();
+                    message = errorData?.message || message;
+                } catch (err) {
+                    // ignore parsing errors
+                }
+                showCopyAlert(message, 'danger');
+                setEstadoBotonCopia(false);
+                return;
+            }
+
+            const data = await resp.json().catch(() => null);
+            if (!data) {
+                showCopyAlert('Error de conexión al copiar configuración.', 'danger');
+                setEstadoBotonCopia(false);
+                return;
+            }
+            if (!data.registered) {
+                showCopyAlert(data.message || 'No se pudo copiar configuración.', 'warning');
+                setEstadoBotonCopia(false);
+                return;
+            }
+
+            showCopyAlert('Configuración copiada con éxito.', 'success');
+            await new Promise(resolve => setTimeout(resolve, 700));
+
+            const modalEl = document.getElementById('modalCopiarTienda');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal?.hide();
+
+            const tiendaDestino = state.tiendas.find(t => t.PrjCode === destino);
+            if (tiendaDestino) {
+                await cambiarTienda(tiendaDestino);
+            } else {
+                await cargarTiendas();
+            }
+
+            limpiarPendientes();
+            document.getElementById('selectTiendaOrigen').value = '';
+            document.getElementById('selectTiendaDestino').value = '';
+            clearCopyAlert();
+        } catch (err) {
+            showCopyAlert('Error de conexión al copiar configuración.', 'danger');
+        } finally {
             setEstadoBotonCopia(false);
-            return;
         }
-        if (!data.registered) {
-            mostrarAlerta(data.message || 'No se pudo copiar la configuración');
-            setEstadoBotonCopia(false);
-            return;
-        }
-
-        const modalEl = document.getElementById('modalCopiarTienda');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal?.hide();
-
-        const tiendaDestino = state.tiendas.find(t => t.PrjCode === destino);
-        if (tiendaDestino) {
-            await cambiarTienda(tiendaDestino);
-        } else {
-            await cargarTiendas();
-        }
-
-        limpiarPendientes();
-        mostrarAlerta('Se copió la configuración con éxito.', 'success');
-        setEstadoBotonCopia(false);
     };
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1182,6 +1224,9 @@
             abrirModalCopiar();
         };
         document.getElementById('btnEjecutarCopia').onclick = copiarConfiguracion;
+        const modalCopiarEl = document.getElementById('modalCopiarTienda');
+        modalCopiarEl.addEventListener('show.bs.modal', clearCopyAlert);
+        modalCopiarEl.addEventListener('hidden.bs.modal', clearCopyAlert);
 
         document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
         document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;

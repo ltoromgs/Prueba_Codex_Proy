@@ -2728,12 +2728,12 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     .Select(g => g.First())
                     .ToList();
 
-                if (!gruposOrigenActivos.Any() || !articulosOrigenUnicos.Any())
+                if (!gruposOrigenActivos.Any())
                 {
                     return new ResponseInformation
                     {
                         Registered = false,
-                        Message = "La tienda origen no tiene configuración activa para copiar.",
+                        Message = "Origen no tiene grupos activos para copiar.",
                         Content = string.Empty
                     };
                 }
@@ -2925,36 +2925,39 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     }
                 }
 
-                var updateArticulosReq = new
+                if (articulosUpdate.Any())
                 {
-                    MGS_CL_VANTIADCollection = articulosUpdate.Values.Select(a => new
+                    var updateArticulosReq = new
                     {
-                        LineId = a.LineId > 0 ? a.LineId : (int?)null,
-                        a.U_MGS_CL_GRPCOD,
-                        a.U_MGS_CL_ITEMCOD,
-                        a.U_MGS_CL_ITEMNAM,
-                        a.U_MGS_CL_TIPO,
-                        U_MGS_CL_PORC = a.U_MGS_CL_PORC ?? 100,
-                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(a.U_MGS_CL_ACTIVO) ? "NO" : a.U_MGS_CL_ACTIVO
-                    })
-                };
-
-                var requestArticulos = new RequestInformation
-                {
-                    Route = $"MGS_CL_VANTCAB({docEntryDestino.Value})",
-                    Token = login.Token,
-                    Doc = JsonConvert.SerializeObject(updateArticulosReq, settings)
-                };
-
-                var respArticulos = await UpdateInfo(requestArticulos, "PYP", login.Cfg);
-                if (!respArticulos.Registered)
-                {
-                    return new ResponseInformation
-                    {
-                        Registered = false,
-                        Message = $"Error al copiar artículos. {respArticulos.Message}",
-                        Content = respArticulos.Content
+                        MGS_CL_VANTIADCollection = articulosUpdate.Values.Select(a => new
+                        {
+                            LineId = a.LineId > 0 ? a.LineId : (int?)null,
+                            a.U_MGS_CL_GRPCOD,
+                            a.U_MGS_CL_ITEMCOD,
+                            a.U_MGS_CL_ITEMNAM,
+                            a.U_MGS_CL_TIPO,
+                            U_MGS_CL_PORC = a.U_MGS_CL_PORC ?? 100,
+                            U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(a.U_MGS_CL_ACTIVO) ? "NO" : a.U_MGS_CL_ACTIVO
+                        })
                     };
+
+                    var requestArticulos = new RequestInformation
+                    {
+                        Route = $"MGS_CL_VANTCAB({docEntryDestino.Value})",
+                        Token = login.Token,
+                        Doc = JsonConvert.SerializeObject(updateArticulosReq, settings)
+                    };
+
+                    var respArticulos = await UpdateInfo(requestArticulos, "PYP", login.Cfg);
+                    if (!respArticulos.Registered)
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = $"Error al copiar artículos. {respArticulos.Message}",
+                            Content = respArticulos.Content
+                        };
+                    }
                 }
 
                 return new ResponseInformation
