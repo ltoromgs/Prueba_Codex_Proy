@@ -2,6 +2,7 @@
 using RusticaPortal_PRMVAN.Api.Entities.Information;
 using RusticaPortal_PRMVAN.Api.Entities.ObjectSAP;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan;
+using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -39,5 +40,15 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetGrupoVanArticuloAsignacion(string empresa, string tiendaCodigo, string itemCode, string grupoCodigo);
         Task<ResponseInformation> SetGrupoVanPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<VanGrupoDetalleDto> items);
         Task<ResponseInformation> SetGrupoVanArticulosBulk(string empresa, string tiendaCodigo, string grupoCodigo, IEnumerable<VanArticuloDetalleDto> items);
+        Task<ResponseInformation> GetGrupoPrmTiendas(string empresa);
+        Task<ResponseInformation> GetGrupoPrmMaestro(string empresa);
+        Task<ResponseInformation> GetGrupoPrmTiposGasto(string empresa);
+        Task<ResponseInformation> GetGrupoPrmMotivosGasto(string empresa);
+        Task<ResponseInformation> GetGrupoPrmItemsMaestro(string empresa, string search);
+        Task<ResponseInformation> GetGrupoPrmPorTienda(string empresa, string tiendaCodigo);
+        Task<ResponseInformation> GetGrupoPrmArticulos(string empresa, string tiendaCodigo, string grupoCodigo);
+        Task<ResponseInformation> SetGrupoPrmPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<PrmGrupoDetalleDto> items);
+        Task<ResponseInformation> SetGrupoPrmArticulosBulk(string empresa, string tiendaCodigo, string grupoCodigo, IEnumerable<PrmArticuloDetalleDto> items);
+        Task<ResponseInformation> CopiarGrupoPrmTienda(string empresa, string tiendaOrigen, string tiendaDestino);
     }
 }

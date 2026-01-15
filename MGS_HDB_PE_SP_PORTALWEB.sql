@@ -376,6 +376,162 @@ BEGIN
         FROM "@MGS_CL_VANGRP"
         WHERE "Code" = :vParam1;
 
+    ELSEIF vTipo = 'Get_PrmTienda' THEN
+
+        SELECT
+            "PrjCode" AS "PrjCode",
+            "PrjName" AS "PrjName"
+        FROM "OPRJ"
+        WHERE "Active" = 'Y'
+        ORDER BY "PrjCode";
+
+    ELSEIF vTipo = 'Get_PrmGrupoM' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "@MGS_CL_PRMGRP"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+    ELSEIF vTipo = 'Get_PrmTipGas' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "TIENDAS_PASTIPIQUEOS"."MGS_CL_TIPMOP"
+        ORDER BY "Code";
+
+    ELSEIF vTipo = 'Get_PrmTipMop' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "TIENDAS_PASTIPIQUEOS"."MGS_CL_TIPMOP"
+        ORDER BY "Code";
+
+    ELSEIF vTipo = 'Get_PrmItemM' THEN
+
+        SELECT
+            "ItemCode" AS "ItemCode",
+            "ItemName" AS "ItemName"
+        FROM "OITM"
+        WHERE "InvntItem" = 'Y'
+          AND (
+                :vParam1 = ''
+             OR UPPER("ItemCode") LIKE '%' || UPPER(:vParam1) || '%'
+             OR UPPER("ItemName") LIKE '%' || UPPER(:vParam1) || '%'
+          )
+        ORDER BY "ItemCode";
+
+    ELSEIF vTipo = 'Get_PrmTdaGrp' THEN
+
+        SELECT
+            D."DocEntry" AS "DocEntry",
+            D."LineId" AS "LineId",
+            D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
+            CASE
+                WHEN IFNULL(D."U_MGS_CL_GRPNOM", '') = '' THEN G."Name"
+                ELSE D."U_MGS_CL_GRPNOM"
+            END AS "U_MGS_CL_GRPNOM",
+            IFNULL(D."MGS_CL_TIPGAS", '') AS "MGS_CL_TIPGAS",
+            IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_PRMTCAB" H
+        JOIN "@MGS_CL_PRMTDET" D ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "@MGS_CL_PRMGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
+        ORDER BY D."LineId";
+
+    ELSEIF vTipo = 'Get_PrmGrpArt' THEN
+
+        SELECT
+            D."DocEntry" AS "DocEntry",
+            D."LineId" AS "LineId",
+            D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
+            D."U_MGS_CL_ITEMCOD" AS "U_MGS_CL_ITEMCOD",
+            CASE
+                WHEN IFNULL(D."U_MGS_CL_ITEMNAM", '') = '' THEN O."ItemName"
+                ELSE D."U_MGS_CL_ITEMNAM"
+            END AS "U_MGS_CL_ITEMNAM",
+            IFNULL(D."MGS_CL_TIPGAS", '') AS "MGS_CL_TIPGAS",
+            IFNULL(D."MGS_CL_TIPMOP", '') AS "MGS_CL_TIPMOP",
+            IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_PRMTIAD" D
+        INNER JOIN "@MGS_CL_PRMTCAB" H ON D."DocEntry" = H."DocEntry"
+        LEFT JOIN "OITM" O ON O."ItemCode" = D."U_MGS_CL_ITEMCOD"
+        WHERE D."DocEntry" = :vParam1
+          AND D."U_MGS_CL_GRPCOD" = :vParam2
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
+        ORDER BY D."LineId";
+
+    ELSEIF vTipo = 'Get_PrmCab' THEN
+
+        SELECT
+            "DocEntry" AS "DocEntry"
+        FROM "@MGS_CL_PRMTCAB"
+        WHERE "U_MGS_CL_TIENDA" = :vParam1;
+
+    ELSEIF vTipo = 'Get_PrmGrpDet' THEN
+
+        SELECT
+            D."LineId" AS "LineId",
+            IFNULL(D."U_MGS_CL_ACTIVO",'NO') AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_PRMTCAB" H
+        JOIN "@MGS_CL_PRMTDET" D ON D."DocEntry" = H."DocEntry"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND D."U_MGS_CL_GRPCOD" = :vParam2
+        ORDER BY D."LineId"
+        LIMIT 1;
+
+    ELSEIF vTipo = 'Get_PrmGrpEx' THEN
+
+        SELECT
+            COUNT(1) AS "Total"
+        FROM "@MGS_CL_PRMTCAB" H
+        JOIN "@MGS_CL_PRMTDET" D ON D."DocEntry" = H."DocEntry"
+        WHERE H."U_MGS_CL_TIENDA" = :vParam1
+          AND D."U_MGS_CL_GRPCOD" = :vParam2
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI';
+
+    ELSEIF vTipo = 'Get_PrmGrpNom' THEN
+
+        SELECT
+            "Name" AS "Name"
+        FROM "@MGS_CL_PRMGRP"
+        WHERE "Code" = :vParam1;
+
+    ELSEIF vTipo = 'Get_PrmItemTienda' THEN
+
+        SELECT
+            D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
+            CASE
+                WHEN IFNULL(G."U_MGS_CL_GRPNOM", '') = '' THEN M."Name"
+                ELSE G."U_MGS_CL_GRPNOM"
+            END AS "U_MGS_CL_GRPNOM"
+        FROM "@MGS_CL_PRMTIAD" D
+        LEFT JOIN "@MGS_CL_PRMTDET" G
+            ON G."DocEntry" = D."DocEntry"
+           AND G."U_MGS_CL_GRPCOD" = D."U_MGS_CL_GRPCOD"
+        LEFT JOIN "@MGS_CL_PRMGRP" M ON M."Code" = D."U_MGS_CL_GRPCOD"
+        WHERE D."DocEntry" = :vParam1
+          AND D."U_MGS_CL_ITEMCOD" = :vParam2
+          AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI'
+          AND (:vParam3 = '' OR D."U_MGS_CL_GRPCOD" <> :vParam3)
+        LIMIT 1;
+
+    ELSEIF vTipo = 'Get_PrmArtDet' THEN
+
+        SELECT
+            D."LineId" AS "LineId",
+            IFNULL(D."U_MGS_CL_ACTIVO",'NO') AS "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_PRMTIAD" D
+        WHERE D."DocEntry" = :vParam1
+          AND D."U_MGS_CL_ITEMCOD" = :vParam2
+          AND D."U_MGS_CL_GRPCOD" = :vParam3
+        ORDER BY D."LineId"
+        LIMIT 1;
+
 
    /* ELSEIF vTipo = 'Get_ClienteMon' THEN
 
