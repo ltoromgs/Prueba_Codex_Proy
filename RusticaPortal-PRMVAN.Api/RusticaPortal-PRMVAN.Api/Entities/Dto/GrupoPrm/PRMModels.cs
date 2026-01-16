@@ -32,7 +32,7 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm
         public int LineId { get; set; }
         public string U_MGS_CL_GRPCOD { get; set; }
         public string U_MGS_CL_GRPNOM { get; set; }
-        public string MGS_CL_TIPGAS { get; set; }
+        public string U_MGS_CL_TIPGAS { get; set; }
         public string U_MGS_CL_ACTIVO { get; set; }
     }
 
@@ -43,8 +43,8 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm
         public string U_MGS_CL_GRPCOD { get; set; }
         public string U_MGS_CL_ITEMCOD { get; set; }
         public string U_MGS_CL_ITEMNAM { get; set; }
-        public string MGS_CL_TIPGAS { get; set; }
-        public string MGS_CL_TIPMOP { get; set; }
+        public string U_MGS_CL_TIPGAS { get; set; }
+        public string U_MGS_CL_TIPMOP { get; set; }
         public string U_MGS_CL_ACTIVO { get; set; }
     }
 

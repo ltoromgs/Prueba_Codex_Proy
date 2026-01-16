@@ -434,7 +434,7 @@ BEGIN
                 WHEN IFNULL(D."U_MGS_CL_GRPNOM", '') = '' THEN G."Name"
                 ELSE D."U_MGS_CL_GRPNOM"
             END AS "U_MGS_CL_GRPNOM",
-            IFNULL(D."MGS_CL_TIPGAS", '') AS "MGS_CL_TIPGAS",
+            IFNULL(D."U_MGS_CL_TIPGAS", '') AS "U_MGS_CL_TIPGAS",
             IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"
         FROM "@MGS_CL_PRMTCAB" H
         JOIN "@MGS_CL_PRMTDET" D ON D."DocEntry" = H."DocEntry"
@@ -454,8 +454,8 @@ BEGIN
                 WHEN IFNULL(D."U_MGS_CL_ITEMNAM", '') = '' THEN O."ItemName"
                 ELSE D."U_MGS_CL_ITEMNAM"
             END AS "U_MGS_CL_ITEMNAM",
-            IFNULL(D."MGS_CL_TIPGAS", '') AS "MGS_CL_TIPGAS",
-            IFNULL(D."MGS_CL_TIPMOP", '') AS "MGS_CL_TIPMOP",
+            IFNULL(D."U_MGS_CL_TIPGAS", '') AS "U_MGS_CL_TIPGAS",
+            IFNULL(D."U_MGS_CL_TIPMOP", '') AS "U_MGS_CL_TIPMOP",
             IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"
         FROM "@MGS_CL_PRMTIAD" D
         INNER JOIN "@MGS_CL_PRMTCAB" H ON D."DocEntry" = H."DocEntry"

@@ -569,7 +569,7 @@
             if (!g.U_MGS_CL_GRPNOM) {
                 g.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === g.U_MGS_CL_GRPCOD)?.Name || '';
             }
-            if (typeof g.MGS_CL_TIPGAS === 'undefined') g.MGS_CL_TIPGAS = '';
+            if (typeof g.U_MGS_CL_TIPGAS === 'undefined') g.U_MGS_CL_TIPGAS = '';
         });
     };
 
@@ -600,11 +600,11 @@
             const selTipo = document.createElement('select');
             selTipo.className = 'form-select form-select-sm';
             selTipo.innerHTML = ['<option value="">Tipo gasto</option>', ...state.tiposGasto.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
-            selTipo.value = g.MGS_CL_TIPGAS || '';
+            selTipo.value = g.U_MGS_CL_TIPGAS || '';
             silenciarPropagacion(selTipo);
             selTipo.onchange = (e) => {
                 e.stopPropagation();
-                g.MGS_CL_TIPGAS = e.target.value;
+                g.U_MGS_CL_TIPGAS = e.target.value;
                 g.U_MGS_CL_ACTIVO = 'SI';
 
                 marcarPendiente('grupos', g.rowKey);
@@ -729,8 +729,8 @@
         }
 
         state.articulosGrupo.forEach(a => {
-            if (typeof a.MGS_CL_TIPGAS === 'undefined') a.MGS_CL_TIPGAS = '';
-            if (typeof a.MGS_CL_TIPMOP === 'undefined') a.MGS_CL_TIPMOP = '';
+            if (typeof a.U_MGS_CL_TIPGAS === 'undefined') a.U_MGS_CL_TIPGAS = '';
+            if (typeof a.U_MGS_CL_TIPMOP === 'undefined') a.U_MGS_CL_TIPMOP = '';
         });
     };
 
@@ -787,12 +787,12 @@
             const selTipo = document.createElement('select');
             selTipo.className = 'form-select form-select-sm';
             selTipo.innerHTML = ['<option value="">Tipo gasto</option>', ...state.tiposGasto.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
-            selTipo.value = a.MGS_CL_TIPGAS || '';
+            selTipo.value = a.U_MGS_CL_TIPGAS || '';
             silenciarPropagacion(selTipo);
             selTipo.onchange = (e) => {
                 e.stopPropagation();
 
-                a.MGS_CL_TIPGAS = e.target.value;
+                a.U_MGS_CL_TIPGAS = e.target.value;
                 a.U_MGS_CL_ACTIVO = 'SI';
 
                 marcarPendiente('articulos', a.rowKey);
@@ -804,11 +804,11 @@
             const selMotivo = document.createElement('select');
             selMotivo.className = 'form-select form-select-sm';
             selMotivo.innerHTML = ['<option value="">Motivo gasto</option>', ...state.motivosGasto.map(t => `<option value="${t.Code}">${t.Name}</option>`)].join('');
-            selMotivo.value = a.MGS_CL_TIPMOP || '';
+            selMotivo.value = a.U_MGS_CL_TIPMOP || '';
             silenciarPropagacion(selMotivo);
             selMotivo.onchange = (e) => {
                 e.stopPropagation();
-                a.MGS_CL_TIPMOP = e.target.value;
+                a.U_MGS_CL_TIPMOP = e.target.value;
                 a.U_MGS_CL_ACTIVO = 'SI';
                 marcarPendiente('articulos', a.rowKey);
                 tr.classList.add('fila-pendiente');
@@ -876,7 +876,7 @@
             LineId: siguienteLineId(state.gruposTienda),
             U_MGS_CL_GRPCOD: grp.Code,
             U_MGS_CL_GRPNOM: grp.Name,
-            MGS_CL_TIPGAS: tipoSel,
+            U_MGS_CL_TIPGAS: tipoSel,
             U_MGS_CL_ACTIVO: 'SI'
         };
 
@@ -918,8 +918,8 @@
             U_MGS_CL_GRPCOD: state.grupoActual.U_MGS_CL_GRPCOD,
             U_MGS_CL_ITEMCOD: codigo,
             U_MGS_CL_ITEMNAM: nombre,
-            MGS_CL_TIPGAS: tipoSel,
-            MGS_CL_TIPMOP: motivoSel,
+            U_MGS_CL_TIPGAS: tipoSel,
+            U_MGS_CL_TIPMOP: motivoSel,
             U_MGS_CL_ACTIVO: 'SI'
         };
 
@@ -949,7 +949,7 @@
                     LineId: g.LineId,
                     U_MGS_CL_GRPCOD: g.U_MGS_CL_GRPCOD,
                     U_MGS_CL_GRPNOM: g.U_MGS_CL_GRPNOM,
-                    MGS_CL_TIPGAS: g.MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPGAS: g.U_MGS_CL_TIPGAS,
                     U_MGS_CL_ACTIVO: g.U_MGS_CL_ACTIVO ?? 'SI'
                 }))
         };
@@ -963,8 +963,8 @@
                     U_MGS_CL_GRPCOD: a.U_MGS_CL_GRPCOD,
                     U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
                     U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
-                    MGS_CL_TIPGAS: a.MGS_CL_TIPGAS,
-                    MGS_CL_TIPMOP: a.MGS_CL_TIPMOP,
+                    U_MGS_CL_TIPGAS: a.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPMOP: a.U_MGS_CL_TIPMOP,
                     U_MGS_CL_ACTIVO: a.U_MGS_CL_ACTIVO ?? 'SI'
                 }))
         };
@@ -973,11 +973,11 @@
         let okGrupos = true;
         let okArticulos = true;
 
-        if (payloadGrupos.items.some(g => !g.MGS_CL_TIPGAS)) {
+        if (payloadGrupos.items.some(g => !g.U_MGS_CL_TIPGAS)) {
             mostrarAlerta('Selecciona un tipo de gasto válido para los grupos');
             return;
         }
-        if (payloadArts.items.some(a => !a.MGS_CL_TIPGAS || !a.MGS_CL_TIPMOP)) {
+        if (payloadArts.items.some(a => !a.U_MGS_CL_TIPGAS || !a.U_MGS_CL_TIPMOP)) {
             mostrarAlerta('Selecciona un tipo y motivo de gasto válido para los artículos');
             return;
         }

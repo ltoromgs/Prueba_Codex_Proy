@@ -3007,7 +3007,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
                         U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
                         U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
-                        MGS_CL_TIPGAS = reader["MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
                         U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
                     });
                 }
@@ -3081,8 +3081,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
                         U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
                         U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
-                        MGS_CL_TIPGAS = reader["MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
-                        MGS_CL_TIPMOP = reader["MGS_CL_TIPMOP"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPMOP = reader["U_MGS_CL_TIPMOP"]?.ToString() ?? string.Empty,
                         U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
                     });
                 }
@@ -3178,7 +3178,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         i.LineId,
                         i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_GRPNOM,
-                        i.MGS_CL_TIPGAS,
+                        i.U_MGS_CL_TIPGAS,
                         U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
@@ -3232,8 +3232,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                                 a.U_MGS_CL_GRPCOD,
                                 a.U_MGS_CL_ITEMCOD,
                                 a.U_MGS_CL_ITEMNAM,
-                                a.MGS_CL_TIPGAS,
-                                a.MGS_CL_TIPMOP,
+                                a.U_MGS_CL_TIPGAS,
+                                a.U_MGS_CL_TIPMOP,
                                 U_MGS_CL_ACTIVO = "NO"
                             })
                         };
@@ -3266,7 +3266,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     {
                         i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_GRPNOM,
-                        i.MGS_CL_TIPGAS,
+                        i.U_MGS_CL_TIPGAS,
                         U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
@@ -3363,7 +3363,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         {
                             U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
                             U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
-                            MGS_CL_TIPGAS = itemBase?.MGS_CL_TIPGAS ?? string.Empty,
+                            U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
                             U_MGS_CL_ACTIVO = "SI"
                         }
                     },
@@ -3372,8 +3372,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         i.U_MGS_CL_GRPCOD,
                         i.U_MGS_CL_ITEMCOD,
                         i.U_MGS_CL_ITEMNAM,
-                        i.MGS_CL_TIPGAS,
-                        i.MGS_CL_TIPMOP,
+                        i.U_MGS_CL_TIPGAS,
+                        i.U_MGS_CL_TIPMOP,
                         U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                     })
                 };
@@ -3401,7 +3401,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         {
                             U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
                             U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
-                            MGS_CL_TIPGAS = itemBase?.MGS_CL_TIPGAS ?? string.Empty,
+                            U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
                             U_MGS_CL_ACTIVO = "SI"
                         }
                     }
@@ -3429,8 +3429,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     i.U_MGS_CL_GRPCOD,
                     i.U_MGS_CL_ITEMCOD,
                     i.U_MGS_CL_ITEMNAM,
-                    i.MGS_CL_TIPGAS,
-                    i.MGS_CL_TIPMOP,
+                    i.U_MGS_CL_TIPGAS,
+                    i.U_MGS_CL_TIPMOP,
                     U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
                 })
             };
@@ -3513,7 +3513,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                             g.LineId,
                             g.U_MGS_CL_GRPCOD,
                             g.U_MGS_CL_GRPNOM,
-                            g.MGS_CL_TIPGAS,
+                            g.U_MGS_CL_TIPGAS,
                             U_MGS_CL_ACTIVO = "NO"
                         }));
                     }
@@ -3526,8 +3526,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                             a.U_MGS_CL_GRPCOD,
                             a.U_MGS_CL_ITEMCOD,
                             a.U_MGS_CL_ITEMNAM,
-                            a.MGS_CL_TIPGAS,
-                            a.MGS_CL_TIPMOP,
+                            a.U_MGS_CL_TIPGAS,
+                            a.U_MGS_CL_TIPMOP,
                             U_MGS_CL_ACTIVO = "NO"
                         }));
                     }
@@ -3555,7 +3555,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     LineId = 0,
                     U_MGS_CL_GRPCOD = grupo.U_MGS_CL_GRPCOD,
                     U_MGS_CL_GRPNOM = grupo.U_MGS_CL_GRPNOM,
-                    MGS_CL_TIPGAS = grupo.MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPGAS = grupo.U_MGS_CL_TIPGAS,
                     U_MGS_CL_ACTIVO = "SI"
                 };
 
@@ -3580,8 +3580,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     U_MGS_CL_GRPCOD = art.U_MGS_CL_GRPCOD,
                     U_MGS_CL_ITEMCOD = art.U_MGS_CL_ITEMCOD,
                     U_MGS_CL_ITEMNAM = art.U_MGS_CL_ITEMNAM,
-                    MGS_CL_TIPGAS = art.MGS_CL_TIPGAS,
-                    MGS_CL_TIPMOP = art.MGS_CL_TIPMOP,
+                    U_MGS_CL_TIPGAS = art.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPMOP = art.U_MGS_CL_TIPMOP,
                     U_MGS_CL_ACTIVO = "SI"
                 };
 
@@ -3607,7 +3607,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         g.LineId,
                         g.U_MGS_CL_GRPCOD,
                         g.U_MGS_CL_GRPNOM,
-                        g.MGS_CL_TIPGAS,
+                        g.U_MGS_CL_TIPGAS,
                         U_MGS_CL_ACTIVO = "SI"
                     }));
                 }
@@ -3620,8 +3620,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         a.U_MGS_CL_GRPCOD,
                         a.U_MGS_CL_ITEMCOD,
                         a.U_MGS_CL_ITEMNAM,
-                        a.MGS_CL_TIPGAS,
-                        a.MGS_CL_TIPMOP,
+                        a.U_MGS_CL_TIPGAS,
+                        a.U_MGS_CL_TIPMOP,
                         U_MGS_CL_ACTIVO = "SI"
                     }));
                 }
@@ -3645,7 +3645,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     g.U_MGS_CL_GRPCOD,
                     g.U_MGS_CL_GRPNOM,
-                    g.MGS_CL_TIPGAS,
+                    g.U_MGS_CL_TIPGAS,
                     U_MGS_CL_ACTIVO = "SI"
                 }))
             };
@@ -3657,8 +3657,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     a.U_MGS_CL_GRPCOD,
                     a.U_MGS_CL_ITEMCOD,
                     a.U_MGS_CL_ITEMNAM,
-                    a.MGS_CL_TIPGAS,
-                    a.MGS_CL_TIPMOP,
+                    a.U_MGS_CL_TIPGAS,
+                    a.U_MGS_CL_TIPMOP,
                     U_MGS_CL_ACTIVO = "SI"
                 }));
             }
@@ -3784,8 +3784,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
                     U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
                     U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
-                    MGS_CL_TIPGAS = reader["MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
-                    MGS_CL_TIPMOP = reader["MGS_CL_TIPMOP"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPMOP = reader["U_MGS_CL_TIPMOP"]?.ToString() ?? string.Empty,
                     U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
                 });
             }
@@ -3859,7 +3859,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
                     U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
                     U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
-                    MGS_CL_TIPGAS = reader["MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
                     U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
                 });
             }

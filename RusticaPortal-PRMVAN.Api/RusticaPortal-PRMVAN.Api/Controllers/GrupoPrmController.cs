@@ -192,7 +192,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 {
                     item.U_MGS_CL_ACTIVO = "SI";
                 }
-                if (string.IsNullOrWhiteSpace(item.MGS_CL_TIPGAS))
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPGAS))
                 {
                     return new ResponseInformation { Registered = false, Message = "El tipo de gasto es obligatorio para cada grupo PRM" };
                 }
@@ -224,7 +224,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 {
                     item.U_MGS_CL_ACTIVO = "SI";
                 }
-                if (string.IsNullOrWhiteSpace(item.MGS_CL_TIPGAS) || string.IsNullOrWhiteSpace(item.MGS_CL_TIPMOP))
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPGAS) || string.IsNullOrWhiteSpace(item.U_MGS_CL_TIPMOP))
                 {
                     return new ResponseInformation { Registered = false, Message = "El tipo y motivo de gasto son obligatorios para cada artículo PRM" };
                 }
