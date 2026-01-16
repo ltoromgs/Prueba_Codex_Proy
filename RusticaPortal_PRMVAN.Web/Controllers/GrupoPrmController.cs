@@ -164,7 +164,11 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             if (string.IsNullOrWhiteSpace(tienda))
                 return BadRequest(new { message = "Tienda requerida." });
 
-            payload ??= new GrupoPrmGuardarRequest();
+            if (payload == null)
+                return BadRequest(new { message = "No se recibió información para guardar." });
+
+            payload.Grupos ??= new List<GrupoPrmDto>();
+            payload.Articulos ??= new List<PrmArticuloDto>();
 
             if (payload.Grupos.Count == 0 && payload.Articulos.Count == 0)
                 return BadRequest(new { message = "No se recibieron cambios para guardar." });
@@ -178,7 +182,11 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
                     ["empresa"] = emp
                 });
 
-                resp = await _apiService.PostAsync<ResponseInformation>(endpoint, new { items = payload.Grupos });
+                var bulkRequest = new GrupoPrmBulkRequest { Items = payload.Grupos };
+                if (bulkRequest.Items.Count == 0)
+                    return BadRequest(new { message = "No se recibieron grupos para guardar." });
+
+                resp = await _apiService.PostAsync<ResponseInformation>(endpoint, bulkRequest);
                 if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
                 if (!resp.Registered) return BadRequest(resp);
             }
@@ -193,7 +201,11 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
                     ["empresa"] = emp
                 });
 
-                resp = await _apiService.PostAsync<ResponseInformation>(endpoint, new { items = payload.Articulos });
+                var bulkRequest = new PrmArticuloBulkRequest { Items = payload.Articulos };
+                if (bulkRequest.Items.Count == 0)
+                    return BadRequest(new { message = "No se recibieron artículos para guardar." });
+
+                resp = await _apiService.PostAsync<ResponseInformation>(endpoint, bulkRequest);
                 if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
                 if (!resp.Registered) return BadRequest(resp);
             }
