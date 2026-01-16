@@ -55,13 +55,13 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> MotivosGasto()
+        public async Task<IActionResult> Motivos()
         {
             var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(emp))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
-            var endpoint = QueryHelpers.AddQueryString("/api/grupoprm/motivos-gasto", new Dictionary<string, string?>
+            var endpoint = QueryHelpers.AddQueryString("/api/grupoprm/motivos", new Dictionary<string, string?>
             {
                 ["empresa"] = emp
             });

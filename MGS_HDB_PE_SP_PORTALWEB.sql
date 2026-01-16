@@ -407,7 +407,8 @@ BEGIN
         SELECT
             "Code" AS "Code",
             "Name" AS "Name"
-        FROM "TIENDAS_PASTIPIQUEOS"."MGS_CL_TIPMOP"
+        FROM "@MGS_CL_TIPMOP"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
         ORDER BY "Code";
 
     ELSEIF vTipo = 'Get_PrmItemM' THEN

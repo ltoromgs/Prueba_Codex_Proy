@@ -50,8 +50,8 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             return Ok(rp);
         }
 
-        [HttpGet("motivos-gasto")]
-        public async Task<ActionResult<ResponseInformation>> GetMotivosGasto([FromQuery] string Empresa)
+        [HttpGet("motivos")]
+        public async Task<ActionResult<ResponseInformation>> GetMotivos([FromQuery] string Empresa)
         {
             var validacion = await _documentService.ValidaDatos(Empresa);
             if (!validacion.Registered)

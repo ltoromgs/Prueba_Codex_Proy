@@ -1040,7 +1040,7 @@
         state.tiposGasto = JSON.parse(dataTipos.content || '[]');
         llenarComboTiposGasto();
 
-        const dataMotivos = await fetchJson(`/GrupoPrm/MotivosGasto`, {}, 'al cargar motivos de gasto');
+        const dataMotivos = await fetchJson(`/GrupoPrm/Motivos`, {}, 'al cargar motivos de gasto');
         if (!dataMotivos) return;
         if (!dataMotivos.registered) { mostrarAlerta(dataMotivos.message || 'No se pudieron cargar los motivos de gasto'); return; }
         state.motivosGasto = JSON.parse(dataMotivos.content || '[]');
