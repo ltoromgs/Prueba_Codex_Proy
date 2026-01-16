@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using RusticaPortal_PRMVAN.Api.Entities.Dto;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan;
+using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm;
 using System.Globalization;
 
 namespace RusticaPortal_PRMVAN.Api.Services
@@ -2728,6 +2729,1141 @@ namespace RusticaPortal_PRMVAN.Api.Services
             };
 
             return await UpdateInfo(requestInformationFinal, "PYP", login.Cfg);
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmTiendas(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tiendas = new List<PrmTiendaDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmTienda";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tiendas.Add(new PrmTiendaDto
+                    {
+                        PrjCode = reader[nameof(PrmTiendaDto.PrjCode)]?.ToString() ?? string.Empty,
+                        PrjName = reader[nameof(PrmTiendaDto.PrjName)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tiendas)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar tiendas PRM.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmMaestro(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var grupos = new List<PrmGrupoMaestroDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmGrupoM";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    grupos.Add(new PrmGrupoMaestroDto
+                    {
+                        Code = reader[nameof(PrmGrupoMaestroDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(PrmGrupoMaestroDto.Name)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(grupos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar maestro de grupos PRM.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmTiposGasto(string empresa)
+        {
+            return await GetGrupoPrmCatalogo(empresa, "Get_PrmTipGas");
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmMotivosGasto(string empresa)
+        {
+            return await GetGrupoPrmCatalogo(empresa, "Get_PrmTipMop");
+        }
+
+        private async Task<ResponseInformation> GetGrupoPrmCatalogo(string empresa, string tipo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tipos = new List<PrmTipoDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = tipo;
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tipos.Add(new PrmTipoDto
+                    {
+                        Code = reader[nameof(PrmTipoDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(PrmTipoDto.Name)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tipos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar catálogo PRM.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmItemsMaestro(string empresa, string search)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var items = new List<PrmItemMaestroDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmItemM";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = search ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    items.Add(new PrmItemMaestroDto
+                    {
+                        ItemCode = reader["ItemCode"]?.ToString() ?? string.Empty,
+                        ItemName = reader["ItemName"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(items)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmPorTienda(string empresa, string tiendaCodigo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var grupos = new List<PrmGrupoDetalleDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmTdaGrp";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    grupos.Add(new PrmGrupoDetalleDto
+                    {
+                        DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                        LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                        U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(grupos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoPrmArticulos(string empresa, string tiendaCodigo, string grupoCodigo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var articulos = new List<PrmArticuloDetalleDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                var docEntry = await ObtenerDocEntryPrmCab(cfg, tiendaCodigo);
+                if (!docEntry.HasValue)
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = true,
+                        Message = string.Empty,
+                        Content = JsonConvert.SerializeObject(articulos)
+                    };
+                }
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmGrpArt";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry.Value.ToString();
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    articulos.Add(new PrmArticuloDetalleDto
+                    {
+                        DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                        LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                        U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPMOP = reader["U_MGS_CL_TIPMOP"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(articulos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> SetGrupoPrmPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<PrmGrupoDetalleDto> items)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            var lista = (items ?? Enumerable.Empty<PrmGrupoDetalleDto>()).ToList();
+            if (!lista.Any())
+            {
+                return new ResponseInformation { Registered = false, Message = "No se recibieron grupos para actualizar.", Content = string.Empty };
+            }
+
+            foreach (var item in lista)
+            {
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
+            }
+
+            var existingDocEntry = await ObtenerDocEntryPrmCab(login.Cfg, tiendaCodigo);
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            }
+
+            if (existingDocEntry.HasValue)
+            {
+                foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
+                {
+                    item.DocEntry = existingDocEntry;
+                }
+
+                foreach (var item in lista)
+                {
+                    if (string.IsNullOrWhiteSpace(item.U_MGS_CL_GRPCOD))
+                    {
+                        continue;
+                    }
+
+                    if (item.LineId <= 0)
+                    {
+                        var detalle = await ObtenerGrupoPrmDetalle(login.Cfg, tiendaCodigo, item.U_MGS_CL_GRPCOD);
+                        if (detalle.LineId.HasValue)
+                        {
+                            item.LineId = detalle.LineId.Value;
+                            if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                            {
+                                item.U_MGS_CL_ACTIVO = "SI";
+                            }
+                        }
+                    }
+                }
+            }
+
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+            if (existingDocEntry.HasValue)
+            {
+                var updateReq = new
+                {
+                    MGS_CL_PRMTDETCollection = lista.Select(i => new
+                    {
+                        i.LineId,
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_GRPNOM,
+                        i.U_MGS_CL_TIPGAS,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = $"MGS_CL_PRMTCAB({existingDocEntry})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(updateReq, settings)
+                };
+
+                var updateResponse = await UpdateInfo(requestInformation, "PYP", login.Cfg);
+                if (!updateResponse.Registered)
+                {
+                    return updateResponse;
+                }
+
+                var gruposDesactivados = lista
+                    .Where(g => string.Equals(g.U_MGS_CL_ACTIVO, "NO", StringComparison.OrdinalIgnoreCase))
+                    .Select(g => g.U_MGS_CL_GRPCOD)
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (gruposDesactivados.Any())
+                {
+                    var docEntryCab = existingDocEntry ?? await ObtenerDocEntryPrmCab(login.Cfg, tiendaCodigo);
+                    if (!docEntryCab.HasValue)
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = "No se encontró la cabecera PRM para desactivar artículos.",
+                            Content = string.Empty
+                        };
+                    }
+
+                    foreach (var grupo in gruposDesactivados)
+                    {
+                        var articulosActivos = await ObtenerArticulosPrmPorGrupo(login.Cfg, docEntryCab.Value, grupo);
+                        if (articulosActivos.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var updateArticulosReq = new
+                        {
+                            MGS_CL_PRMTIADCollection = articulosActivos.Select(a => new
+                            {
+                                a.LineId,
+                                a.U_MGS_CL_GRPCOD,
+                                a.U_MGS_CL_ITEMCOD,
+                                a.U_MGS_CL_ITEMNAM,
+                                a.U_MGS_CL_TIPGAS,
+                                a.U_MGS_CL_TIPMOP,
+                                U_MGS_CL_ACTIVO = "NO"
+                            })
+                        };
+
+                        var requestArticulos = new RequestInformation
+                        {
+                            Route = $"MGS_CL_PRMTCAB({docEntryCab.Value})",
+                            Token = login.Token,
+                            Doc = JsonConvert.SerializeObject(updateArticulosReq, settings)
+                        };
+
+                        var respArticulos = await UpdateInfo(requestArticulos, "PYP", login.Cfg);
+                        if (!respArticulos.Registered)
+                        {
+                            return respArticulos;
+                        }
+                    }
+                }
+
+                return updateResponse;
+            }
+            else
+            {
+                var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaCodigo);
+                var createReq = new
+                {
+                    U_MGS_CL_TIENDA = tiendaCodigo,
+                    U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaCodigo : nombreTienda,
+                    MGS_CL_PRMTDETCollection = lista.Select(i => new
+                    {
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_GRPNOM,
+                        i.U_MGS_CL_TIPGAS,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = "MGS_CL_PRMTCAB",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(createReq, settings)
+                };
+
+                return await PostInfo(requestInformation, "PYP", login.Cfg);
+            }
+        }
+
+        public async Task<ResponseInformation> SetGrupoPrmArticulosBulk(string empresa, string tiendaCodigo, string grupoCodigo, IEnumerable<PrmArticuloDetalleDto> items)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            var lista = (items ?? Enumerable.Empty<PrmArticuloDetalleDto>()).ToList();
+            if (!lista.Any())
+            {
+                return new ResponseInformation { Registered = false, Message = "No se recibieron artículos para actualizar.", Content = string.Empty };
+            }
+
+            foreach (var item in lista)
+            {
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_GRPCOD))
+                {
+                    item.U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty;
+                }
+            }
+
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            var existingDocEntry = await ObtenerDocEntryPrmCab(login.Cfg, tiendaCodigo);
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            }
+
+            if (existingDocEntry.HasValue)
+            {
+                foreach (var item in lista.Where(i => i.LineId <= 0 && !string.IsNullOrWhiteSpace(i.U_MGS_CL_ITEMCOD)))
+                {
+                    var detalle = await ObtenerArticuloPrmDetalle(login.Cfg, existingDocEntry.Value, item.U_MGS_CL_ITEMCOD, item.U_MGS_CL_GRPCOD);
+                    if (detalle.LineId.HasValue)
+                    {
+                        item.LineId = detalle.LineId.Value;
+                        if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                        {
+                            item.U_MGS_CL_ACTIVO = "SI";
+                        }
+                    }
+                }
+            }
+
+            if (existingDocEntry.HasValue)
+            {
+                foreach (var item in lista.Where(i => string.Equals(i.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var grupoAsignado = await ObtenerGrupoArticuloPrmActivo(login.Cfg, existingDocEntry.Value, item.U_MGS_CL_ITEMCOD, item.U_MGS_CL_GRPCOD);
+                    if (!string.IsNullOrWhiteSpace(grupoAsignado.GrupoCodigo))
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = $"El artículo ya está asignado al grupo {grupoAsignado.GrupoCodigo}. No puede repetirse en otra asignación de la misma tienda.",
+                            Content = string.Empty
+                        };
+                    }
+                }
+            }
+
+            if (!existingDocEntry.HasValue)
+            {
+                var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaCodigo);
+                var nombreGrupo = await ObtenerNombreGrupoPrm(login.Cfg, grupoCodigo);
+                var itemBase = lista.FirstOrDefault();
+                var createReq = new
+                {
+                    U_MGS_CL_TIENDA = tiendaCodigo,
+                    U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaCodigo : nombreTienda,
+                    MGS_CL_PRMTDETCollection = new[]
+                    {
+                        new
+                        {
+                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                            U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
+                            U_MGS_CL_ACTIVO = "SI"
+                        }
+                    },
+                    MGS_CL_PRMTIADCollection = lista.Select(i => new
+                    {
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_ITEMCOD,
+                        i.U_MGS_CL_ITEMNAM,
+                        i.U_MGS_CL_TIPGAS,
+                        i.U_MGS_CL_TIPMOP,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = "MGS_CL_PRMTCAB",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(createReq, settings)
+                };
+
+                return await PostInfo(requestInformation, "PYP", login.Cfg);
+            }
+
+            var grupoExiste = await ExisteGrupoPrm(login.Cfg, tiendaCodigo, grupoCodigo);
+            if (!grupoExiste)
+            {
+                var nombreGrupo = await ObtenerNombreGrupoPrm(login.Cfg, grupoCodigo);
+                var itemBase = lista.FirstOrDefault();
+                var grupoReq = new
+                {
+                    MGS_CL_PRMTDETCollection = new[]
+                    {
+                        new
+                        {
+                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                            U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
+                            U_MGS_CL_ACTIVO = "SI"
+                        }
+                    }
+                };
+
+                var requestGrupo = new RequestInformation
+                {
+                    Route = $"MGS_CL_PRMTCAB({existingDocEntry.Value})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(grupoReq, settings)
+                };
+
+                var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
+                if (!grupoResp.Registered)
+                {
+                    return grupoResp;
+                }
+            }
+
+            var updateReq = new
+            {
+                MGS_CL_PRMTIADCollection = lista.Select(i => new
+                {
+                    i.LineId,
+                    i.U_MGS_CL_GRPCOD,
+                    i.U_MGS_CL_ITEMCOD,
+                    i.U_MGS_CL_ITEMNAM,
+                    i.U_MGS_CL_TIPGAS,
+                    i.U_MGS_CL_TIPMOP,
+                    U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                })
+            };
+
+            var requestInformationFinal = new RequestInformation
+            {
+                Route = $"MGS_CL_PRMTCAB({existingDocEntry.Value})",
+                Token = login.Token,
+                Doc = JsonConvert.SerializeObject(updateReq, settings)
+            };
+
+            return await UpdateInfo(requestInformationFinal, "PYP", login.Cfg);
+        }
+
+        public async Task<ResponseInformation> CopiarGrupoPrmTienda(string empresa, string tiendaOrigen, string tiendaDestino)
+        {
+            if (string.Equals(tiendaOrigen, tiendaDestino, StringComparison.OrdinalIgnoreCase))
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "La tienda origen y destino deben ser diferentes.",
+                    Content = string.Empty
+                };
+            }
+
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            var docEntryOrigen = await ObtenerDocEntryPrmCab(login.Cfg, tiendaOrigen);
+            if (!docEntryOrigen.HasValue)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "La tienda origen no tiene datos para copiar.",
+                    Content = string.Empty
+                };
+            }
+
+            var gruposOrigen = await ObtenerGruposPrmPorTienda(login.Cfg, tiendaOrigen);
+            if (!gruposOrigen.Any())
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "La tienda origen no tiene datos para copiar.",
+                    Content = string.Empty
+                };
+            }
+
+            var articulosOrigen = new List<PrmArticuloDetalleDto>();
+            foreach (var grupo in gruposOrigen)
+            {
+                articulosOrigen.AddRange(await ObtenerArticulosPrmPorGrupo(login.Cfg, docEntryOrigen.Value, grupo.U_MGS_CL_GRPCOD));
+            }
+
+            var docEntryDestino = await ObtenerDocEntryPrmCab(login.Cfg, tiendaDestino);
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+            if (docEntryDestino.HasValue)
+            {
+                var gruposDestino = await ObtenerGruposPrmPorTienda(login.Cfg, tiendaDestino);
+                var articulosDestino = new List<PrmArticuloDetalleDto>();
+                foreach (var grupo in gruposDestino)
+                {
+                    articulosDestino.AddRange(await ObtenerArticulosPrmPorGrupo(login.Cfg, docEntryDestino.Value, grupo.U_MGS_CL_GRPCOD));
+                }
+
+                if (gruposDestino.Any() || articulosDestino.Any())
+                {
+                    var deactivateReq = new JObject();
+                    if (gruposDestino.Any())
+                    {
+                        deactivateReq["MGS_CL_PRMTDETCollection"] = JToken.FromObject(gruposDestino.Select(g => new
+                        {
+                            g.LineId,
+                            g.U_MGS_CL_GRPCOD,
+                            g.U_MGS_CL_GRPNOM,
+                            g.U_MGS_CL_TIPGAS,
+                            U_MGS_CL_ACTIVO = "NO"
+                        }));
+                    }
+
+                    if (articulosDestino.Any())
+                    {
+                        deactivateReq["MGS_CL_PRMTIADCollection"] = JToken.FromObject(articulosDestino.Select(a => new
+                        {
+                            a.LineId,
+                            a.U_MGS_CL_GRPCOD,
+                            a.U_MGS_CL_ITEMCOD,
+                            a.U_MGS_CL_ITEMNAM,
+                            a.U_MGS_CL_TIPGAS,
+                            a.U_MGS_CL_TIPMOP,
+                            U_MGS_CL_ACTIVO = "NO"
+                        }));
+                    }
+
+                    var requestDeactivate = new RequestInformation
+                    {
+                        Route = $"MGS_CL_PRMTCAB({docEntryDestino.Value})",
+                        Token = login.Token,
+                        Doc = JsonConvert.SerializeObject(deactivateReq, settings)
+                    };
+
+                    var respDeactivate = await UpdateInfo(requestDeactivate, "PYP", login.Cfg);
+                    if (!respDeactivate.Registered)
+                    {
+                        return respDeactivate;
+                    }
+                }
+            }
+
+            var gruposFinal = new List<PrmGrupoDetalleDto>();
+            foreach (var grupo in gruposOrigen)
+            {
+                var nuevo = new PrmGrupoDetalleDto
+                {
+                    LineId = 0,
+                    U_MGS_CL_GRPCOD = grupo.U_MGS_CL_GRPCOD,
+                    U_MGS_CL_GRPNOM = grupo.U_MGS_CL_GRPNOM,
+                    U_MGS_CL_TIPGAS = grupo.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_ACTIVO = "SI"
+                };
+
+                if (docEntryDestino.HasValue)
+                {
+                    var detalle = await ObtenerGrupoPrmDetalle(login.Cfg, tiendaDestino, grupo.U_MGS_CL_GRPCOD);
+                    if (detalle.LineId.HasValue)
+                    {
+                        nuevo.LineId = detalle.LineId.Value;
+                    }
+                }
+
+                gruposFinal.Add(nuevo);
+            }
+
+            var articulosFinal = new List<PrmArticuloDetalleDto>();
+            foreach (var art in articulosOrigen)
+            {
+                var nuevo = new PrmArticuloDetalleDto
+                {
+                    LineId = 0,
+                    U_MGS_CL_GRPCOD = art.U_MGS_CL_GRPCOD,
+                    U_MGS_CL_ITEMCOD = art.U_MGS_CL_ITEMCOD,
+                    U_MGS_CL_ITEMNAM = art.U_MGS_CL_ITEMNAM,
+                    U_MGS_CL_TIPGAS = art.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPMOP = art.U_MGS_CL_TIPMOP,
+                    U_MGS_CL_ACTIVO = "SI"
+                };
+
+                if (docEntryDestino.HasValue)
+                {
+                    var detalle = await ObtenerArticuloPrmDetalle(login.Cfg, docEntryDestino.Value, art.U_MGS_CL_ITEMCOD, art.U_MGS_CL_GRPCOD);
+                    if (detalle.LineId.HasValue)
+                    {
+                        nuevo.LineId = detalle.LineId.Value;
+                    }
+                }
+
+                articulosFinal.Add(nuevo);
+            }
+
+            if (docEntryDestino.HasValue)
+            {
+                var updateReq = new JObject();
+                if (gruposFinal.Any())
+                {
+                    updateReq["MGS_CL_PRMTDETCollection"] = JToken.FromObject(gruposFinal.Select(g => new
+                    {
+                        g.LineId,
+                        g.U_MGS_CL_GRPCOD,
+                        g.U_MGS_CL_GRPNOM,
+                        g.U_MGS_CL_TIPGAS,
+                        U_MGS_CL_ACTIVO = "SI"
+                    }));
+                }
+
+                if (articulosFinal.Any())
+                {
+                    updateReq["MGS_CL_PRMTIADCollection"] = JToken.FromObject(articulosFinal.Select(a => new
+                    {
+                        a.LineId,
+                        a.U_MGS_CL_GRPCOD,
+                        a.U_MGS_CL_ITEMCOD,
+                        a.U_MGS_CL_ITEMNAM,
+                        a.U_MGS_CL_TIPGAS,
+                        a.U_MGS_CL_TIPMOP,
+                        U_MGS_CL_ACTIVO = "SI"
+                    }));
+                }
+
+                var requestUpdate = new RequestInformation
+                {
+                    Route = $"MGS_CL_PRMTCAB({docEntryDestino.Value})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(updateReq, settings)
+                };
+
+                return await UpdateInfo(requestUpdate, "PYP", login.Cfg);
+            }
+
+            var nombreTiendaDestino = await ObtenerNombreTienda(login.Cfg, tiendaDestino);
+            var createReqFinal = new JObject
+            {
+                ["U_MGS_CL_TIENDA"] = tiendaDestino,
+                ["U_MGS_CL_NOMTIE"] = string.IsNullOrWhiteSpace(nombreTiendaDestino) ? tiendaDestino : nombreTiendaDestino,
+                ["MGS_CL_PRMTDETCollection"] = JToken.FromObject(gruposFinal.Select(g => new
+                {
+                    g.U_MGS_CL_GRPCOD,
+                    g.U_MGS_CL_GRPNOM,
+                    g.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_ACTIVO = "SI"
+                }))
+            };
+
+            if (articulosFinal.Any())
+            {
+                createReqFinal["MGS_CL_PRMTIADCollection"] = JToken.FromObject(articulosFinal.Select(a => new
+                {
+                    a.U_MGS_CL_GRPCOD,
+                    a.U_MGS_CL_ITEMCOD,
+                    a.U_MGS_CL_ITEMNAM,
+                    a.U_MGS_CL_TIPGAS,
+                    a.U_MGS_CL_TIPMOP,
+                    U_MGS_CL_ACTIVO = "SI"
+                }));
+            }
+
+            var requestCreate = new RequestInformation
+            {
+                Route = "MGS_CL_PRMTCAB",
+                Token = login.Token,
+                Doc = JsonConvert.SerializeObject(createReqFinal, settings)
+            };
+
+            return await PostInfo(requestCreate, "PYP", login.Cfg);
+        }
+
+        private async Task<int?> ObtenerDocEntryPrmCab(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmCab";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read() && !reader.IsDBNull(reader.GetOrdinal("DocEntry")))
+            {
+                return Convert.ToInt32(reader["DocEntry"]);
+            }
+            return null;
+        }
+
+        private async Task<(int? LineId, string Activo)> ObtenerGrupoPrmDetalle(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmGrpDet";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var lineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? (int?)null : Convert.ToInt32(reader["LineId"]);
+                var activo = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty;
+                return (lineId, activo);
+            }
+            return (null, string.Empty);
+        }
+
+        private async Task<bool> ExisteGrupoPrm(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmGrpEx";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var count = reader.IsDBNull(reader.GetOrdinal("Total")) ? 0 : Convert.ToInt32(reader["Total"]);
+                return count > 0;
+            }
+            return false;
+        }
+
+        private async Task<string> ObtenerNombreGrupoPrm(EmpresaConfig cfg, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmGrpNom";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                return reader["Name"]?.ToString() ?? string.Empty;
+            }
+            return string.Empty;
+        }
+
+        private async Task<List<PrmArticuloDetalleDto>> ObtenerArticulosPrmPorGrupo(EmpresaConfig cfg, int docEntry, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmGrpArt";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry.ToString();
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            var articulos = new List<PrmArticuloDetalleDto>();
+            while (reader.Read())
+            {
+                articulos.Add(new PrmArticuloDetalleDto
+                {
+                    DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                    LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                    U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPMOP = reader["U_MGS_CL_TIPMOP"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                });
+            }
+            return articulos;
+        }
+
+        private async Task<(string GrupoCodigo, string GrupoNombre)> ObtenerGrupoArticuloPrmActivo(EmpresaConfig cfg, int docEntry, string itemCode, string grupoExclusion)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmItemTienda";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry.ToString();
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = itemCode ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = grupoExclusion ?? string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                return (reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty, reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty);
+            }
+            return (string.Empty, string.Empty);
+        }
+
+        private async Task<(int? LineId, string Activo)> ObtenerArticuloPrmDetalle(EmpresaConfig cfg, int docEntry, string itemCode, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmArtDet";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry.ToString();
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = itemCode ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var lineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? (int?)null : Convert.ToInt32(reader["LineId"]);
+                var activo = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty;
+                return (lineId, activo);
+            }
+            return (null, string.Empty);
+        }
+
+        private async Task<List<PrmGrupoDetalleDto>> ObtenerGruposPrmPorTienda(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_PrmTdaGrp";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            var grupos = new List<PrmGrupoDetalleDto>();
+            while (reader.Read())
+            {
+                grupos.Add(new PrmGrupoDetalleDto
+                {
+                    DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                    LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                    U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPGAS = reader["U_MGS_CL_TIPGAS"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                });
+            }
+            return grupos;
         }
 
         private static bool HasColumn(IDataRecord reader, string columnName)
