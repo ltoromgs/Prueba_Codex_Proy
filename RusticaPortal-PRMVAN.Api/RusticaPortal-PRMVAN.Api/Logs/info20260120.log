@@ -1,0 +1,46 @@
+2026-01-20 10:55:01.548 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-20 10:55:01.665 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-20 10:55:01.672 -05:00 [INF] Now listening on: https://localhost:7287
+2026-01-20 10:55:01.674 -05:00 [INF] Now listening on: http://localhost:5116
+2026-01-20 10:55:01.675 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-20 10:55:01.675 -05:00 [INF] Hosting environment: Development
+2026-01-20 10:55:01.675 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api
+2026-01-20 10:55:06.141 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger - -
+2026-01-20 10:55:06.519 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger - - - 301 0 - 382.0297ms
+2026-01-20 10:55:06.546 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/index.html - -
+2026-01-20 10:55:07.054 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/index.html - - - 200 - text/html;charset=utf-8 507.4380ms
+2026-01-20 10:55:07.082 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - -
+2026-01-20 10:55:07.084 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - -
+2026-01-20 10:55:07.085 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - -
+2026-01-20 10:55:07.508 -05:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2026-01-20 10:55:07.508 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - - - 200 143943 text/css 423.8172ms
+2026-01-20 10:55:07.578 -05:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2026-01-20 10:55:07.579 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - - - 200 339486 application/javascript 496.4887ms
+2026-01-20 10:55:07.655 -05:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2026-01-20 10:55:07.726 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - - - 200 1096145 application/javascript 571.3229ms
+2026-01-20 10:55:08.190 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - -
+2026-01-20 10:55:08.667 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 477.5446ms
+2026-01-20 10:58:30.231 -05:00 [INF] Application is shutting down...
+2026-01-20 11:02:52.431 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-20 11:02:52.538 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-20 11:02:52.541 -05:00 [INF] Now listening on: https://localhost:7287
+2026-01-20 11:02:52.543 -05:00 [INF] Now listening on: http://localhost:5116
+2026-01-20 11:02:52.549 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-20 11:02:52.549 -05:00 [INF] Hosting environment: Development
+2026-01-20 11:02:52.549 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api
+2026-01-20 11:02:55.880 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger - -
+2026-01-20 11:02:56.222 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger - - - 301 0 - 345.8768ms
+2026-01-20 11:02:56.249 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/index.html - -
+2026-01-20 11:02:56.685 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/index.html - - - 200 - text/html;charset=utf-8 436.0788ms
+2026-01-20 11:02:56.719 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - -
+2026-01-20 11:02:56.720 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - -
+2026-01-20 11:02:56.721 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - -
+2026-01-20 11:02:57.630 -05:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2026-01-20 11:02:57.631 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - - - 200 339486 application/javascript 909.8326ms
+2026-01-20 11:02:57.633 -05:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2026-01-20 11:02:57.633 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - - - 200 1096145 application/javascript 914.3845ms
+2026-01-20 11:02:57.635 -05:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2026-01-20 11:02:57.635 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - - - 200 143943 text/css 915.3786ms
+2026-01-20 11:02:58.192 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - -
+2026-01-20 11:02:58.765 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 572.5194ms
+2026-01-20 11:04:42.688 -05:00 [INF] Application is shutting down...
