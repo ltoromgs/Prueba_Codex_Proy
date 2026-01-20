@@ -1898,6 +1898,365 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     conn.Close();
             }
         }
+
+        public async Task<ResponseInformation> GetGestionAyudaTiendas(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tiendas = new List<GestionAyudaTiendaDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesTiendas";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tiendas.Add(new GestionAyudaTiendaDto
+                    {
+                        PrjCode = reader[nameof(GestionAyudaTiendaDto.PrjCode)]?.ToString() ?? string.Empty,
+                        PrjName = reader[nameof(GestionAyudaTiendaDto.PrjName)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!tiendas.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron tiendas.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tiendas)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar tiendas.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGestionAyudaTipos(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tipos = new List<GestionAyudaTipoDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesTipos";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tipos.Add(new GestionAyudaTipoDto
+                    {
+                        Code = reader[nameof(GestionAyudaTipoDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(GestionAyudaTipoDto.Name)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ACTIVO = reader[nameof(GestionAyudaTipoDto.U_MGS_CL_ACTIVO)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!tipos.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron tipos.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tipos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar tipos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGestionAyudaUltPeriodo(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesUltPeriodo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                string periodo = string.Empty;
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                if (reader.Read())
+                {
+                    var value = reader["U_MGS_CL_PERIODO"];
+                    if (value is DateTime dtValue)
+                    {
+                        periodo = dtValue.ToString("yyyy-MM", CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        periodo = value?.ToString() ?? string.Empty;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(periodo))
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron periodos.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(periodo)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar último periodo.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGestionAyudaCabPeriodo(string empresa, string periodo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var cabeceras = new List<GestionAyudaCabDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesCabPeriodo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = periodo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    var rawPeriodo = reader["U_MGS_CL_PERIODO"];
+                    var periodoValor = rawPeriodo is DateTime dtPeriodo
+                        ? dtPeriodo.ToString("yyyy-MM", CultureInfo.InvariantCulture)
+                        : rawPeriodo?.ToString() ?? string.Empty;
+
+                    cabeceras.Add(new GestionAyudaCabDto
+                    {
+                        DocEntry = reader["DocEntry"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_PERIODO = periodoValor
+                    });
+                }
+
+                if (!cabeceras.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No existe documento para el periodo.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(cabeceras)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar cabecera.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGestionAyudaDetalle(string empresa, string docEntry)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var detalles = new List<GestionAyudaDetalleDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesDetDoc";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    detalles.Add(new GestionAyudaDetalleDto
+                    {
+                        DocEntry = reader["DocEntry"]?.ToString() ?? string.Empty,
+                        LineId = reader["LineId"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIENDA = reader["U_MGS_CL_TIENDA"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_NOMTIE = reader["U_MGS_CL_NOMTIE"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CVENTA = reader["U_MGS_CL_CVENTA"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CRENTA = reader["U_MGS_CL_CRENTA"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CVAN = reader["U_MGS_CL_CVAN"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CPERSO = reader["U_MGS_CL_CPERSO"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CGESTI = reader["U_MGS_CL_CGESTI"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CSERV = reader["U_MGS_CL_CSERV"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CCC = reader["U_MGS_CL_CCC"]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CADM = reader["U_MGS_CL_CADM"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                if (!detalles.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se encontraron detalles.",
+                        Content = string.Empty
+                    };
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(detalles)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar detalle.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
         public async Task<ResponseInformation> GetContactoDB(string empresa)
         {
           //  public async Task<ResponseInformation> GetContactoDB(RequestInformation requestInformation, string nomSistem, string empresa)
