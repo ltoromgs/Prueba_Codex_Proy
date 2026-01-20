@@ -302,7 +302,7 @@ BEGIN
 
         IF lvPeriodoBaseDate IS NULL THEN
             lvPeriodoBase := TO_VARCHAR(CURRENT_DATE, 'MM-YYYY');
-            lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(CURRENT_DATE, 1), 'MM-YYYY');
+            lvPeriodoDestino := TO_VARCHAR(CURRENT_DATE, 'MM-YYYY');
         ELSE
             lvPeriodoBase := TO_VARCHAR(lvPeriodoBaseDate, 'MM-YYYY');
             lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(lvPeriodoBaseDate, 1), 'MM-YYYY');

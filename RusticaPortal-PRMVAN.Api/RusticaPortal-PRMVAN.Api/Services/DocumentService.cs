@@ -2133,6 +2133,24 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
         public async Task<ResponseInformation> GetGestionAyudaPreview(string empresa)
         {
+            var tiposResponse = await GetGestionAyudaTipos(empresa);
+            if (!tiposResponse.Registered)
+            {
+                return tiposResponse;
+            }
+
+            var tipos = JsonConvert.DeserializeObject<List<GestionAyudaTipoDto>>(tiposResponse.Content ?? "[]") ?? new List<GestionAyudaTipoDto>();
+            var defaultTipo = tipos.FirstOrDefault(t => string.Equals(t.Name?.Trim(), "Por defecto", StringComparison.OrdinalIgnoreCase));
+            if (defaultTipo == null || string.IsNullOrWhiteSpace(defaultTipo.Code))
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No existe un tipo \"Por defecto\" activo.",
+                    Content = string.Empty
+                };
+            }
+
             if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
             {
                 return error;
