@@ -1,0 +1,316 @@
+﻿@model RusticaPortal_PRMVAN.Web.Models.GestionAyudaViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Gestión de ayuda";
+}
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Gestión de ayuda</h3>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Gestión de ayuda</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Periodo</label>
+                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.PeriodoActual" />
+                    </div>
+
+                    <div class="col-auto ms-auto d-flex gap-2">
+                        <button id="btnBuscar" class="btn btn-primary btn-sm">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <button id="btnNuevo" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Nuevo
+                        </button>
+                        <button id="btnActualizarTodo" class="btn btn-success btn-sm">
+                            <i class="bi bi-save"></i> Actualizar todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div id="alertContainer" class="px-3 pt-3"></div>
+                <div id="loadingOverlay" class="loading-overlay d-none">
+                    <div class="loading-box text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Procesando...</span>
+                        </div>
+                        <div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="overflow:auto;">
+                    <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaGestionAyuda" style="white-space:nowrap;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Tienda</th>
+                                <th>Nombre</th>
+                                <th>CVENTA</th>
+                                <th>CRENTA</th>
+                                <th>CVAN</th>
+                                <th>CPERSO</th>
+                                <th>CGESTI</th>
+                                <th>CSERV</th>
+                                <th>CCC</th>
+                                <th>CADM</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const endpointsGestion = {
+        tipos: '/GestionAyuda/Tipos',
+        tiendas: '/GestionAyuda/Tiendas',
+        buscar: '/GestionAyuda/Buscar',
+        nuevo: '/GestionAyuda/Nuevo',
+        actualizar: '/GestionAyuda/Actualizar'
+    };
+
+    let tiposGestion = [];
+    let tiendasGestion = [];
+    let codigoDefecto = '';
+    let docEntryActual = '';
+    let periodoActual = document.getElementById('filtroPeriodo').value;
+
+    const alertContainer = document.getElementById('alertContainer');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingMessage = document.getElementById('loadingMessage');
+
+    function setLoading(show, message) {
+        if (message) {
+            loadingMessage.textContent = message;
+        }
+        loadingOverlay.classList.toggle('d-none', !show);
+    }
+
+    function clearAlert() {
+        alertContainer.innerHTML = '';
+    }
+
+    function showAlert(type, message) {
+        alertContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+    }
+
+    async function fetchJson(url, options) {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error('Error al comunicarse con el servidor.');
+        }
+        return response.json();
+    }
+
+    async function cargarTipos() {
+        const data = await fetchJson(endpointsGestion.tipos);
+        if (!data.registered) {
+            throw new Error(data.message || 'No se pudieron cargar los tipos.');
+        }
+        tiposGestion = JSON.parse(data.content || '[]');
+        const tipoDefecto = tiposGestion.find(t => (t.Name || '').toLowerCase() === 'por defecto');
+        codigoDefecto = tipoDefecto ? tipoDefecto.Code : '';
+        if (!codigoDefecto) {
+            throw new Error('No se encontró el tipo "Por defecto".');
+        }
+    }
+
+    async function cargarTiendas() {
+        const data = await fetchJson(endpointsGestion.tiendas);
+        if (!data.registered) {
+            throw new Error(data.message || 'No se pudieron cargar las tiendas.');
+        }
+        tiendasGestion = JSON.parse(data.content || '[]');
+    }
+
+    function buildSelectOptions(selectedValue) {
+        return tiposGestion.map(tipo => {
+            const seleccionado = (selectedValue || codigoDefecto) === tipo.Code ? 'selected' : '';
+            return `<option value="${tipo.Code}" ${seleccionado}>${tipo.Name}</option>`;
+        }).join('');
+    }
+
+    function renderTabla(detalles) {
+        const tbody = document.querySelector('#tablaGestionAyuda tbody');
+        tbody.innerHTML = '';
+
+        detalles.forEach((detalle, index) => {
+            const row = document.createElement('tr');
+            row.dataset.lineid = detalle.LineId || '';
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="fw-semibold">${detalle.U_MGS_CL_TIENDA || ''}</td>
+                <td>${detalle.U_MGS_CL_NOMTIE || ''}</td>
+                ${crearSelectCelda('U_MGS_CL_CVENTA', detalle.U_MGS_CL_CVENTA)}
+                ${crearSelectCelda('U_MGS_CL_CRENTA', detalle.U_MGS_CL_CRENTA)}
+                ${crearSelectCelda('U_MGS_CL_CVAN', detalle.U_MGS_CL_CVAN)}
+                ${crearSelectCelda('U_MGS_CL_CPERSO', detalle.U_MGS_CL_CPERSO)}
+                ${crearSelectCelda('U_MGS_CL_CGESTI', detalle.U_MGS_CL_CGESTI)}
+                ${crearSelectCelda('U_MGS_CL_CSERV', detalle.U_MGS_CL_CSERV)}
+                ${crearSelectCelda('U_MGS_CL_CCC', detalle.U_MGS_CL_CCC)}
+                ${crearSelectCelda('U_MGS_CL_CADM', detalle.U_MGS_CL_CADM)}
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function crearSelectCelda(field, value) {
+        return `
+            <td>
+                <select class="form-select form-select-sm" data-field="${field}">
+                    ${buildSelectOptions(value)}
+                </select>
+            </td>
+        `;
+    }
+
+    function obtenerPayload() {
+        const rows = Array.from(document.querySelectorAll('#tablaGestionAyuda tbody tr'));
+        return rows.map(row => {
+            const cells = row.querySelectorAll('td');
+            const tienda = cells[1]?.textContent?.trim() || '';
+            const nombre = cells[2]?.textContent?.trim() || '';
+            const selects = row.querySelectorAll('select');
+            const values = {};
+            selects.forEach(select => {
+                values[select.dataset.field] = select.value || codigoDefecto;
+            });
+            return {
+                LineId: row.dataset.lineid || '',
+                U_MGS_CL_TIENDA: tienda,
+                U_MGS_CL_NOMTIE: nombre,
+                U_MGS_CL_CVENTA: values.U_MGS_CL_CVENTA,
+                U_MGS_CL_CRENTA: values.U_MGS_CL_CRENTA,
+                U_MGS_CL_CVAN: values.U_MGS_CL_CVAN,
+                U_MGS_CL_CPERSO: values.U_MGS_CL_CPERSO,
+                U_MGS_CL_CGESTI: values.U_MGS_CL_CGESTI,
+                U_MGS_CL_CSERV: values.U_MGS_CL_CSERV,
+                U_MGS_CL_CCC: values.U_MGS_CL_CCC,
+                U_MGS_CL_CADM: values.U_MGS_CL_CADM
+            };
+        });
+    }
+
+    async function buscarPeriodo() {
+        clearAlert();
+        const periodo = document.getElementById('filtroPeriodo').value;
+        if (!periodo) {
+            showAlert('warning', 'Seleccione un periodo válido.');
+            return;
+        }
+
+        setLoading(true, 'Buscando información...');
+        try {
+            const data = await fetchJson(`${endpointsGestion.buscar}?periodo=${encodeURIComponent(periodo)}`);
+            if (!data.registered) {
+                docEntryActual = '';
+                renderTabla([]);
+                showAlert('warning', data.message || 'No existe información para el periodo.');
+                return;
+            }
+
+            const payload = JSON.parse(data.content || '{}');
+            docEntryActual = payload.DocEntry || '';
+            periodoActual = payload.Periodo || periodo;
+            document.getElementById('filtroPeriodo').value = periodoActual;
+            renderTabla(payload.Detalle || []);
+        } catch (error) {
+            showAlert('danger', error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function nuevoPeriodo() {
+        clearAlert();
+        setLoading(true, 'Generando nuevo periodo...');
+        try {
+            const data = await fetchJson(endpointsGestion.nuevo, { method: 'POST' });
+            if (!data.registered) {
+                showAlert('warning', data.message || 'No se pudo crear el periodo.');
+                return;
+            }
+            const payload = JSON.parse(data.content || '{}');
+            docEntryActual = payload.DocEntry || '';
+            periodoActual = payload.Periodo || periodoActual;
+            document.getElementById('filtroPeriodo').value = periodoActual;
+            renderTabla(payload.Detalle || []);
+            showAlert('success', 'Periodo cargado correctamente.');
+        } catch (error) {
+            showAlert('danger', error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function actualizarTodo() {
+        clearAlert();
+        if (!docEntryActual) {
+            showAlert('warning', 'Debe cargar un periodo antes de actualizar.');
+            return;
+        }
+
+        const payload = {
+            MGS_CL_GESDETCollection: obtenerPayload()
+        };
+
+        setLoading(true, 'Actualizando información...');
+        try {
+            const data = await fetchJson(`${endpointsGestion.actualizar}?docEntry=${encodeURIComponent(docEntryActual)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!data.registered) {
+                showAlert('warning', data.message || 'No se pudo actualizar.');
+                return;
+            }
+            showAlert('success', 'Información actualizada correctamente.');
+            await buscarPeriodo();
+        } catch (error) {
+            showAlert('danger', error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    document.getElementById('btnBuscar').addEventListener('click', buscarPeriodo);
+    document.getElementById('btnNuevo').addEventListener('click', nuevoPeriodo);
+    document.getElementById('btnActualizarTodo').addEventListener('click', actualizarTodo);
+    document.getElementById('filtroPeriodo').addEventListener('change', clearAlert);
+
+    (async () => {
+        try {
+            setLoading(true, 'Cargando catálogos...');
+            await Promise.all([cargarTipos(), cargarTiendas()]);
+        } catch (error) {
+            showAlert('danger', error.message);
+        } finally {
+            setLoading(false);
+        }
+    })();
+</script>

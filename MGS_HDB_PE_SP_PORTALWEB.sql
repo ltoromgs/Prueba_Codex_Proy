@@ -1561,6 +1561,53 @@ BEGIN
         ORDER BY TABLA."LineNum";
 
 
+    ELSEIF vTipo = 'Get_GesTiendas' THEN
+
+        SELECT "PrjCode" AS "PrjCode",
+               "PrjName" AS "PrjName"
+        FROM "OPRJ"
+        ORDER BY "PrjCode";
+
+    ELSEIF vTipo = 'Get_GesTipos' THEN
+
+        SELECT "Code",
+               "Name",
+               "U_MGS_CL_ACTIVO"
+        FROM "@MGS_CL_GESTIPO"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+    ELSEIF vTipo = 'Get_GesUltPeriodo' THEN
+
+        SELECT MAX("U_MGS_CL_PERIODO") AS "U_MGS_CL_PERIODO"
+        FROM "@MGS_CL_GESCAB";
+
+    ELSEIF vTipo = 'Get_GesCabPeriodo' THEN
+
+        SELECT "DocEntry" AS "DocEntry",
+               "U_MGS_CL_PERIODO" AS "U_MGS_CL_PERIODO"
+        FROM "@MGS_CL_GESCAB"
+        WHERE "U_MGS_CL_PERIODO" = :vParam1;
+
+    ELSEIF vTipo = 'Get_GesDetDoc' THEN
+
+        SELECT
+            D."DocEntry",
+            D."LineId",
+            D."U_MGS_CL_TIENDA",
+            D."U_MGS_CL_NOMTIE",
+            D."U_MGS_CL_CVENTA",
+            D."U_MGS_CL_CRENTA",
+            D."U_MGS_CL_CVAN",
+            D."U_MGS_CL_CPERSO",
+            D."U_MGS_CL_CGESTI",
+            D."U_MGS_CL_CSERV",
+            D."U_MGS_CL_CCC",
+            D."U_MGS_CL_CADM"
+        FROM "@MGS_CL_GESDET" D
+        WHERE D."DocEntry" = :vParam1
+        ORDER BY D."LineId";
+
     ELSEIF vTipo = 'Get_fechaRecepcion' THEN
     
         /*SELECT 
