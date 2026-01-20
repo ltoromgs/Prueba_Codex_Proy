@@ -226,6 +226,134 @@ BEGIN
         WHERE P."Active" = 'Y'
         ORDER BY P."PrjCode", P."PrjName";
 
+    ELSEIF vTipo = 'Get_GesTiendas' THEN
+
+        SELECT
+            "PrjCode" AS "Codigo",
+            "PrjName" AS "Nombre"
+        FROM "OPRJ"
+        WHERE "Active" = 'Y'
+        ORDER BY "PrjCode";
+
+
+    ELSEIF vTipo = 'Get_GesTipos' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "@MGS_CL_GESTIPO"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+
+    ELSEIF vTipo = 'Get_GesUltPer' THEN
+
+        SELECT
+            CASE
+                WHEN MAX(TO_DATE('01-' || "U_MGS_CL_PERIODO", 'DD-MM-YYYY')) IS NULL THEN ''
+                ELSE TO_VARCHAR(MAX(TO_DATE('01-' || "U_MGS_CL_PERIODO", 'DD-MM-YYYY')), 'MM-YYYY')
+            END AS "U_MGS_CL_PERIODO"
+        FROM "@MGS_CL_GESCAB";
+
+
+    ELSEIF vTipo = 'Get_GesCab' THEN
+
+        SELECT
+            "DocEntry" AS "DocEntry",
+            "U_MGS_CL_PERIODO" AS "U_MGS_CL_PERIODO"
+        FROM "@MGS_CL_GESCAB"
+        WHERE "U_MGS_CL_PERIODO" = :vParam1;
+
+
+    ELSEIF vTipo = 'Get_GesDet' THEN
+
+        SELECT
+            C."DocEntry" AS "DocEntry",
+            D."LineId" AS "LineId",
+            C."U_MGS_CL_PERIODO" AS "U_MGS_CL_PERIODO",
+            D."U_MGS_CL_TIENDA" AS "U_MGS_CL_TIENDA",
+            D."U_MGS_CL_NOMTIE" AS "U_MGS_CL_NOMTIE",
+            D."U_MGS_CL_CVENTA" AS "U_MGS_CL_CVENTA",
+            D."U_MGS_CL_CRENTA" AS "U_MGS_CL_CRENTA",
+            D."U_MGS_CL_CVAN" AS "U_MGS_CL_CVAN",
+            D."U_MGS_CL_CPERSO" AS "U_MGS_CL_CPERSO",
+            D."U_MGS_CL_CGESTI" AS "U_MGS_CL_CGESTI",
+            D."U_MGS_CL_CSERV" AS "U_MGS_CL_CSERV",
+            D."U_MGS_CL_CCC" AS "U_MGS_CL_CCC",
+            D."U_MGS_CL_CADM" AS "U_MGS_CL_CADM"
+        FROM "@MGS_CL_GESCAB" C
+        JOIN "@MGS_CL_GESDET" D
+          ON D."DocEntry" = C."DocEntry"
+        WHERE (:vParam1 <> '' AND C."DocEntry" = :vParam1)
+           OR (:vParam1 = '' AND :vParam2 <> '' AND C."U_MGS_CL_PERIODO" = :vParam2)
+        ORDER BY D."LineId";
+
+
+    ELSEIF vTipo = 'Get_GesPreview' THEN
+
+        DECLARE lvPeriodoBaseDate DATE;
+        DECLARE lvPeriodoBase NVARCHAR(10);
+        DECLARE lvPeriodoDestino NVARCHAR(10);
+        DECLARE lvTipoDefault NVARCHAR(20);
+
+        SELECT MAX(TO_DATE('01-' || "U_MGS_CL_PERIODO", 'DD-MM-YYYY'))
+          INTO lvPeriodoBaseDate
+          FROM "@MGS_CL_GESCAB";
+
+        IF lvPeriodoBaseDate IS NULL THEN
+            lvPeriodoBase := TO_VARCHAR(CURRENT_DATE, 'MM-YYYY');
+            lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(CURRENT_DATE, 1), 'MM-YYYY');
+        ELSE
+            lvPeriodoBase := TO_VARCHAR(lvPeriodoBaseDate, 'MM-YYYY');
+            lvPeriodoDestino := TO_VARCHAR(ADD_MONTHS(lvPeriodoBaseDate, 1), 'MM-YYYY');
+        END IF;
+
+        SELECT "Code"
+          INTO lvTipoDefault
+          FROM "@MGS_CL_GESTIPO"
+         WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+           AND UPPER("Name") = 'POR DEFECTO'
+         ORDER BY "Code"
+         LIMIT 1;
+
+        SELECT
+            :lvPeriodoBase AS "U_MGS_CL_PERIODO",
+            :lvPeriodoDestino AS "U_MGS_CL_PERIODO_DEST",
+            P."PrjCode" AS "U_MGS_CL_TIENDA",
+            P."PrjName" AS "U_MGS_CL_NOMTIE",
+            IFNULL(G."DocEntry", 0) AS "DocEntry",
+            IFNULL(G."LineId", 0) AS "LineId",
+            IFNULL(G."U_MGS_CL_CVENTA", :lvTipoDefault) AS "U_MGS_CL_CVENTA",
+            IFNULL(G."U_MGS_CL_CRENTA", :lvTipoDefault) AS "U_MGS_CL_CRENTA",
+            IFNULL(G."U_MGS_CL_CVAN", :lvTipoDefault) AS "U_MGS_CL_CVAN",
+            IFNULL(G."U_MGS_CL_CPERSO", :lvTipoDefault) AS "U_MGS_CL_CPERSO",
+            IFNULL(G."U_MGS_CL_CGESTI", :lvTipoDefault) AS "U_MGS_CL_CGESTI",
+            IFNULL(G."U_MGS_CL_CSERV", :lvTipoDefault) AS "U_MGS_CL_CSERV",
+            IFNULL(G."U_MGS_CL_CCC", :lvTipoDefault) AS "U_MGS_CL_CCC",
+            IFNULL(G."U_MGS_CL_CADM", :lvTipoDefault) AS "U_MGS_CL_CADM"
+        FROM "OPRJ" P
+        LEFT JOIN (
+            SELECT
+                C."DocEntry",
+                D."LineId",
+                D."U_MGS_CL_TIENDA",
+                D."U_MGS_CL_NOMTIE",
+                D."U_MGS_CL_CVENTA",
+                D."U_MGS_CL_CRENTA",
+                D."U_MGS_CL_CVAN",
+                D."U_MGS_CL_CPERSO",
+                D."U_MGS_CL_CGESTI",
+                D."U_MGS_CL_CSERV",
+                D."U_MGS_CL_CCC",
+                D."U_MGS_CL_CADM"
+            FROM "@MGS_CL_GESCAB" C
+            JOIN "@MGS_CL_GESDET" D
+              ON D."DocEntry" = C."DocEntry"
+            WHERE C."U_MGS_CL_PERIODO" = :lvPeriodoBase
+        ) G ON G."U_MGS_CL_TIENDA" = P."PrjCode"
+        WHERE P."Active" = 'Y'
+        ORDER BY P."PrjCode", P."PrjName";
+
 
     ELSEIF vTipo = 'Get_VanTienda' THEN
 
