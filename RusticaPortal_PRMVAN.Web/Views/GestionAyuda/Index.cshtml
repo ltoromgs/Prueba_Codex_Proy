@@ -439,7 +439,7 @@
 
         document.getElementById('btnBuscar')?.addEventListener('click', async () => {
             const periodoInput = document.getElementById('filtroPeriodo').value;
-            const periodo = toPeriodoKey(periodoInput);
+            const periodo = periodoInput;
             const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value).join(',');
 
             showLoading('Buscando información...');
