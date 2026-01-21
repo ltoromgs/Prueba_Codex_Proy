@@ -40,11 +40,24 @@
                         </div>
                     </div>
 
-                    <!-- Tienda -->
+                    <!-- Tiendas: multiselección en dropdown, no se cierra al interactuar -->
                     <div class="col-auto">
-                        <label class="form-label mb-1">Tienda</label>
-                        <input type="text" id="filtroTienda" class="form-control form-control-sm" placeholder="Buscar por código o nombre" list="listaTiendas" autocomplete="off" />
-                        <datalist id="listaTiendas"></datalist>
+                        <label class="form-label mb-1">Tiendas</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                Seleccionar tiendas
+                            </button>
+                            <div class="dropdown-menu p-3" style="max-height: 280px; overflow: auto; width: 320px;">
+                                <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
+                                <div id="tiendasListado" class="d-grid gap-1"></div>
+
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
+                                    <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
+                                    <a href="#" id="tiendaLimpiar" class="link-secondary small">Limpiar</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Botones -->
@@ -217,8 +230,8 @@
         const docEntryLabel = document.getElementById('lblDocEntry');
         const btnNuevo = document.getElementById('btnNuevo');
         const btnActualizarTodo = document.getElementById('btnActualizarTodo');
-        const listaTiendas = document.getElementById('listaTiendas');
-        const filtroTienda = document.getElementById('filtroTienda');
+        const tiendasEstado = document.getElementById('tiendasEstado');
+        const tiendasListado = document.getElementById('tiendasListado');
         let tiposCache = [];
         let defaultTipoCode = '';
         let previewData = [];
@@ -331,6 +344,8 @@
         }
 
         async function cargarTiendas() {
+            if (tiendasEstado) tiendasEstado.textContent = 'Cargando tiendas...';
+
             showLoading('Cargando tiendas...');
 
             try {
@@ -341,54 +356,47 @@
                 renderTiendas(data);
             } catch (err) {
                 console.error('ERROR TIENDAS:', err);
-                tiendasCache = [];
-                if (listaTiendas) listaTiendas.innerHTML = '';
-                showAlert('No se pudieron cargar las tiendas.', 'danger');
+                if (tiendasEstado) tiendasEstado.textContent = 'No se pudieron cargar las tiendas.';
+                if (tiendasListado) tiendasListado.innerHTML = '';
             } finally {
                 hideLoading();
             }
         }
 
         function renderTiendas(lista) {
-            if (!listaTiendas) return;
+            if (!tiendasListado || !tiendasEstado) return;
 
             if (!Array.isArray(lista) || lista.length === 0) {
-                tiendasCache = [];
-                listaTiendas.innerHTML = '';
+                tiendasEstado.textContent = 'No hay tiendas activas disponibles.';
+                tiendasListado.innerHTML = '';
                 return;
             }
 
             tiendasCache = lista;
-            const opciones = ['<option value="Todas"></option>']
-                .concat(lista.map(t => {
-                    const codigo = t.codigo ?? t.Codigo ?? '';
-                    const nombre = t.nombre ?? t.Nombre ?? '';
-                    const display = `${codigo} - ${nombre}`.trim();
-                    return `<option value="${display}"></option>`;
-                }));
-            listaTiendas.innerHTML = opciones.join('');
+            tiendasEstado.textContent = 'Marca una o más tiendas';
+            tiendasListado.innerHTML = lista.map(t => {
+                const codigo = t.codigo ?? t.Codigo ?? '';
+                const nombre = t.nombre ?? t.Nombre ?? '';
+                const id = `t_${codigo}`;
+
+                return `
+                        <div class="form-check">
+                            <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
+                            <label class="form-check-label" for="${id}">${codigo} - ${nombre}</label>
+                        </div>`;
+            }).join('');
         }
+        // ---------- Utilidades de Tiendas ----------
+        const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
 
-        function resolverCodigoTienda(valor) {
-            const entrada = (valor ?? '').trim();
-            if (!entrada) return '';
-            if (entrada.toLowerCase() === 'todas') return '';
-
-            const directo = tiendasCache.find(t => (t.codigo ?? t.Codigo ?? '').trim().toLowerCase() === entrada.toLowerCase());
-            if (directo) return directo.codigo ?? directo.Codigo ?? '';
-
-            const porNombre = tiendasCache.find(t => (t.nombre ?? t.Nombre ?? '').trim().toLowerCase() === entrada.toLowerCase());
-            if (porNombre) return porNombre.codigo ?? porNombre.Codigo ?? '';
-
-            const partes = entrada.split('-').map(p => p.trim());
-            if (partes.length > 0) {
-                const codigo = partes[0];
-                const match = tiendasCache.find(t => (t.codigo ?? t.Codigo ?? '').trim().toLowerCase() === codigo.toLowerCase());
-                if (match) return match.codigo ?? match.Codigo ?? '';
-            }
-
-            return entrada;
-        }
+        document.getElementById('tiendaSelTodas')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            checks().forEach(ch => ch.checked = true);
+        });
+        document.getElementById('tiendaLimpiar')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            checks().forEach(ch => ch.checked = false);
+        });
 
         function buildTipoOptions(selectedValue) {
             const fallback = getDefaultTipoCode();
@@ -432,14 +440,11 @@
         document.getElementById('btnBuscar')?.addEventListener('click', async () => {
             const periodoInput = document.getElementById('filtroPeriodo').value;
             const periodo = toPeriodoKey(periodoInput);
-            const tiendaSeleccionada = resolverCodigoTienda(filtroTienda?.value ?? '');
+            const tiendas = checks().filter(ch => ch.checked).map(ch => ch.value).join(',');
 
             showLoading('Buscando información...');
             try {
-                let url = `/GestionAyuda/Buscar?periodo=${encodeURIComponent(periodo)}`;
-                if (tiendaSeleccionada) {
-                    url += `&tienda=${encodeURIComponent(tiendaSeleccionada)}`;
-                }
+                const url = `/GestionAyuda/Buscar?periodo=${encodeURIComponent(periodo)}&tiendas=${encodeURIComponent(tiendas)}`;
                 const res = await fetch(url, { method: 'GET' });
                 const data = await res.json();
 

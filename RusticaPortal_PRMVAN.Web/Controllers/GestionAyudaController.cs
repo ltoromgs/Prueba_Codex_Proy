@@ -27,7 +27,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Buscar(string periodo, string? tienda)
+        public async Task<IActionResult> Buscar(string periodo, string? tiendas)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(empresa))
@@ -38,9 +38,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
                 ["empresa"] = empresa,
                 ["periodo"] = periodo
             };
-            if (!string.IsNullOrWhiteSpace(tienda))
+            if (!string.IsNullOrWhiteSpace(tiendas))
             {
-                queryParams["tienda"] = tienda;
+                queryParams["tiendas"] = tiendas;
             }
 
             var endpoint = QueryHelpers.AddQueryString("/api/gestionayuda/buscar", queryParams);
