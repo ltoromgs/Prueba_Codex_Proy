@@ -296,9 +296,13 @@ BEGIN
         DECLARE lvPeriodoDestino NVARCHAR(10);
         DECLARE lvTipoDefault NVARCHAR(20);
 
-        SELECT MAX(TO_DATE('01-' || "U_MGS_CL_PERIODO", 'DD-MM-YYYY'))
+		 SELECT MAX("U_MGS_CL_PERIODO")
           INTO lvPeriodoBaseDate
           FROM "@MGS_CL_GESCAB";
+		
+        /*SELECT MAX(TO_DATE('01-' || "U_MGS_CL_PERIODO", 'DD-MM-YYYY'))
+          INTO lvPeriodoBaseDate
+          FROM "@MGS_CL_GESCAB";*/
 
         IF lvPeriodoBaseDate IS NULL THEN
             lvPeriodoBase := TO_VARCHAR(CURRENT_DATE, 'MM-YYYY');
@@ -349,11 +353,11 @@ BEGIN
             FROM "@MGS_CL_GESCAB" C
             JOIN "@MGS_CL_GESDET" D
               ON D."DocEntry" = C."DocEntry"
-            WHERE C."U_MGS_CL_PERIODO" = :lvPeriodoBase
+            WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", 'YYYY-MM') = :lvPeriodoBase
         ) G ON G."U_MGS_CL_TIENDA" = P."PrjCode"
         WHERE P."Active" = 'Y'
         ORDER BY P."PrjCode", P."PrjName";
-
+ 
 
     ELSEIF vTipo = 'Get_VanTienda' THEN
 
