@@ -87,7 +87,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         }
 
         [HttpGet("buscar")]
-        public async Task<ActionResult<ResponseInformation>> Buscar([FromQuery] string Empresa, [FromQuery] string periodo)
+        public async Task<ActionResult<ResponseInformation>> Buscar([FromQuery] string Empresa, [FromQuery] string periodo, [FromQuery] string? tienda)
         {
             try
             {
@@ -98,7 +98,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     return Ok(validacion);
                 }
 
-                var rp = await _documentService.GetGestionAyudaBuscar(Empresa, periodo);
+                var rp = await _documentService.GetGestionAyudaBuscar(Empresa, periodo, tienda);
                 return Ok(rp);
             }
             catch (Exception ex)

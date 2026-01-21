@@ -284,8 +284,11 @@ BEGIN
         FROM "@MGS_CL_GESCAB" C
         JOIN "@MGS_CL_GESDET" D
           ON D."DocEntry" = C."DocEntry"
-        WHERE (:vParam1 <> '' AND C."DocEntry" = :vParam1)
-           OR (:vParam1 = '' AND :vParam2 <> '' AND C."U_MGS_CL_PERIODO" = :vParam2)
+        WHERE (
+                (:vParam1 <> '' AND C."DocEntry" = :vParam1)
+             OR (:vParam1 = '' AND :vParam2 <> '' AND C."U_MGS_CL_PERIODO" = :vParam2)
+        )
+          AND (:vParam3 = '' OR D."U_MGS_CL_TIENDA" = :vParam3)
         ORDER BY D."LineId";
 
 

@@ -27,17 +27,23 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Buscar(string periodo)
+        public async Task<IActionResult> Buscar(string periodo, string? tienda)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(empresa))
                 return BadRequest(new { message = "Empresa no encontrada en sesión." });
 
-            var endpoint = QueryHelpers.AddQueryString("/api/gestionayuda/buscar", new Dictionary<string, string?>
+            var queryParams = new Dictionary<string, string?>
             {
                 ["empresa"] = empresa,
                 ["periodo"] = periodo
-            });
+            };
+            if (!string.IsNullOrWhiteSpace(tienda))
+            {
+                queryParams["tienda"] = tienda;
+            }
+
+            var endpoint = QueryHelpers.AddQueryString("/api/gestionayuda/buscar", queryParams);
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);
 
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });

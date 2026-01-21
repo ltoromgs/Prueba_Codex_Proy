@@ -33,8 +33,8 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetGestionAyudaTipos(string empresa);
         Task<ResponseInformation> GetGestionAyudaUltPeriodo(string empresa);
         Task<ResponseInformation> GetGestionAyudaCab(string empresa, string periodo);
-        Task<ResponseInformation> GetGestionAyudaDet(string empresa, string docEntry, string periodo);
-        Task<ResponseInformation> GetGestionAyudaBuscar(string empresa, string periodo);
+        Task<ResponseInformation> GetGestionAyudaDet(string empresa, string docEntry, string periodo, string? tienda);
+        Task<ResponseInformation> GetGestionAyudaBuscar(string empresa, string periodo, string? tienda);
         Task<ResponseInformation> GetGestionAyudaPreview(string empresa);
         Task<ResponseInformation> GetContactoDB(string empresa);
         Task<ResponseInformation> GetGrupoVanTipos(string empresa);

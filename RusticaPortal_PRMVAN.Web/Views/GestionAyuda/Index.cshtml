@@ -40,6 +40,13 @@
                         </div>
                     </div>
 
+                    <!-- Tienda -->
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Tienda</label>
+                        <input type="text" id="filtroTienda" class="form-control form-control-sm" placeholder="Buscar por código o nombre" list="listaTiendas" autocomplete="off" />
+                        <datalist id="listaTiendas"></datalist>
+                    </div>
+
                     <!-- Botones -->
                     <div class="col-auto ms-auto d-flex gap-2">
                         <button id="btnBuscar" class="btn btn-primary btn-sm">
@@ -210,12 +217,15 @@
         const docEntryLabel = document.getElementById('lblDocEntry');
         const btnNuevo = document.getElementById('btnNuevo');
         const btnActualizarTodo = document.getElementById('btnActualizarTodo');
+        const listaTiendas = document.getElementById('listaTiendas');
+        const filtroTienda = document.getElementById('filtroTienda');
         let tiposCache = [];
         let defaultTipoCode = '';
         let previewData = [];
         let modalNuevo;
         let nuevoPeriodoDestinoValor = '';
         let loadingCount = 0;
+        let tiendasCache = [];
 
         function showAlert(message, type = 'success') {
             if (!alertContainer) { alert(message); return; }
@@ -320,6 +330,66 @@
             }
         }
 
+        async function cargarTiendas() {
+            showLoading('Cargando tiendas...');
+
+            try {
+                const res = await fetch('/GestionAyuda/Tiendas');
+                if (!res.ok) throw new Error('Error al obtener tiendas');
+
+                const data = await res.json();
+                renderTiendas(data);
+            } catch (err) {
+                console.error('ERROR TIENDAS:', err);
+                tiendasCache = [];
+                if (listaTiendas) listaTiendas.innerHTML = '';
+                showAlert('No se pudieron cargar las tiendas.', 'danger');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderTiendas(lista) {
+            if (!listaTiendas) return;
+
+            if (!Array.isArray(lista) || lista.length === 0) {
+                tiendasCache = [];
+                listaTiendas.innerHTML = '';
+                return;
+            }
+
+            tiendasCache = lista;
+            const opciones = ['<option value="Todas"></option>']
+                .concat(lista.map(t => {
+                    const codigo = t.codigo ?? t.Codigo ?? '';
+                    const nombre = t.nombre ?? t.Nombre ?? '';
+                    const display = `${codigo} - ${nombre}`.trim();
+                    return `<option value="${display}"></option>`;
+                }));
+            listaTiendas.innerHTML = opciones.join('');
+        }
+
+        function resolverCodigoTienda(valor) {
+            const entrada = (valor ?? '').trim();
+            if (!entrada) return '';
+            if (entrada.toLowerCase() === 'todas') return '';
+
+            const directo = tiendasCache.find(t => (t.codigo ?? t.Codigo ?? '').trim().toLowerCase() === entrada.toLowerCase());
+            if (directo) return directo.codigo ?? directo.Codigo ?? '';
+
+            const porNombre = tiendasCache.find(t => (t.nombre ?? t.Nombre ?? '').trim().toLowerCase() === entrada.toLowerCase());
+            if (porNombre) return porNombre.codigo ?? porNombre.Codigo ?? '';
+
+            const partes = entrada.split('-').map(p => p.trim());
+            if (partes.length > 0) {
+                const codigo = partes[0];
+                const match = tiendasCache.find(t => (t.codigo ?? t.Codigo ?? '').trim().toLowerCase() === codigo.toLowerCase());
+                if (match) return match.codigo ?? match.Codigo ?? '';
+            }
+
+            return entrada;
+        }
+
         function buildTipoOptions(selectedValue) {
             const fallback = getDefaultTipoCode();
             const selected = selectedValue && selectedValue.trim() ? selectedValue : fallback;
@@ -362,10 +432,14 @@
         document.getElementById('btnBuscar')?.addEventListener('click', async () => {
             const periodoInput = document.getElementById('filtroPeriodo').value;
             const periodo = toPeriodoKey(periodoInput);
+            const tiendaSeleccionada = resolverCodigoTienda(filtroTienda?.value ?? '');
 
             showLoading('Buscando información...');
             try {
-                const url = `/GestionAyuda/Buscar?periodo=${encodeURIComponent(periodo)}`;
+                let url = `/GestionAyuda/Buscar?periodo=${encodeURIComponent(periodo)}`;
+                if (tiendaSeleccionada) {
+                    url += `&tienda=${encodeURIComponent(tiendaSeleccionada)}`;
+                }
                 const res = await fetch(url, { method: 'GET' });
                 const data = await res.json();
 
@@ -757,6 +831,7 @@
             renderEmptyRows();
             updateDocEntryInfo('');
             cargarTipos();
+            cargarTiendas();
             if (window.bootstrap && document.getElementById('modalNuevo')) {
                 modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
             }
