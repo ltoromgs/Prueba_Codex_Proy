@@ -1827,3 +1827,280 @@
 2026-01-20 18:26:59.164 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api) in 24765.5195ms
 2026-01-20 18:26:59.164 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api)'
 2026-01-20 18:26:59.164 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/gestionayuda/crear?empresa=1 application/json;+charset=utf-8 2391 - 200 - application/json;+charset=utf-8 24765.8894ms
+2026-01-20 18:30:24.540 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:30:24.540 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:24.540 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:30:24.540 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:30:24.554 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.8828ms.
+2026-01-20 18:30:24.555 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:30:24.555 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 14.5202ms
+2026-01-20 18:30:24.555 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:24.555 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 14.9791ms
+2026-01-20 18:30:24.568 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/nuevo-preview?empresa=1 - -
+2026-01-20 18:30:24.568 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:24.568 -05:00 [INF] Route matched with {action = "GetPreview", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetPreview(System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:30:24.568 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:30:24.634 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 65.0961ms.
+2026-01-20 18:30:24.634 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:30:24.634 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api) in 66.2046ms
+2026-01-20 18:30:24.635 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:24.635 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/nuevo-preview?empresa=1 - - - 200 - application/json;+charset=utf-8 66.9739ms
+2026-01-20 18:30:27.069 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:30:27.070 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:27.070 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:30:27.070 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:30:27.083 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.4253ms.
+2026-01-20 18:30:27.084 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:30:27.084 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 13.9693ms
+2026-01-20 18:30:27.084 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:27.084 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 14.4596ms
+2026-01-20 18:30:27.095 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/gestionayuda/crear?empresa=1 application/json;+charset=utf-8 2391
+2026-01-20 18:30:27.095 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:30:27.095 -05:00 [INF] Route matched with {action = "Crear", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Crear(System.String, GestionAyudaCreateRequest) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:30:27.096 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:35:30.414 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 303316.1066ms.
+2026-01-20 18:35:30.414 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:35:30.414 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api) in 303317.134ms
+2026-01-20 18:35:30.414 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:35:30.414 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/gestionayuda/crear?empresa=1 application/json;+charset=utf-8 2391 - 200 - application/json;+charset=utf-8 303317.5519ms
+2026-01-20 18:40:30.902 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-20 18:40:31.054 -05:00 [INF] HTTP/2 over TLS is not supported on Windows versions older than Windows 10 and Windows Server 2016 due to incompatible ciphers or missing ALPN support. Falling back to HTTP/1.1 instead.
+2026-01-20 18:40:31.061 -05:00 [INF] Now listening on: https://localhost:7287
+2026-01-20 18:40:31.063 -05:00 [INF] Now listening on: http://localhost:5116
+2026-01-20 18:40:31.063 -05:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-01-20 18:40:31.063 -05:00 [INF] Hosting environment: Development
+2026-01-20 18:40:31.063 -05:00 [INF] Content root path: C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api
+2026-01-20 18:40:34.556 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger - -
+2026-01-20 18:40:35.028 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger - - - 301 0 - 475.6468ms
+2026-01-20 18:40:35.069 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/index.html - -
+2026-01-20 18:40:36.050 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/index.html - - - 200 - text/html;charset=utf-8 981.6620ms
+2026-01-20 18:40:36.085 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - -
+2026-01-20 18:40:36.085 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - -
+2026-01-20 18:40:36.386 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - -
+2026-01-20 18:40:37.164 -05:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2026-01-20 18:40:37.165 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui.css - - - 200 143943 text/css 1080.6085ms
+2026-01-20 18:40:37.429 -05:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2026-01-20 18:40:37.429 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-standalone-preset.js - - - 200 339486 application/javascript 1042.8270ms
+2026-01-20 18:40:37.445 -05:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2026-01-20 18:40:37.445 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/swagger-ui-bundle.js - - - 200 1096145 application/javascript 1360.1619ms
+2026-01-20 18:40:38.112 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - -
+2026-01-20 18:40:38.147 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/swagger/favicon-32x32.png - -
+2026-01-20 18:40:38.148 -05:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2026-01-20 18:40:38.148 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/favicon-32x32.png - - - 200 628 image/png 0.8758ms
+2026-01-20 18:40:38.647 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/swagger/v1/swagger.json - - - 200 - application/json;charset=utf-8 535.1837ms
+2026-01-20 18:40:42.168 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/Empresas - -
+2026-01-20 18:40:42.214 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.EmpresasController.Get (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:42.247 -05:00 [INF] Route matched with {action = "Get", controller = "Empresas"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation] Get() on controller RusticaPortal_PRMVAN.Api.Controllers.EmpresasController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:40:42.254 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.EmpresasController.Get (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:40:42.450 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.EmpresasController.Get (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 189.2844ms.
+2026-01-20 18:40:42.454 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:40:42.476 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.EmpresasController.Get (RusticaPortal-PRMVAN.Api) in 222.9578ms
+2026-01-20 18:40:42.476 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.EmpresasController.Get (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:42.476 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/Empresas - - - 200 - application/json;+charset=utf-8 307.7766ms
+2026-01-20 18:40:42.698 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/contacto?empresa=1 - -
+2026-01-20 18:40:42.700 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.ContactoController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:42.714 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Contacto"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.ContactoController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:40:42.732 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.ContactoController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:40:44.221 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.ContactoController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 1489.0218ms.
+2026-01-20 18:40:44.223 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:40:44.224 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.ContactoController.GetMenu (RusticaPortal-PRMVAN.Api) in 1509.6159ms
+2026-01-20 18:40:44.224 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.ContactoController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:44.225 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/contacto?empresa=1 - - - 200 - application/json;+charset=utf-8 1526.9734ms
+2026-01-20 18:40:55.203 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 application/json;+charset=utf-8 42
+2026-01-20 18:40:55.203 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:55.207 -05:00 [INF] Route matched with {action = "Post", controller = "Account"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Post(RusticaPortal_PRMVAN.Api.Entities.ObjectSAP.AccountGetDTO, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.AccountController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:40:55.240 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:40:55.474 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 233.5459ms.
+2026-01-20 18:40:55.474 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:40:55.474 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal-PRMVAN.Api) in 267.3826ms
+2026-01-20 18:40:55.475 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.AccountController.Post (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:55.475 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/Account?Empresa=1 application/json;+charset=utf-8 42 - 200 - application/json;+charset=utf-8 271.4941ms
+2026-01-20 18:40:55.535 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:40:55.536 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:55.539 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:40:55.542 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:40:55.588 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 45.7723ms.
+2026-01-20 18:40:55.588 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:40:55.588 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 48.8481ms
+2026-01-20 18:40:55.589 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:40:55.589 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 53.2470ms
+2026-01-20 18:41:00.595 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:00.596 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:00.596 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:00.596 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:00.610 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.1076ms.
+2026-01-20 18:41:00.610 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:00.610 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 14.1106ms
+2026-01-20 18:41:00.610 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:00.610 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 15.0691ms
+2026-01-20 18:41:01.307 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:01.308 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:01.308 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:01.308 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:01.321 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 12.5187ms.
+2026-01-20 18:41:01.321 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:01.321 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 13.4947ms
+2026-01-20 18:41:01.321 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:01.321 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 14.0700ms
+2026-01-20 18:41:01.340 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/tipos?empresa=1 - -
+2026-01-20 18:41:01.340 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:01.343 -05:00 [INF] Route matched with {action = "GetTipos", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetTipos(System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:01.344 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:01.361 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 17.2543ms.
+2026-01-20 18:41:01.362 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:01.362 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api) in 18.6146ms
+2026-01-20 18:41:01.362 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:01.362 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/tipos?empresa=1 - - - 200 - application/json;+charset=utf-8 22.4416ms
+2026-01-20 18:41:05.444 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:05.444 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:05.444 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:05.444 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:05.457 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 12.2792ms.
+2026-01-20 18:41:05.457 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:05.457 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 13.136ms
+2026-01-20 18:41:05.457 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:05.457 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 13.6751ms
+2026-01-20 18:41:05.470 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/nuevo-preview?empresa=1 - -
+2026-01-20 18:41:05.472 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:05.475 -05:00 [INF] Route matched with {action = "GetPreview", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetPreview(System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:05.478 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:05.554 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 75.802ms.
+2026-01-20 18:41:05.554 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:05.554 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api) in 78.7575ms
+2026-01-20 18:41:05.554 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetPreview (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:05.554 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/nuevo-preview?empresa=1 - - - 200 - application/json;+charset=utf-8 83.9800ms
+2026-01-20 18:41:18.453 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:18.453 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:18.454 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:18.454 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:18.492 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 38.0762ms.
+2026-01-20 18:41:18.493 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:18.493 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 39.2214ms
+2026-01-20 18:41:18.493 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:18.493 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 39.8949ms
+2026-01-20 18:41:18.536 -05:00 [INF] Request starting HTTP/1.1 POST https://localhost:7287/api/gestionayuda/crear?empresa=1 application/json;+charset=utf-8 2391
+2026-01-20 18:41:18.536 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:18.540 -05:00 [INF] Route matched with {action = "Crear", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Crear(System.String, GestionAyudaCreateRequest) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:18.555 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:37.839 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 19283.4459ms.
+2026-01-20 18:41:37.839 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:37.839 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api) in 19299.1636ms
+2026-01-20 18:41:37.839 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Crear (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:37.839 -05:00 [INF] Request finished HTTP/1.1 POST https://localhost:7287/api/gestionayuda/crear?empresa=1 application/json;+charset=utf-8 2391 - 200 - application/json;+charset=utf-8 19303.1587ms
+2026-01-20 18:41:37.900 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:37.900 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:37.900 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:37.901 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:37.914 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.5275ms.
+2026-01-20 18:41:37.914 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:37.915 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 14.3354ms
+2026-01-20 18:41:37.915 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:37.915 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 14.9522ms
+2026-01-20 18:41:37.938 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=01-2026 - -
+2026-01-20 18:41:37.938 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:37.942 -05:00 [INF] Route matched with {action = "Buscar", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Buscar(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:37.942 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:38.142 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 199.6037ms.
+2026-01-20 18:41:38.142 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:38.142 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) in 200.5328ms
+2026-01-20 18:41:38.142 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:38.143 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=01-2026 - - - 200 - application/json;+charset=utf-8 204.4053ms
+2026-01-20 18:41:43.665 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:43.668 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:43.668 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:43.668 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:43.682 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.1844ms.
+2026-01-20 18:41:43.682 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:43.682 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 14.0089ms
+2026-01-20 18:41:43.682 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:43.682 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 16.9777ms
+2026-01-20 18:41:43.695 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - -
+2026-01-20 18:41:43.695 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:43.696 -05:00 [INF] Route matched with {action = "Buscar", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Buscar(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:43.696 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:43.893 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 197.3847ms.
+2026-01-20 18:41:43.894 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:43.894 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) in 198.4727ms
+2026-01-20 18:41:43.894 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:43.894 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - - - 200 - application/json;+charset=utf-8 199.1516ms
+2026-01-20 18:41:51.661 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:41:51.661 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:51.661 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:51.662 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:51.675 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 13.2504ms.
+2026-01-20 18:41:51.675 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:51.676 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 13.9987ms
+2026-01-20 18:41:51.676 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:51.676 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 14.5402ms
+2026-01-20 18:41:51.689 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - -
+2026-01-20 18:41:51.689 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:51.689 -05:00 [INF] Route matched with {action = "Buscar", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Buscar(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:41:51.689 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:41:51.852 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 162.4639ms.
+2026-01-20 18:41:51.852 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:41:51.852 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) in 163.3055ms
+2026-01-20 18:41:51.852 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:41:51.852 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - - - 200 - application/json;+charset=utf-8 163.8065ms
+2026-01-20 18:42:05.015 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:42:05.015 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:05.015 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:05.016 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:05.047 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 31.1186ms.
+2026-01-20 18:42:05.047 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:05.047 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 32.0013ms
+2026-01-20 18:42:05.047 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:05.048 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 32.6235ms
+2026-01-20 18:42:05.073 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - -
+2026-01-20 18:42:05.074 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:05.074 -05:00 [INF] Route matched with {action = "Buscar", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Buscar(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:05.074 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:05.235 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 161.0064ms.
+2026-01-20 18:42:05.236 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:05.236 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) in 161.9067ms
+2026-01-20 18:42:05.236 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:05.236 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - - - 200 - application/json;+charset=utf-8 162.7757ms
+2026-01-20 18:42:06.827 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:42:06.828 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:06.828 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:06.830 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:06.844 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 14.3437ms.
+2026-01-20 18:42:06.845 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:06.845 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 16.399ms
+2026-01-20 18:42:06.845 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:06.845 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 17.9435ms
+2026-01-20 18:42:07.252 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:42:07.253 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:07.253 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:07.253 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:07.352 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 99.0305ms.
+2026-01-20 18:42:07.353 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:07.353 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 100.1347ms
+2026-01-20 18:42:07.353 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:07.353 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 100.6953ms
+2026-01-20 18:42:07.366 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/tipos?empresa=1 - -
+2026-01-20 18:42:07.367 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:07.367 -05:00 [INF] Route matched with {action = "GetTipos", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetTipos(System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:07.367 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:07.502 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 134.8589ms.
+2026-01-20 18:42:07.502 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:07.503 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api) in 135.9435ms
+2026-01-20 18:42:07.503 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.GetTipos (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:07.503 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/tipos?empresa=1 - - - 200 - application/json;+charset=utf-8 136.5564ms
+2026-01-20 18:42:09.827 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - -
+2026-01-20 18:42:09.827 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:09.827 -05:00 [INF] Route matched with {action = "GetMenu", controller = "Menu"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] GetMenu(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.MenuController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:09.828 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:09.839 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 11.2811ms.
+2026-01-20 18:42:09.839 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:09.839 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api) in 11.9361ms
+2026-01-20 18:42:09.839 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.MenuController.GetMenu (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:09.840 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/menu?empresa=1&userId=JGONZALEZ - - - 200 - application/json;+charset=utf-8 12.4679ms
+2026-01-20 18:42:09.849 -05:00 [INF] Request starting HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - -
+2026-01-20 18:42:09.850 -05:00 [INF] Executing endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:09.850 -05:00 [INF] Route matched with {action = "Buscar", controller = "GestionAyuda"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation]] Buscar(System.String, System.String) on controller RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController (RusticaPortal-PRMVAN.Api).
+2026-01-20 18:42:09.850 -05:00 [INF] Executing action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) - Validation state: "Valid"
+2026-01-20 18:42:10.029 -05:00 [INF] Executed action method RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 179.1572ms.
+2026-01-20 18:42:10.029 -05:00 [INF] Executing OkObjectResult, writing value of type 'RusticaPortal_PRMVAN.Api.Entities.Information.ResponseInformation'.
+2026-01-20 18:42:10.030 -05:00 [INF] Executed action RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api) in 180.0966ms
+2026-01-20 18:42:10.030 -05:00 [INF] Executed endpoint 'RusticaPortal_PRMVAN.Api.Controllers.GestionAyudaController.Buscar (RusticaPortal-PRMVAN.Api)'
+2026-01-20 18:42:10.030 -05:00 [INF] Request finished HTTP/1.1 GET https://localhost:7287/api/gestionayuda/buscar?empresa=1&periodo=02-2026 - - - 200 - application/json;+charset=utf-8 180.7618ms
