@@ -743,19 +743,19 @@
             let match = valor.match(/^(\d{2})-(\d{4})$/);
             if (match) {
                 const [, mm, yyyy] = match;
-                return monthIsValid(mm) ? `01-${mm}-${yyyy}` : '';
+                return monthIsValid(mm) ? `${yyyy}-${mm}-01` : '';
             }
 
             match = valor.match(/^(\d{4})-(\d{2})$/);
             if (match) {
                 const [, yyyy, mm] = match;
-                return monthIsValid(mm) ? `01-${mm}-${yyyy}` : '';
+                return monthIsValid(mm) ? `${yyyy}-${mm}-01` : '';
             }
 
             match = valor.match(/^01-(\d{2})-(\d{4})$/);
             if (match) {
                 const [, mm, yyyy] = match;
-                return monthIsValid(mm) ? `01-${mm}-${yyyy}` : '';
+                return monthIsValid(mm) ? `${yyyy}-${mm}-01` : '';
             }
 
             return '';
