@@ -20,9 +20,6 @@ using System.Globalization;
 
 namespace RusticaPortal_PRMVAN.Api.Services
 {
-
-
-
     public class DocumentService : IDocumentService
     {
         private readonly IConfiguration _configuration;
@@ -39,63 +36,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             _loginService = loginService;
         }
 
-        public async Task<ResponseInformation> GetGrupoVanTipos(string empresa)
-        {
-            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
-            {
-                return error;
-            }
-
-            var tipos = new List<VanTipoDto>();
-
-            using var conn = new HanaConnection(cfg.ConnectionString);
-            try
-            {
-                await conn.OpenAsync();
-
-                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTipo";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
-                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
-
-                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    tipos.Add(new VanTipoDto
-                    {
-                        Code = reader[nameof(VanTipoDto.Code)]?.ToString() ?? string.Empty,
-                        Name = reader[nameof(VanTipoDto.Name)]?.ToString() ?? string.Empty
-                    });
-                }
-
-                return new ResponseInformation
-                {
-                    Registered = true,
-                    Message = string.Empty,
-                    Content = JsonConvert.SerializeObject(tipos)
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "Error al cargar tipos VAN.",
-                    Content = ex.Message
-                };
-            }
-            finally
-            {
-                if (conn.State == ConnectionState.Open)
-                    conn.Close();
-            }
-        }
+        
 
         public async Task<AditionalInfomation> GetClienteMoneda(string project, string BaseDatos)
         {
@@ -2460,6 +2401,67 @@ namespace RusticaPortal_PRMVAN.Api.Services
             return true;
         }
 
+
+        /****inicio comentarios****/
+       /* public async Task<ResponseInformation> GetGrupoVanTipos(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tipos = new List<VanTipoDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTipo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tipos.Add(new VanTipoDto
+                    {
+                        Code = reader[nameof(VanTipoDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(VanTipoDto.Name)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tipos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar tipos VAN.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+
         public async Task<ResponseInformation> GetGrupoVanTiendas(string empresa)
         {
             if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
@@ -3157,6 +3159,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
             return await UpdateInfo(requestInformationFinal, "PYP", login.Cfg);
         }
+       */
+        /**** fin comentario*/
 
         public async Task<ResponseInformation> GetGrupoPrmTiendas(string empresa)
         {
@@ -4293,6 +4297,1219 @@ namespace RusticaPortal_PRMVAN.Api.Services
             return grupos;
         }
 
+        /*comentado
+         * 
+         * private static bool HasColumn(IDataRecord reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetName(i).Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private async Task<(bool Ok, ResponseInformation Error, string Token, EmpresaConfig Cfg)> LoginEmpresa(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return (false, error, string.Empty, null);
+            }
+
+            var token = await _loginService.Login(cfg);
+            if (string.IsNullOrEmpty(token))
+            {
+                return (false, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "No fue posible conectarse al Service Layer",
+                    Content = string.Empty
+                }, string.Empty, null);
+            }
+
+            return (true, null, token, cfg);
+        }
+
+        private async Task<string> ObtenerNombreTienda(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTdaNom";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                if (reader.Read())
+                {
+                    return reader["PrjName"]?.ToString();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener nombre de tienda ({tiendaCodigo}): {ex.Message}", ex);
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open) conn.Close();
+            }
+        }
+
+        private async Task<int?> ObtenerDocEntryVanCab(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanCab";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read() && !reader.IsDBNull(reader.GetOrdinal("DocEntry")))
+            {
+                return Convert.ToInt32(reader["DocEntry"]);
+            }
+            return null;
+        }
+              
+
+        private async Task<(string GrupoCodigo, string GrupoNombre)> ObtenerGrupoArticuloActivo(EmpresaConfig cfg, string tiendaCodigo, string itemCode, string grupoExclusion)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanItemTienda";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = itemCode ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = grupoExclusion ?? string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                return (reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty, reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty);
+            }
+            return (string.Empty, string.Empty);
+        }
+
+        private async Task<bool> ExisteGrupoVan(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpEx";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var count = reader.IsDBNull(reader.GetOrdinal("Total")) ? 0 : Convert.ToInt32(reader["Total"]);
+                return count > 0;
+            }
+            return false;
+        }
+
+        private async Task<(int? LineId, string Activo)> ObtenerGrupoVanDetalle(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpDet";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                var lineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? (int?)null : Convert.ToInt32(reader["LineId"]);
+                var activo = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty;
+                return (lineId, activo);
+            }
+            return (null, string.Empty);
+        }
+
+        private async Task<string> ObtenerNombreGrupo(EmpresaConfig cfg, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpNom";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            if (reader.Read())
+            {
+                return reader["Name"]?.ToString() ?? string.Empty;
+            }
+            return string.Empty;
+        }*/
+
+        private async Task<List<VanArticuloDetalleDto>> ObtenerArticulosActivosPorGrupo(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        {
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrpArt";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = grupoCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            var articulos = new List<VanArticuloDetalleDto>();
+            while (reader.Read())
+            {
+                articulos.Add(new VanArticuloDetalleDto
+                {
+                    DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                    LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                    U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPO = HasColumn(reader, "U_MGS_CL_TIPO") ? reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty : string.Empty,
+                    U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null,
+                    U_MGS_CL_ACTIVO = HasColumn(reader, "U_MGS_CL_ACTIVO") ? reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty : string.Empty
+                });
+            }
+            return articulos;
+        }
+
+
+        /***********************************************inicio restaurando van*******************************************************/
+        public async Task<ResponseInformation> GetGrupoVanTipos(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tipos = new List<VanTipoDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTipo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tipos.Add(new VanTipoDto
+                    {
+                        Code = reader[nameof(VanTipoDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(VanTipoDto.Name)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tipos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar tipos VAN.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+        public async Task<ResponseInformation> GetGrupoVanTiendas(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var tiendas = new List<VanTiendaDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTienda";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    tiendas.Add(new VanTiendaDto
+                    {
+                        PrjCode = reader[nameof(VanTiendaDto.PrjCode)]?.ToString() ?? string.Empty,
+                        PrjName = reader[nameof(VanTiendaDto.PrjName)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(tiendas)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar grupos por tienda.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanMaestro(string empresa)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var grupos = new List<VanGrupoMaestroDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanGrupoM";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    grupos.Add(new VanGrupoMaestroDto
+                    {
+                        Code = reader[nameof(VanGrupoMaestroDto.Code)]?.ToString() ?? string.Empty,
+                        Name = reader[nameof(VanGrupoMaestroDto.Name)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(grupos)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar artículos del grupo.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanItemsMaestro(string empresa, string search)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var items = new List<VanItemMaestroDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanItemM";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = search ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    items.Add(new VanItemMaestroDto
+                    {
+                        ItemCode = reader["ItemCode"]?.ToString() ?? string.Empty,
+                        ItemName = reader["ItemName"]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(items)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanPorTienda(string empresa, string tiendaCodigo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            try
+            {
+                var grupos = await ObtenerGruposVanPorTienda(cfg, tiendaCodigo);
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(grupos)
+                };
+            }
+            catch (InvalidOperationException ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = ex.Message,
+                    Content = string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanArticulos(string empresa, string tiendaCodigo, string grupoCodigo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            try
+            {
+                var articulos = await ObtenerArticulosPorGrupo(cfg, tiendaCodigo, grupoCodigo);
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(articulos)
+                };
+            }
+            catch (InvalidOperationException ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = ex.Message,
+                    Content = string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanArticulosActivos(string empresa, string tiendaCodigo, string grupoCodigo)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            try
+            {
+                var articulos = await ObtenerArticulosPorGrupo(login.Cfg, tiendaCodigo, grupoCodigo);
+                var resultado = new
+                {
+                    Total = articulos.Count,
+                    TieneArticulos = articulos.Count > 0
+                };
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = "Consulta exitosa",
+                    Content = JsonConvert.SerializeObject(resultado)
+                };
+            }
+            catch (InvalidOperationException ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = ex.Message,
+                    Content = string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+        }
+
+        public async Task<ResponseInformation> GetGrupoVanArticuloAsignacion(string empresa, string tiendaCodigo, string itemCode, string grupoCodigo)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            try
+            {
+                var asignacion = await ObtenerGrupoArticuloActivo(login.Cfg, tiendaCodigo, itemCode, grupoCodigo);
+                var resultado = new
+                {
+                    Existe = !string.IsNullOrWhiteSpace(asignacion.GrupoCodigo),
+                    GrupoCodigo = asignacion.GrupoCodigo,
+                    GrupoNombre = asignacion.GrupoNombre
+                };
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = "Consulta exitosa",
+                    Content = JsonConvert.SerializeObject(resultado)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error en base de datos.",
+                    Content = ex.Message
+                };
+            }
+        }
+
+        public async Task<ResponseInformation> SetGrupoVanPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<VanGrupoDetalleDto> items)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            var lista = (items ?? Enumerable.Empty<VanGrupoDetalleDto>()).ToList();
+            if (!lista.Any())
+            {
+                return new ResponseInformation { Registered = false, Message = "No se recibieron grupos para actualizar.", Content = string.Empty };
+            }
+
+            foreach (var item in lista)
+            {
+                if (!item.U_MGS_CL_PORC.HasValue || item.U_MGS_CL_PORC.Value <= 0)
+                {
+                    item.U_MGS_CL_PORC = 100;
+                }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
+            }
+
+            var existingDocEntry = await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            }
+            if (existingDocEntry.HasValue)
+            {
+                foreach (var item in lista.Where(i => !i.DocEntry.HasValue))
+                {
+                    item.DocEntry = existingDocEntry;
+                }
+
+                foreach (var item in lista)
+                {
+                    if (string.IsNullOrWhiteSpace(item.U_MGS_CL_GRPCOD))
+                    {
+                        continue;
+                    }
+
+                    if (item.LineId <= 0)
+                    {
+                        var detalle = await ObtenerGrupoVanDetalle(login.Cfg, tiendaCodigo, item.U_MGS_CL_GRPCOD);
+                        if (detalle.LineId.HasValue)
+                        {
+                            item.LineId = detalle.LineId.Value;
+                            if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                            {
+                                item.U_MGS_CL_ACTIVO = "SI";
+                            }
+                        }
+                    }
+                }
+            }
+
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+            if (existingDocEntry.HasValue)
+            {
+                var updateReq = new
+                {
+                    MGS_CL_VANTDETCollection = lista.Select(i => new
+                    {
+                        i.LineId,
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_GRPNOM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = $"MGS_CL_VANTCAB({existingDocEntry})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(updateReq, settings)
+                };
+
+                var updateResponse = await UpdateInfo(requestInformation, "PYP", login.Cfg);
+                if (!updateResponse.Registered)
+                {
+                    return updateResponse;
+                }
+
+                var gruposDesactivados = lista
+                    .Where(g => string.Equals(g.U_MGS_CL_ACTIVO, "NO", StringComparison.OrdinalIgnoreCase))
+                    .Select(g => g.U_MGS_CL_GRPCOD)
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (gruposDesactivados.Any())
+                {
+                    var docEntryCab = existingDocEntry ?? await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+                    if (!docEntryCab.HasValue)
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = "No se encontró la cabecera VAN para desactivar artículos.",
+                            Content = string.Empty
+                        };
+                    }
+
+                    foreach (var grupo in gruposDesactivados)
+                    {
+                        var articulosActivos = await ObtenerArticulosPorGrupo(login.Cfg, tiendaCodigo, grupo);
+                        if (articulosActivos.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var updateArticulosReq = new
+                        {
+                            MGS_CL_VANTIADCollection = articulosActivos.Select(a => new
+                            {
+                                a.LineId,
+                                a.U_MGS_CL_GRPCOD,
+                                a.U_MGS_CL_ITEMCOD,
+                                a.U_MGS_CL_ITEMNAM,
+                                a.U_MGS_CL_TIPO,
+                                U_MGS_CL_PORC = a.U_MGS_CL_PORC ?? 0,
+                                U_MGS_CL_ACTIVO = "NO"
+                            })
+                        };
+
+                        var requestArticulos = new RequestInformation
+                        {
+                            Route = $"MGS_CL_VANTCAB({docEntryCab.Value})",
+                            Token = login.Token,
+                            Doc = JsonConvert.SerializeObject(updateArticulosReq, settings)
+                        };
+
+                        var respArticulos = await UpdateInfo(requestArticulos, "PYP", login.Cfg);
+                        if (!respArticulos.Registered)
+                        {
+                            return respArticulos;
+                        }
+                    }
+                }
+
+                return updateResponse;
+            }
+            else
+            {
+                var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaCodigo);
+                var createReq = new
+                {
+                    U_MGS_CL_TIENDA = tiendaCodigo,
+                    U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaCodigo : nombreTienda,
+                    MGS_CL_VANTDETCollection = lista.Select(i => new
+                    {
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_GRPNOM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = "MGS_CL_VANTCAB",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(createReq, settings)
+                };
+
+                return await PostInfo(requestInformation, "PYP", login.Cfg);
+            }
+        }
+
+        public async Task<ResponseInformation> SetGrupoVanArticulosBulk(string empresa, string tiendaCodigo, string grupoCodigo, IEnumerable<VanArticuloDetalleDto> items)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            var lista = (items ?? Enumerable.Empty<VanArticuloDetalleDto>()).ToList();
+            if (!lista.Any())
+            {
+                return new ResponseInformation { Registered = false, Message = "No se recibieron artículos para actualizar.", Content = string.Empty };
+            }
+
+            foreach (var item in lista)
+            {
+                if (!item.U_MGS_CL_PORC.HasValue || item.U_MGS_CL_PORC.Value <= 0)
+                {
+                    item.U_MGS_CL_PORC = 100;
+                }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_ACTIVO))
+                {
+                    item.U_MGS_CL_ACTIVO = "SI";
+                }
+                if (string.IsNullOrWhiteSpace(item.U_MGS_CL_GRPCOD))
+                {
+                    item.U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty;
+                }
+            }
+
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            var existingDocEntry = await ObtenerDocEntryVanCab(login.Cfg, tiendaCodigo);
+            if (!existingDocEntry.HasValue)
+            {
+                existingDocEntry = lista.FirstOrDefault(i => i.DocEntry.HasValue)?.DocEntry;
+            }
+            var grupoExiste = existingDocEntry.HasValue && await ExisteGrupoVan(login.Cfg, tiendaCodigo, grupoCodigo);
+
+            foreach (var item in lista.Where(i => string.Equals(i.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase)))
+            {
+                var grupoAsignado = await ObtenerGrupoArticuloActivo(login.Cfg, tiendaCodigo, item.U_MGS_CL_ITEMCOD, item.U_MGS_CL_GRPCOD);
+                if (!string.IsNullOrWhiteSpace(grupoAsignado.GrupoCodigo))
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = $"El artículo ya está asignado al grupo {grupoAsignado.GrupoCodigo}. No puede repetirse en otra asignación de la misma tienda.",
+                        Content = string.Empty
+                    };
+                }
+            }
+
+            if (!existingDocEntry.HasValue)
+            {
+                var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaCodigo);
+                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
+                var itemBase = lista.FirstOrDefault();
+                var createReq = new
+                {
+                    U_MGS_CL_TIENDA = tiendaCodigo,
+                    U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaCodigo : nombreTienda,
+                    MGS_CL_VANTDETCollection = new[]
+                    {
+                        new
+                        {
+                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                            U_MGS_CL_TIPO = itemBase?.U_MGS_CL_TIPO ?? string.Empty,
+                            U_MGS_CL_PORC = itemBase?.U_MGS_CL_PORC ?? 100,
+                            U_MGS_CL_ACTIVO = "SI"
+                        }
+                    },
+                    MGS_CL_VANTIADCollection = lista.Select(i => new
+                    {
+                        i.U_MGS_CL_GRPCOD,
+                        i.U_MGS_CL_ITEMCOD,
+                        i.U_MGS_CL_ITEMNAM,
+                        i.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestInformation = new RequestInformation
+                {
+                    Route = "MGS_CL_VANTCAB",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(createReq, settings)
+                };
+
+                return await PostInfo(requestInformation, "PYP", login.Cfg);
+            }
+
+            if (!grupoExiste)
+            {
+                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
+                var itemBase = lista.FirstOrDefault();
+                var grupoReq = new
+                {
+                    MGS_CL_VANTDETCollection = new[]
+                    {
+                        new
+                        {
+                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                            U_MGS_CL_TIPO = itemBase?.U_MGS_CL_TIPO ?? string.Empty,
+                            U_MGS_CL_PORC = itemBase?.U_MGS_CL_PORC ?? 100,
+                            U_MGS_CL_ACTIVO = "SI"
+                        }
+                    }
+                };
+
+                var requestGrupo = new RequestInformation
+                {
+                    Route = $"MGS_CL_VANTCAB({existingDocEntry.Value})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(grupoReq, settings)
+                };
+
+                var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
+                if (!grupoResp.Registered)
+                {
+                    return grupoResp;
+                }
+            }
+
+            var updateReq = new
+            {
+                MGS_CL_VANTIADCollection = lista.Select(i => new
+                {
+                    i.LineId,
+                    i.U_MGS_CL_GRPCOD,
+                    i.U_MGS_CL_ITEMCOD,
+                    i.U_MGS_CL_ITEMNAM,
+                    i.U_MGS_CL_TIPO,
+                    U_MGS_CL_PORC = i.U_MGS_CL_PORC ?? 0,
+                    U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(i.U_MGS_CL_ACTIVO) ? "SI" : i.U_MGS_CL_ACTIVO
+                })
+            };
+
+            var requestInformationFinal = new RequestInformation
+            {
+                Route = $"MGS_CL_VANTCAB({existingDocEntry.Value})",
+                Token = login.Token,
+                Doc = JsonConvert.SerializeObject(updateReq, settings)
+            };
+
+            return await UpdateInfo(requestInformationFinal, "PYP", login.Cfg);
+        }
+
+        public async Task<ResponseInformation> CopiarGrupoVanTienda(string empresa, string tiendaOrigen, string tiendaDestino)
+        {
+            var login = await LoginEmpresa(empresa);
+            if (!login.Ok)
+            {
+                return login.Error;
+            }
+
+            try
+            {
+                var docEntryOrigen = await ObtenerDocEntryVanCab(login.Cfg, tiendaOrigen);
+                if (!docEntryOrigen.HasValue)
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "La tienda origen no tiene configuración activa para copiar.",
+                        Content = string.Empty
+                    };
+                }
+
+                var gruposOrigen = await ObtenerGruposVanPorTienda(login.Cfg, tiendaOrigen);
+                var gruposOrigenActivos = gruposOrigen
+                    .Where(g => string.Equals(g.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                var articulosOrigenActivos = new List<VanArticuloDetalleDto>();
+                foreach (var grupo in gruposOrigenActivos)
+                {
+                    var articulosGrupo = await ObtenerArticulosPorGrupo(login.Cfg, tiendaOrigen, grupo.U_MGS_CL_GRPCOD);
+                    articulosOrigenActivos.AddRange(articulosGrupo.Where(a =>
+                        string.Equals(a.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase)));
+                }
+
+                var articulosOrigenUnicos = articulosOrigenActivos
+                    .Where(a => !string.IsNullOrWhiteSpace(a.U_MGS_CL_ITEMCOD))
+                    .GroupBy(a => a.U_MGS_CL_ITEMCOD, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First())
+                    .ToList();
+
+                if (!gruposOrigenActivos.Any())
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "Origen no tiene grupos activos para copiar.",
+                        Content = string.Empty
+                    };
+                }
+
+                var docEntryDestino = await ObtenerDocEntryVanCab(login.Cfg, tiendaDestino);
+                if (!docEntryDestino.HasValue)
+                {
+                    var nombreTienda = await ObtenerNombreTienda(login.Cfg, tiendaDestino);
+                    var createReq = new
+                    {
+                        U_MGS_CL_TIENDA = tiendaDestino,
+                        U_MGS_CL_NOMTIE = string.IsNullOrWhiteSpace(nombreTienda) ? tiendaDestino : nombreTienda
+                    };
+
+                    var requestInformation = new RequestInformation
+                    {
+                        Route = "MGS_CL_VANTCAB",
+                        Token = login.Token,
+                        Doc = JsonConvert.SerializeObject(createReq, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
+                    };
+
+                    var createResp = await PostInfo(requestInformation, "PYP", login.Cfg);
+                    if (!createResp.Registered)
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = $"Error al crear cabecera destino. {createResp.Message}",
+                            Content = createResp.Content
+                        };
+                    }
+
+                    docEntryDestino = TryObtenerDocEntryDesdeRespuesta(createResp.Content) ?? await ObtenerDocEntryVanCab(login.Cfg, tiendaDestino);
+                }
+
+                if (!docEntryDestino.HasValue)
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = "No se pudo obtener la cabecera destino.",
+                        Content = string.Empty
+                    };
+                }
+
+                var gruposDestino = await ObtenerGruposVanPorTienda(login.Cfg, tiendaDestino);
+                var gruposUpdate = new Dictionary<string, VanGrupoDetalleDto>(StringComparer.OrdinalIgnoreCase);
+                foreach (var grupo in gruposDestino)
+                {
+                    if (string.IsNullOrWhiteSpace(grupo.U_MGS_CL_GRPCOD))
+                    {
+                        continue;
+                    }
+
+                    gruposUpdate[grupo.U_MGS_CL_GRPCOD] = new VanGrupoDetalleDto
+                    {
+                        LineId = grupo.LineId,
+                        U_MGS_CL_GRPCOD = grupo.U_MGS_CL_GRPCOD,
+                        U_MGS_CL_GRPNOM = grupo.U_MGS_CL_GRPNOM,
+                        U_MGS_CL_TIPO = grupo.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = grupo.U_MGS_CL_PORC,
+                        U_MGS_CL_ACTIVO = "NO"
+                    };
+                }
+
+                foreach (var grupo in gruposOrigenActivos)
+                {
+                    if (string.IsNullOrWhiteSpace(grupo.U_MGS_CL_GRPCOD))
+                    {
+                        continue;
+                    }
+
+                    var porc = NormalizarPorcentaje(grupo.U_MGS_CL_PORC);
+                    var nombreGrupo = string.IsNullOrWhiteSpace(grupo.U_MGS_CL_GRPNOM)
+                        ? await ObtenerNombreGrupo(login.Cfg, grupo.U_MGS_CL_GRPCOD)
+                        : grupo.U_MGS_CL_GRPNOM;
+
+                    if (gruposUpdate.TryGetValue(grupo.U_MGS_CL_GRPCOD, out var existente))
+                    {
+                        existente.U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? existente.U_MGS_CL_GRPNOM : nombreGrupo;
+                        existente.U_MGS_CL_TIPO = grupo.U_MGS_CL_TIPO;
+                        existente.U_MGS_CL_PORC = porc;
+                        existente.U_MGS_CL_ACTIVO = "SI";
+                    }
+                    else
+                    {
+                        gruposUpdate[grupo.U_MGS_CL_GRPCOD] = new VanGrupoDetalleDto
+                        {
+                            LineId = 0,
+                            U_MGS_CL_GRPCOD = grupo.U_MGS_CL_GRPCOD,
+                            U_MGS_CL_GRPNOM = nombreGrupo,
+                            U_MGS_CL_TIPO = grupo.U_MGS_CL_TIPO,
+                            U_MGS_CL_PORC = porc,
+                            U_MGS_CL_ACTIVO = "SI"
+                        };
+                    }
+                }
+
+                var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                var updateGruposReq = new
+                {
+                    MGS_CL_VANTDETCollection = gruposUpdate.Values.Select(g => new
+                    {
+                        LineId = g.LineId > 0 ? g.LineId : (int?)null,
+                        g.U_MGS_CL_GRPCOD,
+                        g.U_MGS_CL_GRPNOM,
+                        g.U_MGS_CL_TIPO,
+                        U_MGS_CL_PORC = g.U_MGS_CL_PORC ?? 100,
+                        U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(g.U_MGS_CL_ACTIVO) ? "NO" : g.U_MGS_CL_ACTIVO
+                    })
+                };
+
+                var requestGrupos = new RequestInformation
+                {
+                    Route = $"MGS_CL_VANTCAB({docEntryDestino.Value})",
+                    Token = login.Token,
+                    Doc = JsonConvert.SerializeObject(updateGruposReq, settings)
+                };
+
+                var respGrupos = await UpdateInfo(requestGrupos, "PYP", login.Cfg);
+                if (!respGrupos.Registered)
+                {
+                    return new ResponseInformation
+                    {
+                        Registered = false,
+                        Message = $"Error al copiar grupos. {respGrupos.Message}",
+                        Content = respGrupos.Content
+                    };
+                }
+
+                var articulosDestino = new List<VanArticuloDetalleDto>();
+                foreach (var grupo in gruposDestino)
+                {
+                    if (string.IsNullOrWhiteSpace(grupo.U_MGS_CL_GRPCOD))
+                    {
+                        continue;
+                    }
+
+                    var articulosGrupo = await ObtenerArticulosPorGrupo(login.Cfg, tiendaDestino, grupo.U_MGS_CL_GRPCOD);
+                    articulosDestino.AddRange(articulosGrupo);
+                }
+
+                var articulosUpdate = new Dictionary<string, VanArticuloDetalleDto>(StringComparer.OrdinalIgnoreCase);
+                foreach (var articulo in articulosDestino)
+                {
+                    if (string.IsNullOrWhiteSpace(articulo.U_MGS_CL_ITEMCOD))
+                    {
+                        continue;
+                    }
+
+                    if (!articulosUpdate.ContainsKey(articulo.U_MGS_CL_ITEMCOD))
+                    {
+                        articulosUpdate[articulo.U_MGS_CL_ITEMCOD] = new VanArticuloDetalleDto
+                        {
+                            LineId = articulo.LineId,
+                            U_MGS_CL_GRPCOD = articulo.U_MGS_CL_GRPCOD,
+                            U_MGS_CL_ITEMCOD = articulo.U_MGS_CL_ITEMCOD,
+                            U_MGS_CL_ITEMNAM = articulo.U_MGS_CL_ITEMNAM,
+                            U_MGS_CL_TIPO = articulo.U_MGS_CL_TIPO,
+                            U_MGS_CL_PORC = articulo.U_MGS_CL_PORC,
+                            U_MGS_CL_ACTIVO = "NO"
+                        };
+                    }
+                }
+
+                foreach (var articulo in articulosOrigenUnicos)
+                {
+                    var porc = NormalizarPorcentaje(articulo.U_MGS_CL_PORC);
+                    if (articulosUpdate.TryGetValue(articulo.U_MGS_CL_ITEMCOD, out var existente))
+                    {
+                        existente.U_MGS_CL_GRPCOD = articulo.U_MGS_CL_GRPCOD;
+                        existente.U_MGS_CL_ITEMNAM = articulo.U_MGS_CL_ITEMNAM;
+                        existente.U_MGS_CL_TIPO = articulo.U_MGS_CL_TIPO;
+                        existente.U_MGS_CL_PORC = porc;
+                        existente.U_MGS_CL_ACTIVO = "SI";
+                    }
+                    else
+                    {
+                        articulosUpdate[articulo.U_MGS_CL_ITEMCOD] = new VanArticuloDetalleDto
+                        {
+                            LineId = 0,
+                            U_MGS_CL_GRPCOD = articulo.U_MGS_CL_GRPCOD,
+                            U_MGS_CL_ITEMCOD = articulo.U_MGS_CL_ITEMCOD,
+                            U_MGS_CL_ITEMNAM = articulo.U_MGS_CL_ITEMNAM,
+                            U_MGS_CL_TIPO = articulo.U_MGS_CL_TIPO,
+                            U_MGS_CL_PORC = porc,
+                            U_MGS_CL_ACTIVO = "SI"
+                        };
+                    }
+                }
+
+                if (articulosUpdate.Any())
+                {
+                    var updateArticulosReq = new
+                    {
+                        MGS_CL_VANTIADCollection = articulosUpdate.Values.Select(a => new
+                        {
+                            LineId = a.LineId > 0 ? a.LineId : (int?)null,
+                            a.U_MGS_CL_GRPCOD,
+                            a.U_MGS_CL_ITEMCOD,
+                            a.U_MGS_CL_ITEMNAM,
+                            a.U_MGS_CL_TIPO,
+                            U_MGS_CL_PORC = a.U_MGS_CL_PORC ?? 100,
+                            U_MGS_CL_ACTIVO = string.IsNullOrWhiteSpace(a.U_MGS_CL_ACTIVO) ? "NO" : a.U_MGS_CL_ACTIVO
+                        })
+                    };
+
+                    var requestArticulos = new RequestInformation
+                    {
+                        Route = $"MGS_CL_VANTCAB({docEntryDestino.Value})",
+                        Token = login.Token,
+                        Doc = JsonConvert.SerializeObject(updateArticulosReq, settings)
+                    };
+
+                    var respArticulos = await UpdateInfo(requestArticulos, "PYP", login.Cfg);
+                    if (!respArticulos.Registered)
+                    {
+                        return new ResponseInformation
+                        {
+                            Registered = false,
+                            Message = $"Error al copiar artículos. {respArticulos.Message}",
+                            Content = respArticulos.Content
+                        };
+                    }
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = "Se copió la configuración con éxito.",
+                    Content = string.Empty
+                };
+            }
+            catch (InvalidOperationException ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = ex.Message,
+                    Content = string.Empty
+                };
+            }
+        }
+
         private static bool HasColumn(IDataRecord reader, string columnName)
         {
             for (int i = 0; i < reader.FieldCount; i++)
@@ -4379,7 +5596,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             return null;
         }
 
-        private async Task<List<VanArticuloDetalleDto>> ObtenerArticulosActivosPorGrupo(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
+        private async Task<List<VanArticuloDetalleDto>> ObtenerArticulosPorGrupo(EmpresaConfig cfg, string tiendaCodigo, string grupoCodigo)
         {
             using var conn = new HanaConnection(cfg.ConnectionString);
             await conn.OpenAsync();
@@ -4393,9 +5610,22 @@ namespace RusticaPortal_PRMVAN.Api.Services
             cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
             cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
             using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            ValidarColumnas(reader, new[]
+            {
+                "DocEntry",
+                "LineId",
+                "U_MGS_CL_GRPCOD",
+                "U_MGS_CL_ITEMCOD",
+                "U_MGS_CL_ITEMNAM",
+                "U_MGS_CL_TIPO",
+                "U_MGS_CL_PORC",
+                "U_MGS_CL_ACTIVO"
+            }, "Get_VanGrpArt");
+
             var articulos = new List<VanArticuloDetalleDto>();
             while (reader.Read())
             {
+                var porcValor = reader["U_MGS_CL_PORC"]?.ToString();
                 articulos.Add(new VanArticuloDetalleDto
                 {
                     DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
@@ -4403,9 +5633,9 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
                     U_MGS_CL_ITEMCOD = reader["U_MGS_CL_ITEMCOD"]?.ToString() ?? string.Empty,
                     U_MGS_CL_ITEMNAM = reader["U_MGS_CL_ITEMNAM"]?.ToString() ?? string.Empty,
-                    U_MGS_CL_TIPO = HasColumn(reader, "U_MGS_CL_TIPO") ? reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty : string.Empty,
-                    U_MGS_CL_PORC = HasColumn(reader, "U_MGS_CL_PORC") && decimal.TryParse(reader["U_MGS_CL_PORC"]?.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null,
-                    U_MGS_CL_ACTIVO = HasColumn(reader, "U_MGS_CL_ACTIVO") ? reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty : string.Empty
+                    U_MGS_CL_TIPO = reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_PORC = decimal.TryParse(porcValor, NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null,
+                    U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
                 });
             }
             return articulos;
@@ -4497,6 +5727,97 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
             return string.Empty;
         }
+
+        private async Task<List<VanGrupoDetalleDto>> ObtenerGruposVanPorTienda(EmpresaConfig cfg, string tiendaCodigo)
+        {
+            var grupos = new List<VanGrupoDetalleDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            await conn.OpenAsync();
+
+            using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_VanTdaGrp";
+            cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = tiendaCodigo ?? string.Empty;
+            cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+            cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+            using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+            ValidarColumnas(reader, new[]
+            {
+                "DocEntry",
+                "LineId",
+                "U_MGS_CL_GRPCOD",
+                "U_MGS_CL_GRPNOM",
+                "U_MGS_CL_TIPO",
+                "U_MGS_CL_PORC",
+                "U_MGS_CL_ACTIVO"
+            }, "Get_VanTdaGrp");
+            while (reader.Read())
+            {
+                var porcValor = reader["U_MGS_CL_PORC"]?.ToString();
+                grupos.Add(new VanGrupoDetalleDto
+                {
+                    DocEntry = reader.IsDBNull(reader.GetOrdinal("DocEntry")) ? (int?)null : Convert.ToInt32(reader["DocEntry"]),
+                    LineId = reader.IsDBNull(reader.GetOrdinal("LineId")) ? 0 : Convert.ToInt32(reader["LineId"]),
+                    U_MGS_CL_GRPCOD = reader["U_MGS_CL_GRPCOD"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_GRPNOM = reader["U_MGS_CL_GRPNOM"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_TIPO = reader["U_MGS_CL_TIPO"]?.ToString() ?? string.Empty,
+                    U_MGS_CL_PORC = decimal.TryParse(porcValor, NumberStyles.Any, CultureInfo.InvariantCulture, out var porc) ? porc : (decimal?)null,
+                    U_MGS_CL_ACTIVO = reader["U_MGS_CL_ACTIVO"]?.ToString() ?? string.Empty
+                });
+            }
+
+            return grupos;
+        }
+
+        private static decimal NormalizarPorcentaje(decimal? porc)
+        {
+            return (!porc.HasValue || porc.Value <= 0) ? 100 : porc.Value;
+        }
+
+        private static int? TryObtenerDocEntryDesdeRespuesta(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return null;
+            }
+
+            try
+            {
+                var json = JObject.Parse(content);
+                if (json.TryGetValue("DocEntry", out var token) && int.TryParse(token.ToString(), out var docEntry))
+                {
+                    return docEntry;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        private static void ValidarColumnas(IDataRecord reader, IEnumerable<string> columnas, string vTipo)
+        {
+            foreach (var columna in columnas)
+            {
+                if (!HasColumn(reader, columna))
+                {
+                    throw new InvalidOperationException($"SP {vTipo} no devolvió la columna requerida {columna}");
+                }
+            }
+        }
+
+        /***********************************************fin restaurando van*******************************************************/
+
+
+
 
     }
 }
