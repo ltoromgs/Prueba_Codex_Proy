@@ -2031,13 +2031,33 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
-        public async Task<ResponseInformation> GetGestionAyudaDet(string empresa, string docEntry, string periodo, string? tiendas)
+        public async Task<ResponseInformation> GetGestionAyudaDet(string empresa, string periodo, string? tiendas)
         {
-            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            if (!int.TryParse(empresa, out var idEmpresa))
             {
-                return error;
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error: Parámetro 'empresa' debe ser un número válido.",
+                    Content = ""
+
+                };
             }
 
+            var cfg = _empresaConfigService.GetEmpresa(idEmpresa);
+            if (cfg == null)
+            {
+
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = $"Error: No existe configuración para la empresa con ID = {idEmpresa}.",
+                    Content = ""
+                };
+            }
+
+
+            //2) Usar ConnectionString de la empresa          
             var detalles = new List<GestionAyudaDTO>();
             using var conn = new HanaConnection(cfg.ConnectionString);
             try
@@ -2048,9 +2068,9 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     CommandType = CommandType.StoredProcedure
                 };
                 cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesDet";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry ?? string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = periodo ?? string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = tiendas ?? string.Empty;
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = periodo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = tiendas ?? string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
                 cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
@@ -2073,6 +2093,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         U_MGS_CL_CADM = reader["U_MGS_CL_CADM"]?.ToString() ?? string.Empty
                     });
                 }
+
+                if (!detalles.Any())
+                    return new ResponseInformation { Registered = false, Message = "Sin datos", Content = "" };
+
 
                 return new ResponseInformation
                 {
@@ -2097,7 +2121,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
-        public async Task<ResponseInformation> GetGestionAyudaBuscar(string empresa, string periodo, string? tiendas)
+       /* public async Task<ResponseInformation> GetGestionAyudaBuscar(string empresa, string periodo, string? tiendas)
         {
             var cabecera = await GetGestionAyudaCab(empresa, periodo);
             if (!cabecera.Registered)
@@ -2129,7 +2153,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
 
             return detalle;
-        }
+        }*/
 
         public async Task<ResponseInformation> GetGestionAyudaPreview(string empresa)
         {

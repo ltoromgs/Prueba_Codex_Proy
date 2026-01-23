@@ -91,6 +91,39 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         {
             try
             {
+                // Validación de empresa
+                ResponseInformation rp = await _documentService.ValidaDatos(Empresa);
+                if (!rp.Registered)
+                {
+                    _logger.LogWarning("Validación fallida para empresa: {Empresa}", Empresa);
+                    return Ok(rp);
+                }
+
+                // Obtener menú desde SAP HANA
+                rp = await _documentService.GetGestionAyudaDet(Empresa, periodo, tiendas);
+
+                if (!rp.Registered)
+                {
+                    _logger.LogWarning("Datos de factores no disponible para la empresa: {Empresa}", Empresa);
+                    return Ok(rp);
+                }
+
+                // Éxito
+                return Ok(rp);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener fecha de recepción para la empresa: {Empresa}", Empresa);
+                return StatusCode(500, new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error inesperado en el servidor",
+                    Content = ex.Message
+                });
+            }
+            /*
+            try
+            {
                 var validacion = await _documentService.ValidaDatos(Empresa);
                 if (!validacion.Registered)
                 {
@@ -110,7 +143,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     Message = "Error inesperado en el servidor",
                     Content = ex.Message
                 });
-            }
+            }*/
         }
 
         [HttpGet("nuevo-preview")]
