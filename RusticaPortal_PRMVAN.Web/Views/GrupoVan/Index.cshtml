@@ -14,6 +14,7 @@
                 <span class="text-secondary">Pendientes</span>
                 <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
             </div>
+            <button id="btnCopiarTienda" class="btn btn-outline-secondary">Copiar a tienda</button>
             <button id="btnActualizarTodo" class="btn btn-primary" disabled>Actualizar todo</button>
         </div>
     </div>
@@ -162,6 +163,37 @@
         </div>
     </div>
 
+    <!-- Modal: copiar configuración -->
+    <div class="modal fade" id="modalCopiarTienda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Copiar configuración a tienda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tienda origen</label>
+                        <select class="form-select" id="selectTiendaOrigen"></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Tienda destino</label>
+                        <select class="form-select" id="selectTiendaDestino"></select>
+                    </div>
+                    <div class="alert alert-warning d-flex align-items-center gap-2 mt-3 mb-0" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <div>Se reemplazará la información en la tienda destino.</div>
+                    </div>
+                    <div id="copyAlert" class="alert d-none mt-3 mb-0" role="alert"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnEjecutarCopia">Sí, copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <style>
@@ -182,7 +214,20 @@
 
     #loadingOverlay {
         background: rgba(255,255,255,0.7);
-        z-index: 9999;
+        z-index: 1045;
+    }
+
+    #alertas {
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal {
+        z-index: 1055;
+    }
+
+    .modal-backdrop {
+        z-index: 1050;
     }
 </style>
 
@@ -393,6 +438,18 @@
         renderTiendas();
     };
 
+    const renderTiendasCopiar = () => {
+        const origen = document.getElementById('selectTiendaOrigen');
+        const destino = document.getElementById('selectTiendaDestino');
+        const opciones = ['<option value="">Selecciona...</option>', ...state.tiendas.map(t => `<option value="${t.PrjCode}">${t.PrjCode} - ${t.PrjName}</option>`)];
+        origen.innerHTML = opciones.join('');
+        destino.innerHTML = opciones.join('');
+
+        if (state.tiendaActual?.PrjCode) {
+            origen.value = state.tiendaActual.PrjCode;
+        }
+    };
+
     const renderTiendas = () => {
         const cont = document.getElementById('tiendasLista');
         cont.innerHTML = '';
@@ -448,6 +505,44 @@
         await recargarDatosActuales();
     };
 
+    const showCopyAlert = (message, type = 'warning') => {
+        const alertEl = document.getElementById('copyAlert');
+        if (!alertEl || !message) return;
+        alertEl.className = `alert alert-${type} mt-3 mb-0`;
+        alertEl.textContent = message;
+        alertEl.classList.remove('d-none');
+    };
+
+    const clearCopyAlert = () => {
+        const alertEl = document.getElementById('copyAlert');
+        if (!alertEl) return;
+        alertEl.textContent = '';
+        alertEl.className = 'alert d-none mt-3 mb-0';
+    };
+
+    const abrirModalCopiar = () => {
+        renderTiendasCopiar();
+        clearCopyAlert();
+        const modal = new bootstrap.Modal(document.getElementById('modalCopiarTienda'));
+        modal.show();
+    };
+
+    const setEstadoBotonCopia = (loading) => {
+        const btn = document.getElementById('btnEjecutarCopia');
+        if (!btn) return;
+        if (loading) {
+            btn.disabled = true;
+            btn.dataset.originalText = btn.dataset.originalText || btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sí, copiar';
+        } else {
+            btn.disabled = false;
+            if (btn.dataset.originalText) {
+                btn.innerHTML = btn.dataset.originalText;
+                delete btn.dataset.originalText;
+            }
+        }
+    };
+
     const cambiarTienda = async (tienda) => {
         limpiarAlertas();
         state.tiendaActual = tienda;
@@ -487,9 +582,12 @@
 
         state.gruposTienda = JSON.parse(data.content || '[]');
 
+        if (state.gruposTienda.length === 0) {
+            mostrarAlerta('No hay grupos activos para la tienda', 'info');
+        }
+
         state.gruposTienda.forEach(g => {
             g.rowKey = rowKeyGrupo(g);
-            if (typeof g.U_MGS_CL_ACTIVO === 'undefined') g.U_MGS_CL_ACTIVO = 'SI';
         });
 
         const tieneCampos = state.gruposTienda.some(g => 'U_MGS_CL_TIPO' in g || 'U_MGS_CL_PORC' in g);
@@ -501,8 +599,6 @@
             if (!g.U_MGS_CL_GRPNOM) {
                 g.U_MGS_CL_GRPNOM = state.gruposMaestro.find(m => m.Code === g.U_MGS_CL_GRPCOD)?.Name || '';
             }
-            if (typeof g.U_MGS_CL_PORC === 'undefined') g.U_MGS_CL_PORC = '';
-            if (typeof g.U_MGS_CL_TIPO === 'undefined') g.U_MGS_CL_TIPO = '';
         });
     };
 
@@ -676,8 +772,6 @@
 
         state.articulosGrupo.forEach(a => {
             a.rowKey = rowKeyArticulo(a);
-            if (typeof a.U_MGS_CL_ACTIVO === 'undefined') a.U_MGS_CL_ACTIVO = 'SI';
-            if (typeof a.U_MGS_CL_GRPCOD === 'undefined') a.U_MGS_CL_GRPCOD = state.grupoActual.U_MGS_CL_GRPCOD;
         });
 
         if (state.articuloSeleccionado) {
@@ -697,10 +791,6 @@
             state.camposTipoPorcDisponibles = false;
         }
 
-        state.articulosGrupo.forEach(a => {
-            if (typeof a.U_MGS_CL_PORC === 'undefined') a.U_MGS_CL_PORC = '';
-            if (typeof a.U_MGS_CL_TIPO === 'undefined') a.U_MGS_CL_TIPO = '';
-        });
     };
 
     const confirmarDesactivarGrupo = async (grupo) => {
@@ -1041,12 +1131,102 @@
         }
     };
 
+    const copiarConfiguracion = async () => {
+        clearCopyAlert();
+        const origen = document.getElementById('selectTiendaOrigen').value;
+        const destino = document.getElementById('selectTiendaDestino').value;
+
+        if (!origen || !destino) {
+            showCopyAlert('Selecciona tienda origen y destino para copiar.', 'warning');
+            return;
+        }
+
+        if (origen === destino) {
+            showCopyAlert('La tienda origen y destino no pueden ser la misma.', 'warning');
+            return;
+        }
+
+        setEstadoBotonCopia(true);
+
+        try {
+            const resp = await fetch(
+                `/GrupoVan/CopiarTienda`,
+                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tiendaOrigen: origen, tiendaDestino: destino }) }
+            );
+
+            if (!resp.ok) {
+                let message = 'Error al copiar configuración.';
+                try {
+                    const errorData = await resp.json();
+                    message = errorData?.message || message;
+                } catch (err) {
+                    // ignore parsing errors
+                }
+                showCopyAlert(message, 'danger');
+                setEstadoBotonCopia(false);
+                return;
+            }
+
+            const data = await resp.json().catch(() => null);
+            if (!data) {
+                showCopyAlert('Error de conexión al copiar configuración.', 'danger');
+                setEstadoBotonCopia(false);
+                return;
+            }
+            if (!data.registered) {
+                showCopyAlert(data.message || 'No se pudo copiar configuración.', 'warning');
+                setEstadoBotonCopia(false);
+                return;
+            }
+
+            showCopyAlert('Configuración copiada con éxito.', 'success');
+            await new Promise(resolve => setTimeout(resolve, 700));
+
+            const modalEl = document.getElementById('modalCopiarTienda');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal?.hide();
+
+            const tiendaDestino = state.tiendas.find(t => t.PrjCode === destino);
+            if (tiendaDestino) {
+                await cambiarTienda(tiendaDestino);
+            } else {
+                await cargarTiendas();
+            }
+
+            limpiarPendientes();
+            document.getElementById('selectTiendaOrigen').value = '';
+            document.getElementById('selectTiendaDestino').value = '';
+            clearCopyAlert();
+        } catch (err) {
+            showCopyAlert('Error de conexión al copiar configuración.', 'danger');
+        } finally {
+            setEstadoBotonCopia(false);
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('buscarTienda').oninput = renderTiendas;
 
         document.getElementById('btnAgregarGrupo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarGrupo(); };
         document.getElementById('btnAgregarArticulo').onclick = (e) => { e.preventDefault(); e.stopPropagation(); agregarArticulo(); };
         document.getElementById('btnActualizarTodo').onclick = actualizarTodo;
+        document.getElementById('btnCopiarTienda').onclick = async () => {
+            if (pendientesTotal() > 0) {
+                const modal = new bootstrap.Modal(document.getElementById('modalCambios'));
+                document.getElementById('btnDescartar').onclick = async () => {
+                    await descartarYRecargar();
+                    modal.hide();
+                    abrirModalCopiar();
+                };
+                modal.show();
+                return;
+            }
+            abrirModalCopiar();
+        };
+        document.getElementById('btnEjecutarCopia').onclick = copiarConfiguracion;
+        const modalCopiarEl = document.getElementById('modalCopiarTienda');
+        modalCopiarEl.addEventListener('show.bs.modal', clearCopyAlert);
+        modalCopiarEl.addEventListener('hidden.bs.modal', clearCopyAlert);
 
         document.getElementById('inputArticulo').oninput = (e) => { buscarArticulosMaestro(e.target.value); seleccionarArticuloDesdeInput(); };
         document.getElementById('inputArticulo').onchange = seleccionarArticuloDesdeInput;

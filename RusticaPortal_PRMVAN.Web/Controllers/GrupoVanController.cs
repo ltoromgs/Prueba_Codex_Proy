@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.WebUtilities;
 using RusticaPortal_PRMVAN.Web.Models;
 using RusticaPortal_PRMVAN.Web.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -227,6 +228,37 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, payload);
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
             if (!resp.Registered) return BadRequest(resp);
+            return Ok(resp);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CopiarTienda([FromBody] GrupoVanCopiarTiendaRequest payload)
+        {
+            var emp = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
+            if (string.IsNullOrEmpty(emp))
+                return BadRequest(new { message = "Empresa no encontrada en sesión." });
+
+            if (payload == null || string.IsNullOrWhiteSpace(payload.TiendaOrigen) || string.IsNullOrWhiteSpace(payload.TiendaDestino))
+                return BadRequest(new { message = "Tienda origen y destino requeridas." });
+
+            if (payload.TiendaOrigen == payload.TiendaDestino)
+                return BadRequest(new { message = "No se puede copiar a la misma tienda." });
+
+            var endpoint = QueryHelpers.AddQueryString("/api/grupovan/copiar-tienda", new Dictionary<string, string?>
+            {
+                ["empresa"] = emp
+            });
+
+            var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, payload);
+            if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
+            if (!resp.Registered)
+            {
+                if (string.Equals(resp.Message, "Origen no tiene grupos activos para copiar.", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Ok(resp);
+                }
+                return BadRequest(resp);
+            }
             return Ok(resp);
         }
     }
