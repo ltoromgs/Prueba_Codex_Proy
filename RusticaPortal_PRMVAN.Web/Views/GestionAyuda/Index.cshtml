@@ -600,11 +600,14 @@
                 return;
             }
 
-            const periodoDestino = nuevoPeriodoDestinoValor || (previewData[0]?.U_MGS_CL_PERIODO_DEST ?? '');
+            const periodoDestinoRaw = nuevoPeriodoDestinoValor || (previewData[0]?.U_MGS_CL_PERIODO_DEST ?? '');
+            const periodoDestino = buildPeriodoDestino(periodoDestinoRaw);
             if (!periodoDestino) {
-                setNuevoEstado('No se pudo determinar el periodo destino.', 'danger');
+                setNuevoEstado('No se pudo construir el periodo destino. Verifique el formato.', 'danger');
                 return;
             }
+
+            console.log('U_MGS_CL_PERIODO enviado:', periodoDestino);
 
             const payload = {
                 U_MGS_CL_PERIODO: periodoDestino,
@@ -647,6 +650,36 @@
             } finally {
                 hideLoading();
             }
+        }
+
+        function buildPeriodoDestino(rawPeriodo) {
+            const valor = (rawPeriodo ?? '').toString().trim();
+            if (!valor) return '';
+
+            const monthIsValid = (mm) => {
+                const month = Number(mm);
+                return Number.isInteger(month) && month >= 1 && month <= 12;
+            };
+
+            let match = valor.match(/^(\d{2})-(\d{4})$/);
+            if (match) {
+                const [, mm, yyyy] = match;
+                return monthIsValid(mm) ? `01-${mm}-${yyyy}` : '';
+            }
+
+            match = valor.match(/^(\d{4})-(\d{2})$/);
+            if (match) {
+                const [, yyyy, mm] = match;
+                return monthIsValid(mm) ? `01-${mm}-${yyyy}` : '';
+            }
+
+            match = valor.match(/^01-(\d{2})-(\d{4})$/);
+            if (match) {
+                const [, mm, yyyy] = match;
+                return monthIsValid(mm) ? `01-${mm}-${yyyy}` : '';
+            }
+
+            return '';
         }
 
         const FIELD_MAP = {
