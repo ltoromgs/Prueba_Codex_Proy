@@ -267,6 +267,10 @@ BEGIN
 
     ELSEIF vTipo = 'Get_GesDet' THEN
 
+        DECLARE lvTiendas NVARCHAR(5000);
+        DECLARE lvSql NVARCHAR(5000);
+
+        IF :vParam3 = '' THEN
         SELECT
             C."DocEntry" AS "DocEntry",
             D."LineId" AS "LineId",
@@ -284,9 +288,41 @@ BEGIN
         FROM "@MGS_CL_GESCAB" C
         JOIN "@MGS_CL_GESDET" D
           ON D."DocEntry" = C."DocEntry"
-        WHERE (:vParam1 <> '' AND C."DocEntry" = :vParam1)
-           OR (:vParam1 = '' AND :vParam2 <> '' AND C."U_MGS_CL_PERIODO" = :vParam2)
+        WHERE (
+                (:vParam1 <> '' AND C."DocEntry" = :vParam1)
+             OR (:vParam1 = '' AND :vParam2 <> '' AND C."U_MGS_CL_PERIODO" = :vParam2)
+        )
         ORDER BY D."LineId";
+        ELSE
+            lvTiendas := '''' || REPLACE(:vParam3, ',', ''',''') || '''';
+
+            lvSql := '
+        SELECT
+            C."DocEntry" AS "DocEntry",
+            D."LineId" AS "LineId",
+            C."U_MGS_CL_PERIODO" AS "U_MGS_CL_PERIODO",
+            D."U_MGS_CL_TIENDA" AS "U_MGS_CL_TIENDA",
+            D."U_MGS_CL_NOMTIE" AS "U_MGS_CL_NOMTIE",
+            D."U_MGS_CL_CVENTA" AS "U_MGS_CL_CVENTA",
+            D."U_MGS_CL_CRENTA" AS "U_MGS_CL_CRENTA",
+            D."U_MGS_CL_CVAN" AS "U_MGS_CL_CVAN",
+            D."U_MGS_CL_CPERSO" AS "U_MGS_CL_CPERSO",
+            D."U_MGS_CL_CGESTI" AS "U_MGS_CL_CGESTI",
+            D."U_MGS_CL_CSERV" AS "U_MGS_CL_CSERV",
+            D."U_MGS_CL_CCC" AS "U_MGS_CL_CCC",
+            D."U_MGS_CL_CADM" AS "U_MGS_CL_CADM"
+        FROM "@MGS_CL_GESCAB" C
+        JOIN "@MGS_CL_GESDET" D
+          ON D."DocEntry" = C."DocEntry"
+        WHERE (
+                (''' || :vParam1 || ''' <> '''' AND C."DocEntry" = ''' || :vParam1 || ''')
+             OR (''' || :vParam1 || ''' = '''' AND ''' || :vParam2 || ''' <> '''' AND C."U_MGS_CL_PERIODO" = ''' || :vParam2 || ''')
+        )
+          AND D."U_MGS_CL_TIENDA" IN (' || lvTiendas || ')
+        ORDER BY D."LineId"';
+
+            EXECUTE IMMEDIATE :lvSql;
+        END IF;
 
 
     ELSEIF vTipo = 'Get_GesPreview' THEN

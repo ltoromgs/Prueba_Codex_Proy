@@ -2031,7 +2031,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
-        public async Task<ResponseInformation> GetGestionAyudaDet(string empresa, string docEntry, string periodo)
+        public async Task<ResponseInformation> GetGestionAyudaDet(string empresa, string docEntry, string periodo, string? tiendas)
         {
             if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
             {
@@ -2050,7 +2050,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_GesDet";
                 cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = docEntry ?? string.Empty;
                 cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = periodo ?? string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = tiendas ?? string.Empty;
                 cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
@@ -2097,7 +2097,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
         }
 
-        public async Task<ResponseInformation> GetGestionAyudaBuscar(string empresa, string periodo)
+        public async Task<ResponseInformation> GetGestionAyudaBuscar(string empresa, string periodo, string? tiendas)
         {
             var cabecera = await GetGestionAyudaCab(empresa, periodo);
             if (!cabecera.Registered)
@@ -2117,7 +2117,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 };
             }
 
-            var detalle = await GetGestionAyudaDet(empresa, docEntry, periodo);
+            var detalle = await GetGestionAyudaDet(empresa, docEntry, periodo, tiendas);
             if (!detalle.Registered)
             {
                 return detalle;
