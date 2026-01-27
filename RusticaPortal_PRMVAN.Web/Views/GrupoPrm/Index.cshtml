@@ -941,6 +941,13 @@
     const actualizarTodo = async () => {
         if (!state.tiendaActual) return;
 
+        const gruposParaEliminar = new Set(
+            state.gruposTienda
+                .filter(g => state.pending.grupos.has(g.rowKey))
+                .filter(g => (g.U_MGS_CL_ACTIVO ?? 'SI') === 'NO')
+                .map(g => g.U_MGS_CL_GRPCOD)
+        );
+
         const payloadGrupos = {
             items: state.gruposTienda
                 .filter(g => state.pending.grupos.has(g.rowKey))
@@ -955,18 +962,29 @@
         };
 
         const payloadArts = {
-            items: state.articulosGrupo
-                .filter(a => state.pending.articulos.has(a.rowKey))
-                .map(a => ({
-                    DocEntry: a.DocEntry,
-                    LineId: a.LineId,
-                    U_MGS_CL_GRPCOD: a.U_MGS_CL_GRPCOD,
-                    U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
-                    U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
-                    U_MGS_CL_TIPGAS: a.U_MGS_CL_TIPGAS,
-                    U_MGS_CL_TIPMOP: a.U_MGS_CL_TIPMOP,
-                    U_MGS_CL_ACTIVO: a.U_MGS_CL_ACTIVO ?? 'SI'
-                }))
+            items: (() => {
+                const items = new Map();
+
+                state.articulosGrupo.forEach(a => {
+                    a.rowKey = a.rowKey || rowKeyArticulo(a);
+                    const eliminarPorGrupo = gruposParaEliminar.has(a.U_MGS_CL_GRPCOD);
+
+                    if (eliminarPorGrupo || state.pending.articulos.has(a.rowKey)) {
+                        items.set(a.rowKey, {
+                            DocEntry: a.DocEntry,
+                            LineId: a.LineId,
+                            U_MGS_CL_GRPCOD: a.U_MGS_CL_GRPCOD,
+                            U_MGS_CL_ITEMCOD: a.U_MGS_CL_ITEMCOD,
+                            U_MGS_CL_ITEMNAM: a.U_MGS_CL_ITEMNAM,
+                            U_MGS_CL_TIPGAS: a.U_MGS_CL_TIPGAS,
+                            U_MGS_CL_TIPMOP: a.U_MGS_CL_TIPMOP,
+                            U_MGS_CL_ACTIVO: eliminarPorGrupo ? 'NO' : (a.U_MGS_CL_ACTIVO ?? 'SI')
+                        });
+                    }
+                });
+
+                return Array.from(items.values());
+            })()
         };
 
         let huboCambios = false;
