@@ -262,8 +262,7 @@
                 <div class="table-responsive" style="max-height:60vh; overflow:auto;">
                     <table class="table table-sm table-hover table-bordered" id="tablaPreviewNuevo" style="white-space:nowrap;">
                         <thead class="table-light">
-                            <tr>
-                                <th>#</th>
+                            <tr>                               
                                 <th class="sticky-col-start" style="min-width:220px;">Tienda<br />Nombre</th>
                                 <th>Meta<br />(UV)</th>
                                 <th>Renta<br />(%)</th>
@@ -776,8 +775,7 @@
             }
 
             tablaPreviewNuevoBody.innerHTML = filas.map(item => `
-                    <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">
-                        <td class="fw-semibold">${item.LineId ?? ''}</td>
+                    <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">                       
                         <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA ?? ''} - ${item.U_MGS_CL_NOMTIE ?? ''}</td>
                         <td contenteditable="true" class="dec" data-field="U_MGS_CL_META">${formatDecimal(String(item.U_MGS_CL_META ?? '0'))}</td>
                         <td contenteditable="true" class="dec" data-field="U_MGS_CL_RENTA">${formatDecimal(String(item.U_MGS_CL_RENTA ?? '0'))}</td>
@@ -828,16 +826,60 @@
             });
         }
 
+        //function aplicarFiltroPreview() {
+        //    const term = (nuevoFiltroTienda?.value ?? '').toLowerCase().trim();
+        //    if (!term) {
+        //        renderPreviewTabla(previewData);
+        //        return;
+        //    }
+
+        //    const filtrado = previewData.filter(p => {
+        //        const texto = `${p.U_MGS_CL_TIENDA ?? ''} ${p.U_MGS_CL_NOMTIE ?? ''}`.toLowerCase();
+        //        return texto.includes(term);
+        //    });
+
+        //    renderPreviewTabla(filtrado);
+        //}
+
+        function normalizar(txt) {
+            return (txt ?? '')
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function soloDigitos(txt) {
+            return normalizar(txt).replace(/\D/g, '');
+        }
+
+        function sinCerosIzq(txt) {
+            return txt.replace(/^0+/, '') || '0';
+        }
+
         function aplicarFiltroPreview() {
-            const term = (nuevoFiltroTienda?.value ?? '').toLowerCase().trim();
+            const term = normalizar(nuevoFiltroTienda?.value);
             if (!term) {
                 renderPreviewTabla(previewData);
                 return;
             }
 
+            const termDigits = sinCerosIzq(soloDigitos(term));
+
             const filtrado = previewData.filter(p => {
-                const texto = `${p.U_MGS_CL_TIENDA ?? ''} ${p.U_MGS_CL_NOMTIE ?? ''}`.toLowerCase();
-                return texto.includes(term);
+                const cod = normalizar(p.U_MGS_CL_TIENDA);
+                const nom = normalizar(p.U_MGS_CL_NOMTIE);
+
+                // LIKE normal en código y nombre
+                if (cod.includes(term) || nom.includes(term)) return true;
+
+                // MATCH numérico solo contra el código (37 -> P0037)
+                if (termDigits) {
+                    const codDigits = sinCerosIzq(soloDigitos(cod));
+                    return codDigits.includes(termDigits);
+                }
+
+                return false;
             });
 
             renderPreviewTabla(filtrado);
@@ -904,9 +946,69 @@
             }
         }
 
+        const PCT_FIELDS = new Set([
+            'u_MGS_CL_RENTA', 'U_MGS_CL_RENTA',
+            'u_MGS_CL_VAN', 'U_MGS_CL_VAN',
+            'u_MGS_CL_ESTPER', 'U_MGS_CL_ESTPER',
+            'u_MGS_CL_GASADM', 'U_MGS_CL_GASADM',
+            'u_MGS_CL_COMTAR', 'U_MGS_CL_COMTAR',
+            'u_MGS_CL_IMPUES', 'U_MGS_CL_IMPUES',
+            'u_MGS_CL_REGALI', 'U_MGS_CL_REGALI'
+        ]);
+
+        function isPercentField(td) {
+            const f = (td.getAttribute('data-field') || '').trim();
+            return PCT_FIELDS.has(f);
+        }
+
+        function validateCell(td) {
+            const v = normalizeDecimal(td.innerText.trim());
+
+            if (v === '' || !isValidDecimal(v)) {
+                td.classList.add('is-invalid');
+                return;
+            }
+
+            if (isPercentField(td)) {
+                const n = Number(v);
+                if (isNaN(n) || n < 1 || n > 100) {
+                    td.classList.add('is-invalid');
+                    return;
+                }
+            }
+
+            td.classList.remove('is-invalid');
+        }
         async function crearMatrizDesdeModal() {
+            // ✅ Validar celdas inválidas en PREVIEW
+            const invalidsPreview = document.querySelectorAll('#tablaPreviewNuevo td.dec.is-invalid');
+            if (invalidsPreview.length) {
+                setNuevoEstado('Corrige los porcentajes (1 a 100) antes de cargar la información.', 'warning');
+                invalidsPreview[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                invalidsPreview[0].focus?.();
+                return;
+            }
+
             if (!previewData.length) {
                 setNuevoEstado('No hay información para registrar.', 'warning');
+                return;
+            }
+
+            // ✅ A prueba de todo: valida también sobre previewData (aunque no se pinte rojo)
+            const PCT_KEYS = [
+                'U_MGS_CL_RENTA', 'U_MGS_CL_VAN', 'U_MGS_CL_ESTPER', 'U_MGS_CL_GASADM',
+                'U_MGS_CL_COMTAR', 'U_MGS_CL_IMPUES', 'U_MGS_CL_REGALI'
+            ];
+
+            const bad = previewData.find(r =>
+                PCT_KEYS.some(k => {
+                    const n = Number(r[k]);
+                    return isNaN(n) || n < 1 || n > 100;
+                })
+            );
+
+            if (bad) {
+                setNuevoEstado('Hay porcentajes fuera de rango (1 a 100). Corrige el preview antes de cargar.', 'warning');
                 return;
             }
 

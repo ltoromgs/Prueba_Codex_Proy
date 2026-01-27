@@ -40,7 +40,7 @@
                         </div>
                     </div>
 
-                    <!-- Tiendas: multiselección en dropdown, no se cierra al interactuar -->
+                    <!-- Tiendas -->
                     <div class="col-auto">
                         <label class="form-label mb-1">Tiendas</label>
                         <div class="dropdown">
@@ -85,7 +85,7 @@
                         <div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div>
                     </div>
                 </div>
-                <!-- Tabla con scroll horizontal y columnas pegajosas -->
+
                 <div class="table-responsive" style="overflow:auto;">
                     <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaGestionAyuda" style="white-space:nowrap;">
                         <thead class="table-light">
@@ -106,7 +106,6 @@
                     </table>
                 </div>
 
-                <!-- Pie/acciones inferiores -->
                 <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
                     <div class="d-flex flex-column">
                         <small id="lblResumen" class="text-secondary">Mostrando 0 de 0</small>
@@ -151,7 +150,6 @@
                     <table class="table table-sm table-hover table-bordered" id="tablaPreviewNuevo" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th>#</th>
                                 <th class="sticky-col-start" style="min-width:220px;">Tienda<br />Nombre</th>
                                 <th>C. Venta</th>
                                 <th>C. Renta</th>
@@ -221,6 +219,26 @@
         td select.form-select-sm {
             min-width: 140px;
         }
+
+        /* ====== NUEVO: estilos por tipo seleccionado (no por option) ====== */
+        select.tipo-select.tipo-defecto {
+            background: #f1f3f5;
+            color: #6c757d;
+        }
+
+        select.tipo-select.tipo-media {
+            background: #fff3cd;
+            color: #664d03;
+            border-color: #ffc107;
+            font-weight: 600;
+        }
+
+        select.tipo-select.tipo-completa {
+            background: #e7f1ff;
+            color: #084298;
+            border-color: #0d6efd;
+            font-weight: 700;
+        }
     </style>
 
     <script>
@@ -232,6 +250,7 @@
         const btnActualizarTodo = document.getElementById('btnActualizarTodo');
         const tiendasEstado = document.getElementById('tiendasEstado');
         const tiendasListado = document.getElementById('tiendasListado');
+
         let tiposCache = [];
         let defaultTipoCode = '';
         let previewData = [];
@@ -242,21 +261,14 @@
 
         function showAlert(message, type = 'success') {
             if (!alertContainer) { alert(message); return; }
-
             alertContainer.innerHTML = '';
             const wrapper = document.createElement('div');
             wrapper.className = `alert alert-${type} alert-dismissible fade show`;
             wrapper.role = 'alert';
-            wrapper.innerHTML = `
-                    <div>${message}</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
+            wrapper.innerHTML = `<div>${message}</div><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
             alertContainer.appendChild(wrapper);
         }
-
-        function clearAlert() {
-            if (alertContainer) alertContainer.innerHTML = '';
-        }
+        function clearAlert() { if (alertContainer) alertContainer.innerHTML = ''; }
 
         function showLoading(message = 'Procesando...') {
             if (!loadingOverlay) return;
@@ -264,13 +276,11 @@
             loadingMessage.textContent = message;
             loadingOverlay.classList.remove('d-none');
         }
-
         function hideLoading() {
             if (!loadingOverlay) return;
             loadingCount = Math.max(loadingCount - 1, 0);
             if (loadingCount === 0) loadingOverlay.classList.add('d-none');
         }
-
         function updateDocEntryInfo(docEntry) {
             if (!docEntryLabel) return;
             docEntryLabel.textContent = `DocEntry: ${docEntry || '--'}`;
@@ -285,22 +295,7 @@
             if (input) input.value = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
         }
 
-        function toPeriodoKey(periodoInput) {
-            if (!periodoInput) return '';
-            const [year, month] = periodoInput.split('-');
-            return year && month ? `${month}-${year}` : periodoInput;
-        }
-
-        function toPeriodoInput(periodo) {
-            if (!periodo) return '';
-            const [month, year] = periodo.split('-');
-            return year && month ? `${year}-${month}` : periodo;
-        }
-
-        function getDefaultTipoCode() {
-            return defaultTipoCode;
-        }
-
+        function getDefaultTipoCode() { return defaultTipoCode; }
         function ensureDefaultTipo() {
             if (getDefaultTipoCode()) return true;
             showAlert('No existe un tipo "Por defecto" activo. No se puede continuar.', 'warning');
@@ -309,16 +304,12 @@
 
         async function cargarTipos() {
             showLoading('Cargando tipos...');
-
             try {
                 const res = await fetch('/GestionAyuda/Tipos');
                 if (!res.ok) throw new Error('Error al obtener tipos');
 
                 const data = await res.json();
-                if (!Array.isArray(data)) {
-                    tiposCache = [];
-                    return;
-                }
+                if (!Array.isArray(data)) { tiposCache = []; return; }
 
                 tiposCache = data;
                 const defaultItem = tiposCache.find(t => (t.name ?? t.Name ?? '').trim().toLowerCase() === 'por defecto');
@@ -345,13 +336,10 @@
 
         async function cargarTiendas() {
             if (tiendasEstado) tiendasEstado.textContent = 'Cargando tiendas...';
-
             showLoading('Cargando tiendas...');
-
             try {
                 const res = await fetch('/GestionAyuda/Tiendas');
                 if (!res.ok) throw new Error('Error al obtener tiendas');
-
                 const data = await res.json();
                 renderTiendas(data);
             } catch (err) {
@@ -378,35 +366,46 @@
                 const codigo = t.codigo ?? t.Codigo ?? '';
                 const nombre = t.nombre ?? t.Nombre ?? '';
                 const id = `t_${codigo}`;
-
                 return `
-                        <div class="form-check">
-                            <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
-                            <label class="form-check-label" for="${id}">${nombre}</label>
-                        </div>`;
+                    <div class="form-check">
+                        <input class="form-check-input tienda-check" type="checkbox" value="${codigo}" id="${id}" checked>
+                        <label class="form-check-label" for="${id}">${nombre}</label>
+                    </div>`;
             }).join('');
         }
-        // ---------- Utilidades de Tiendas ----------
-        const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
 
-        document.getElementById('tiendaSelTodas')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            checks().forEach(ch => ch.checked = true);
-        });
-        document.getElementById('tiendaLimpiar')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            checks().forEach(ch => ch.checked = false);
-        });
+        const checks = () => Array.from(document.querySelectorAll('.tienda-check'));
+        document.getElementById('tiendaSelTodas')?.addEventListener('click', (e) => { e.preventDefault(); checks().forEach(ch => ch.checked = true); });
+        document.getElementById('tiendaLimpiar')?.addEventListener('click', (e) => { e.preventDefault(); checks().forEach(ch => ch.checked = false); });
+
+        /* ====== NUEVO: helpers para pintar el SELECT según lo elegido ====== */
+        function getTipoNameByCode(code) {
+            const found = tiposCache.find(t => (t.code ?? t.Code ?? '') === code);
+            return (found?.name ?? found?.Name ?? '').toString().trim().toLowerCase();
+        }
+
+        function aplicarEstiloSelect(select) {
+            select.classList.remove('tipo-defecto', 'tipo-media', 'tipo-completa');
+
+            const code = (select.value ?? '').toString().trim();
+            const name = getTipoNameByCode(code);
+
+            if (name === 'por defecto') select.classList.add('tipo-defecto');
+            else if (name.includes('media ayuda')) select.classList.add('tipo-media');
+            else if (name.includes('ayuda completa')) select.classList.add('tipo-completa');
+        }
 
         function buildTipoOptions(selectedValue) {
             const fallback = getDefaultTipoCode();
             const selected = selectedValue && selectedValue.trim() ? selectedValue : fallback;
+
             const options = tiposCache.map(t => {
                 const code = t.code ?? t.Code ?? '';
                 const name = t.name ?? t.Name ?? '';
                 const isSelected = code === selected ? 'selected' : '';
                 return `<option value="${code}" ${isSelected}>${name}</option>`;
             });
+
             return `<option value="">Seleccione</option>${options.join('')}`;
         }
 
@@ -422,14 +421,12 @@
         function renderEmptyRows(count = 10, tbodyEl) {
             const tbody = tbodyEl ?? document.querySelector('#tablaGestionAyuda tbody');
             if (!tbody) return;
-
             const placeholder = `
-                    <tr class="placeholder-row">
-                        <td>&nbsp;</td>
-                        <td class="sticky-col-start fw-semibold">&nbsp;</td>
-                        ${Array.from({ length: 8 }).map(() => '<td class="placeholder-cell">&nbsp;</td>').join('')}
-                    </tr>`;
-
+                <tr class="placeholder-row">
+                    <td>&nbsp;</td>
+                    <td class="sticky-col-start fw-semibold">&nbsp;</td>
+                    ${Array.from({ length: 8 }).map(() => '<td class="placeholder-cell">&nbsp;</td>').join('')}
+                </tr>`;
             tbody.innerHTML = Array.from({ length: count }).map(() => placeholder).join('');
         }
 
@@ -453,6 +450,12 @@
                 const tbody = document.querySelector('#tablaGestionAyuda tbody');
                 if (Array.isArray(data) && data.length > 0) {
                     tbody.innerHTML = data.map(renderFila).join('');
+
+                    /* ====== NUEVO: pintar selects al cargar + al cambiar ====== */
+                    document.querySelectorAll('#tablaGestionAyuda select.tipo-select').forEach(sel => {
+                        aplicarEstiloSelect(sel);
+                        sel.addEventListener('change', () => aplicarEstiloSelect(sel));
+                    });
                 } else {
                     renderEmptyRows(10, tbody);
                 }
@@ -506,7 +509,6 @@
             nuevoEstado.className = `alert alert-${type}`;
             nuevoEstado.classList.remove('d-none');
         }
-
         function clearNuevoEstado() {
             if (!nuevoEstado) return;
             nuevoEstado.classList.add('d-none');
@@ -560,7 +562,6 @@
 
             tablaPreviewNuevoBody.innerHTML = filas.map(item => `
                 <tr data-tienda="${item.U_MGS_CL_TIENDA ?? ''}">
-                    <td class="fw-semibold">${item.LineId ?? ''}</td>
                     <td class="sticky-col-start fw-semibold">${item.U_MGS_CL_TIENDA ?? ''} - ${item.U_MGS_CL_NOMTIE ?? ''}</td>
                     ${renderSelectCell('U_MGS_CL_CVENTA', item.U_MGS_CL_CVENTA)}
                     ${renderSelectCell('U_MGS_CL_CRENTA', item.U_MGS_CL_CRENTA)}
@@ -586,22 +587,36 @@
 
         function wirePreviewSelects() {
             document.querySelectorAll('#tablaPreviewNuevo select.tipo-select').forEach(select => {
+                aplicarEstiloSelect(select); // ✅ al cargar
+
                 select.addEventListener('change', () => {
+                    aplicarEstiloSelect(select); // ✅ al cambiar
                     actualizarValorPreview(select.closest('tr'), select.getAttribute('data-field'), select.value);
                 });
             });
         }
 
+        function normalizar(txt) {
+            return (txt ?? '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+        function soloDigitos(txt) { return normalizar(txt).replace(/\D/g, ''); }
+        function sinCerosIzq(txt) { return txt.replace(/^0+/, '') || '0'; }
+
         function aplicarFiltroPreview() {
-            const term = (nuevoFiltroTienda?.value ?? '').toLowerCase().trim();
-            if (!term) {
-                renderPreviewTabla(previewData);
-                return;
-            }
+            const term = normalizar(nuevoFiltroTienda?.value);
+            if (!term) { renderPreviewTabla(previewData); return; }
+
+            const termDigits = sinCerosIzq(soloDigitos(term));
 
             const filtrado = previewData.filter(p => {
-                const texto = `${p.U_MGS_CL_TIENDA ?? ''} ${p.U_MGS_CL_NOMTIE ?? ''}`.toLowerCase();
-                return texto.includes(term);
+                const cod = normalizar(p.U_MGS_CL_TIENDA);
+                const nom = normalizar(p.U_MGS_CL_NOMTIE);
+                if (cod.includes(term) || nom.includes(term)) return true;
+                if (termDigits) {
+                    const codDigits = sinCerosIzq(soloDigitos(cod));
+                    return codDigits.includes(termDigits);
+                }
+                return false;
             });
 
             renderPreviewTabla(filtrado);
@@ -609,10 +624,7 @@
 
         async function abrirModalNuevo() {
             clearAlert();
-            if (!ensureDefaultTipo()) {
-                setNuevoEstado('No se encontró el tipo "Por defecto".', 'warning');
-                return;
-            }
+            if (!ensureDefaultTipo()) { setNuevoEstado('No se encontró el tipo "Por defecto".', 'warning'); return; }
 
             nuevoPeriodoDestinoValor = '';
             if (nuevoPeriodoDestino) nuevoPeriodoDestino.value = '';
@@ -630,7 +642,6 @@
             try {
                 const res = await fetch(urlPrevisualizar);
                 let data = [];
-
                 try {
                     const raw = await res.text();
                     data = raw ? JSON.parse(raw) : [];
@@ -669,24 +680,12 @@
         }
 
         async function crearGestionAyudaDesdeModal() {
-            if (!previewData.length) {
-                setNuevoEstado('No hay información para registrar.', 'warning');
-                return;
-            }
-
-            if (!ensureDefaultTipo()) {
-                setNuevoEstado('No se encontró el tipo "Por defecto".', 'warning');
-                return;
-            }
+            if (!previewData.length) { setNuevoEstado('No hay información para registrar.', 'warning'); return; }
+            if (!ensureDefaultTipo()) { setNuevoEstado('No se encontró el tipo "Por defecto".', 'warning'); return; }
 
             const periodoDestinoRaw = nuevoPeriodoDestinoValor || (previewData[0]?.U_MGS_CL_PERIODO_DEST ?? '');
             const periodoDestino = buildPeriodoDestino(periodoDestinoRaw);
-            if (!periodoDestino) {
-                setNuevoEstado('No se pudo construir el periodo destino. Verifique el formato.', 'danger');
-                return;
-            }
-
-            console.log('U_MGS_CL_PERIODO enviado:', periodoDestino);
+            if (!periodoDestino) { setNuevoEstado('No se pudo construir el periodo destino. Verifique el formato.', 'danger'); return; }
 
             const payload = {
                 U_MGS_CL_PERIODO: periodoDestino,
@@ -776,22 +775,14 @@
             if (!ensureDefaultTipo()) return;
 
             const rows = Array.from(document.querySelectorAll('#tablaGestionAyuda tbody tr'));
-            if (!rows.length) {
-                showAlert('No hay información para actualizar.', 'warning');
-                return;
-            }
+            if (!rows.length) { showAlert('No hay información para actualizar.', 'warning'); return; }
 
             const docEntry = rows[0].dataset.docentry;
-            if (!docEntry) {
-                showAlert('No se encontró el DocEntry del documento.', 'danger');
-                return;
-            }
+            if (!docEntry) { showAlert('No se encontró el DocEntry del documento.', 'danger'); return; }
 
             const payload = {
                 MGS_CL_GESDETCollection: rows.map(tr => {
-                    const detalle = {
-                        LineId: tr.dataset.lineid || ''
-                    };
+                    const detalle = { LineId: tr.dataset.lineid || '' };
 
                     tr.querySelectorAll('select.tipo-select').forEach(select => {
                         const key = select.getAttribute('data-field');
@@ -812,10 +803,7 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if (!res.ok || !data.registered) {
-                    showAlert(data.message || 'Error al actualizar', 'danger');
-                    return;
-                }
+                if (!res.ok || !data.registered) { showAlert(data.message || 'Error al actualizar', 'danger'); return; }
 
                 showAlert(data.message || 'Actualizado correctamente', 'success');
             } catch (err) {

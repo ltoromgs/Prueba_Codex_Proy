@@ -89,7 +89,7 @@ BEGIN
             "PrjCode" AS "Codigo",
             "PrjName" AS "Nombre"
         FROM "OPRJ"
-        WHERE "Active" = 'Y'
+        WHERE "Active" = 'Y' and "PrjCode" <> 'GENERICO'
         ORDER BY "PrjCode";
 
 
@@ -223,7 +223,7 @@ BEGIN
               ON D."DocEntry" = C."DocEntry"
             WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", 'YYYY-MM') = :lvPeriodoBase
         ) F ON F."U_MGS_CL_TIENDA" = P."PrjCode"
-        WHERE P."Active" = 'Y'
+        WHERE P."Active" = 'Y' and P."PrjCode" <> 'GENERICO'
         ORDER BY P."PrjCode", P."PrjName";
 
     ELSEIF vTipo = 'Get_GesTiendas' THEN
@@ -232,7 +232,7 @@ BEGIN
             "PrjCode" AS "Codigo",
             "PrjName" AS "Nombre"
         FROM "OPRJ"
-        WHERE "Active" = 'Y'
+        WHERE "Active" = 'Y' and "PrjCode" <> 'GENERICO'
         ORDER BY "PrjCode";
 
 
@@ -262,12 +262,49 @@ BEGIN
             "DocEntry" AS "DocEntry",
             "U_MGS_CL_PERIODO" AS "U_MGS_CL_PERIODO"
         FROM "@MGS_CL_GESCAB"
-        WHERE "U_MGS_CL_PERIODO" = :vParam1;
+        WHERE TO_VARCHAR("U_MGS_CL_PERIODO", 'YYYY-MM') = :vParam1;
 
 
     ELSEIF vTipo = 'Get_GesDet' THEN
 
-        DECLARE lvTiendas NVARCHAR(5000);
+		DECLARE lvTiendas NVARCHAR(5000);
+    DECLARE lvSql     NVARCHAR(5000);
+    
+-- vParam2 = 'P0045,P0031'
+    lvTiendas := '''' || REPLACE(:vParam2, ',', ''',''') || '''';
+    --select :vParam1 from DUMMY;
+    --select :lvTiendas from DUMMY;
+    
+-- Resultado:  'P0045','P0031'
+
+ lvSql := '
+        SELECT
+            TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'')  AS "U_MGS_CL_PERIODO",
+            D."U_MGS_CL_TIENDA"   AS "U_MGS_CL_TIENDA",
+            D."U_MGS_CL_NOMTIE"   AS "U_MGS_CL_NOMTIE",
+            C."DocEntry"          AS "DocEntry",
+            D."LineId"          AS "LineId", 
+            D."U_MGS_CL_CVENTA" AS "U_MGS_CL_CVENTA",
+            D."U_MGS_CL_CRENTA" AS "U_MGS_CL_CRENTA",
+            D."U_MGS_CL_CVAN" AS "U_MGS_CL_CVAN",
+            D."U_MGS_CL_CPERSO" AS "U_MGS_CL_CPERSO",
+            D."U_MGS_CL_CGESTI" AS "U_MGS_CL_CGESTI",
+            D."U_MGS_CL_CSERV" AS "U_MGS_CL_CSERV",
+            D."U_MGS_CL_CCC" AS "U_MGS_CL_CCC",
+            D."U_MGS_CL_CADM" AS "U_MGS_CL_CADM"
+        FROM "@MGS_CL_GESCAB" C
+        JOIN "@MGS_CL_GESDET" D
+          ON D."DocEntry" = C."DocEntry"
+        WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'') = ''' || :vParam1 || '''
+          AND D."U_MGS_CL_TIENDA" IN (' || lvTiendas || ')
+        ORDER BY
+            D."LineId", D."U_MGS_CL_TIENDA", D."U_MGS_CL_NOMTIE"
+    ';
+    
+      EXECUTE IMMEDIATE :lvSql;
+
+
+       /* DECLARE lvTiendas NVARCHAR(5000);
         DECLARE lvSql NVARCHAR(5000);
 
         IF :vParam3 = '' THEN
@@ -290,8 +327,9 @@ BEGIN
           ON D."DocEntry" = C."DocEntry"
         WHERE (
                 (:vParam1 <> '' AND C."DocEntry" = :vParam1)
-             OR (:vParam1 = '' AND :vParam2 <> '' AND C."U_MGS_CL_PERIODO" = :vParam2)
+             OR (:vParam1 = '' AND :vParam2 <> '' AND  TO_VARCHAR(C."U_MGS_CL_PERIODO", 'MM-YYYY') = :vParam2)
         )
+															   
         ORDER BY D."LineId";
         ELSE
             lvTiendas := '''' || REPLACE(:vParam3, ',', ''',''') || '''';
@@ -316,14 +354,15 @@ BEGIN
           ON D."DocEntry" = C."DocEntry"
         WHERE (
                 (''' || :vParam1 || ''' <> '''' AND C."DocEntry" = ''' || :vParam1 || ''')
-             OR (''' || :vParam1 || ''' = '''' AND ''' || :vParam2 || ''' <> '''' AND C."U_MGS_CL_PERIODO" = ''' || :vParam2 || ''')
+                 OR (''' || :vParam1 || ''' = '''' AND ''' || :vParam2 || ''' <> '''' AND TO_VARCHAR(C."U_MGS_CL_PERIODO", ''''YYYY-MM'''') = ''' || :vParam2 || ''')
+             
         )
           AND D."U_MGS_CL_TIENDA" IN (' || lvTiendas || ')
         ORDER BY D."LineId"';
 
             EXECUTE IMMEDIATE :lvSql;
         END IF;
-
+*/
 
     ELSEIF vTipo = 'Get_GesPreview' THEN
 
@@ -332,7 +371,11 @@ BEGIN
         DECLARE lvPeriodoDestino NVARCHAR(10);
         DECLARE lvTipoDefault NVARCHAR(20);
 
-        SELECT MAX(TO_DATE('01-' || "U_MGS_CL_PERIODO", 'DD-MM-YYYY'))
+								 
+								 
+								
+  
+        SELECT MAX("U_MGS_CL_PERIODO")
           INTO lvPeriodoBaseDate
           FROM "@MGS_CL_GESCAB";
 
@@ -385,10 +428,11 @@ BEGIN
             FROM "@MGS_CL_GESCAB" C
             JOIN "@MGS_CL_GESDET" D
               ON D."DocEntry" = C."DocEntry"
-            WHERE C."U_MGS_CL_PERIODO" = :lvPeriodoBase
+            WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", 'YYYY-MM') = :lvPeriodoBase
         ) G ON G."U_MGS_CL_TIENDA" = P."PrjCode"
-        WHERE P."Active" = 'Y'
+        WHERE P."Active" = 'Y' and P."PrjCode" <> 'GENERICO'
         ORDER BY P."PrjCode", P."PrjName";
+ 
 
 
     ELSEIF vTipo = 'Get_VanTienda' THEN
@@ -397,7 +441,7 @@ BEGIN
             "PrjCode" AS "PrjCode",
             "PrjName" AS "PrjName"
         FROM "OPRJ"
-        WHERE "Active" = 'Y'
+        WHERE "Active" = 'Y' and "PrjCode" <> 'GENERICO'
         ORDER BY "PrjCode";
 
 
@@ -411,6 +455,7 @@ BEGIN
         ORDER BY "Code";
 
 
+												
     ELSEIF vTipo = 'Get_VanTipo' THEN
 
         SELECT
@@ -421,6 +466,7 @@ BEGIN
         ORDER BY "Code";
 
 
+														 
     ELSEIF vTipo = 'Get_VanItemM' THEN
 
         SELECT
@@ -436,6 +482,7 @@ BEGIN
         ORDER BY "ItemCode";
 
 
+																																		 
     ELSEIF vTipo = 'Get_VanTdaGrp' THEN
 
         SELECT
@@ -444,7 +491,8 @@ BEGIN
             D."U_MGS_CL_GRPCOD" AS "U_MGS_CL_GRPCOD",
             G."Name"            AS "U_MGS_CL_GRPNOM",
             IFNULL(D."U_MGS_CL_TIPO", '') AS "U_MGS_CL_TIPO",
-            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC"
+            IFNULL(D."U_MGS_CL_PORC", 0) AS "U_MGS_CL_PORC",
+			IFNULL(D."U_MGS_CL_ACTIVO", 'NO') AS "U_MGS_CL_ACTIVO"													  
         FROM "@MGS_CL_VANTCAB" H
         JOIN "@MGS_CL_VANTDET" D ON D."DocEntry" = H."DocEntry"
         LEFT JOIN "@MGS_CL_VANGRP" G ON G."Code" = D."U_MGS_CL_GRPCOD"
@@ -453,6 +501,7 @@ BEGIN
         ORDER BY D."LineId";
 
 
+																																							
     ELSEIF vTipo = 'Get_VanGrpArt' THEN
 
 		 
@@ -477,6 +526,7 @@ BEGIN
         ORDER BY D."LineId";
 
 
+																			
     ELSEIF vTipo = 'Get_VanItemTienda' THEN
 
         SELECT
@@ -494,14 +544,16 @@ BEGIN
         
 
 
+											   
     ELSEIF vTipo = 'Get_VanTdaNom' THEN
 
         SELECT
             "PrjName" AS "PrjName"
         FROM "OPRJ"
-        WHERE "PrjCode" = :vParam1;
+        WHERE  "PrjCode" <> 'GENERICO' and "PrjCode" = :vParam1;
 
 
+											 
     ELSEIF vTipo = 'Get_VanCab' THEN
 
         SELECT
@@ -509,6 +561,7 @@ BEGIN
         FROM "@MGS_CL_VANTCAB"
         WHERE "U_MGS_CL_TIENDA" = :vParam1;
 
+															   
     ELSEIF vTipo = 'Get_VanGrpDet' THEN
 
         SELECT
@@ -522,6 +575,7 @@ BEGIN
         LIMIT 1;
 
 
+											
     ELSEIF vTipo = 'Get_VanGrpEx' THEN
 
         SELECT
@@ -533,6 +587,7 @@ BEGIN
           AND IFNULL(D."U_MGS_CL_ACTIVO",'NO') = 'SI';
 
 
+											
     ELSEIF vTipo = 'Get_VanGrpNom' THEN
 
         SELECT
@@ -546,7 +601,7 @@ BEGIN
             "PrjCode" AS "PrjCode",
             "PrjName" AS "PrjName"
         FROM "OPRJ"
-        WHERE "Active" = 'Y'
+        WHERE "Active" = 'Y' and "PrjCode" <> 'GENERICO'
         ORDER BY "PrjCode";
 
     ELSEIF vTipo = 'Get_PrmGrupoM' THEN
@@ -563,7 +618,7 @@ BEGIN
         SELECT
             "Code" AS "Code",
             "Name" AS "Name"
-        FROM "TIENDAS_PASTIPIQUEOS"."@MGS_CL_TIPMOP"
+        FROM "TIENDAS_PASTIPIQUEOS"."@MGS_CL_TIPGAS"
         ORDER BY "Code";
 
     ELSEIF vTipo = 'Get_PrmTipMop' THEN
