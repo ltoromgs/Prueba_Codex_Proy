@@ -477,6 +477,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             string result = "";
             string estado = "E";
             string usuario = "";
+            string msgBase = "";
             usuario = BaseDatos.ServiceLayer.UserName.ToString(); ;
             //usuario = BaseDatos == "1" ?  _configuration["ServiceLayer:UserName"].ToString() : _configuration["ServiceLayer2:UserName"].ToString();
             string HANAConnectionString = "";
@@ -501,9 +502,21 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     // Formatear la hora con el formato hora:minuto:segundo
                     string horaFormateada = fecha.ToString("HH:mm");
 
-                    if (httpWebGetRequest.Method != "DELETE")
-                        ri.Message = estado == "R" ? ri.Message.Replace("'", "") + " con el codigo: " + requestInformation.CodGenerado : ri.Message.Replace("'", "");
+                    //if (httpWebGetRequest.Method != "DELETE")
+                    //    ri.Message = estado == "R" ? ri.Message.Replace("'", "") + " con el codigo: " + requestInformation.CodGenerado : ri.Message.Replace("'", "");
 
+                    msgBase = ri.Message.Replace("'", "");
+
+                    if (httpWebGetRequest.Method != "DELETE" && estado == "R")
+                    {
+                        ri.Message = !string.IsNullOrWhiteSpace(requestInformation.CodGenerado)
+                            ? $"{msgBase} con el codigo: {requestInformation.CodGenerado}"
+                            : msgBase;
+                    }
+                    else
+                    {
+                        ri.Message = msgBase;
+                    }
                     string query = " INSERT INTO \"@MGS_CL_WEBLOG\"(                                            ";
                     query += "       \"Code\", \"Name\", \"U_DocEntry\",                                      ";
                     query += "       \"U_MGS_CL_USUARIO\",                                                  ";
@@ -3754,8 +3767,10 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     if (detalle.LineId.HasValue)
                     {
                         item.LineId = detalle.LineId.Value;
-                        if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
-                        {
+                        if (!string.Equals(item.U_MGS_CL_ACTIVO, "NO", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))                        
+                            //if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                            {
                             item.U_MGS_CL_ACTIVO = "SI";
                         }
                     }
@@ -3820,37 +3835,79 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
 
             var grupoExiste = await ExisteGrupoPrm(login.Cfg, tiendaCodigo, grupoCodigo);
+            var hayAltasOActivaciones = lista.Any(i => string.Equals(i.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase));
+
             if (!grupoExiste)
             {
-                var nombreGrupo = await ObtenerNombreGrupoPrm(login.Cfg, grupoCodigo);
-                var itemBase = lista.FirstOrDefault();
-                var grupoReq = new
+                // Si no hay activaciones (solo inactivaciones), NO tocar/activar el grupo
+                if (!hayAltasOActivaciones)
                 {
-                    MGS_CL_PRMTDETCollection = new[]
+                    // seguir directo al updateReq de artículos
+                }
+                else
+                {
+                    var nombreGrupo = await ObtenerNombreGrupoPrm(login.Cfg, grupoCodigo);
+                    var itemBase = lista.FirstOrDefault();
+                    var grupoReq = new
                     {
-                        new
+                        MGS_CL_PRMTDETCollection = new[]
                         {
-                            U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
-                            U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
-                            U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
-                            U_MGS_CL_ACTIVO = "SI"
+                            new
+                            {
+                                U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+                                U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+                                U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
+                                U_MGS_CL_ACTIVO = "SI"
+                            }
                         }
+                    };
+
+                    var requestGrupo = new RequestInformation
+                    {
+                        Route = $"MGS_CL_PRMTCAB({existingDocEntry.Value})",
+                        Token = login.Token,
+                        Doc = JsonConvert.SerializeObject(grupoReq, settings)
+                    };
+
+                    var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
+                    if (!grupoResp.Registered)
+                    {
+                        return grupoResp;
                     }
-                };
-
-                var requestGrupo = new RequestInformation
-                {
-                    Route = $"MGS_CL_PRMTCAB({existingDocEntry.Value})",
-                    Token = login.Token,
-                    Doc = JsonConvert.SerializeObject(grupoReq, settings)
-                };
-
-                var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
-                if (!grupoResp.Registered)
-                {
-                    return grupoResp;
                 }
             }
+
+            //if (!grupoExiste)
+            //{
+            //    var nombreGrupo = await ObtenerNombreGrupoPrm(login.Cfg, grupoCodigo);
+            //    var itemBase = lista.FirstOrDefault();
+            //    var grupoReq = new
+            //    {
+            //        MGS_CL_PRMTDETCollection = new[]
+            //        {
+            //            new
+            //            {
+            //                U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
+            //                U_MGS_CL_GRPNOM = string.IsNullOrWhiteSpace(nombreGrupo) ? (grupoCodigo ?? string.Empty) : nombreGrupo,
+            //                U_MGS_CL_TIPGAS = itemBase?.U_MGS_CL_TIPGAS ?? string.Empty,
+            //                U_MGS_CL_ACTIVO = "SI"
+            //            }
+            //        }
+            //    };
+
+            //    var requestGrupo = new RequestInformation
+            //    {
+            //        Route = $"MGS_CL_PRMTCAB({existingDocEntry.Value})",
+            //        Token = login.Token,
+            //        Doc = JsonConvert.SerializeObject(grupoReq, settings)
+            //    };
+
+            //    var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
+            //    if (!grupoResp.Registered)
+            //    {
+            //        return grupoResp;
+            //    }
+            //}
 
             var updateReq = new
             {
@@ -4944,7 +5001,9 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         if (detalle.LineId.HasValue)
                         {
                             item.LineId = detalle.LineId.Value;
-                            if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                            if (!string.Equals(item.U_MGS_CL_ACTIVO, "NO", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
+                            //if (string.Equals(detalle.Activo, "NO", StringComparison.OrdinalIgnoreCase))
                             {
                                 item.U_MGS_CL_ACTIVO = "SI";
                             }
@@ -5163,14 +5222,24 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 return await PostInfo(requestInformation, "PYP", login.Cfg);
             }
 
+            var hayAltasOActivaciones = lista.Any(i => string.Equals(i.U_MGS_CL_ACTIVO, "SI", StringComparison.OrdinalIgnoreCase));
+
+
             if (!grupoExiste)
             {
-                var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
-                var itemBase = lista.FirstOrDefault();
-                var grupoReq = new
+                // Si no hay activaciones (solo inactivaciones), NO tocar/activar el grupo
+                if (!hayAltasOActivaciones)
                 {
-                    MGS_CL_VANTDETCollection = new[]
+                    // seguir directo al updateReq de artículos
+                }
+                else
+                {
+                    var nombreGrupo = await ObtenerNombreGrupo(login.Cfg, grupoCodigo);
+                    var itemBase = lista.FirstOrDefault();
+                    var grupoReq = new
                     {
+                        MGS_CL_VANTDETCollection = new[]
+                        {
                         new
                         {
                             U_MGS_CL_GRPCOD = grupoCodigo ?? string.Empty,
@@ -5180,19 +5249,20 @@ namespace RusticaPortal_PRMVAN.Api.Services
                             U_MGS_CL_ACTIVO = "SI"
                         }
                     }
-                };
+                    };
 
-                var requestGrupo = new RequestInformation
-                {
-                    Route = $"MGS_CL_VANTCAB({existingDocEntry.Value})",
-                    Token = login.Token,
-                    Doc = JsonConvert.SerializeObject(grupoReq, settings)
-                };
+                    var requestGrupo = new RequestInformation
+                    {
+                        Route = $"MGS_CL_VANTCAB({existingDocEntry.Value})",
+                        Token = login.Token,
+                        Doc = JsonConvert.SerializeObject(grupoReq, settings)
+                    };
 
-                var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
-                if (!grupoResp.Registered)
-                {
-                    return grupoResp;
+                    var grupoResp = await UpdateInfo(requestGrupo, "PYP", login.Cfg);
+                    if (!grupoResp.Registered)
+                    {
+                        return grupoResp;
+                    }
                 }
             }
 
