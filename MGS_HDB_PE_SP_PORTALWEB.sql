@@ -720,6 +720,89 @@ BEGIN
         FROM "@MGS_CL_PRMGRP"
         WHERE "Code" = :vParam1;
 
+    ELSEIF vTipo = 'Get_Gas_Tiendas' THEN
+
+        SELECT
+            "PrjCode" AS "PrjCode",
+            "PrjName" AS "PrjName"
+        FROM "OPRJ"
+        WHERE "Active" = 'Y' and "PrjCode" <> 'GENERICO'
+        ORDER BY "PrjCode";
+
+    ELSEIF vTipo = 'Get_Gas_ConceptosPRM' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "@MGS_CL_PRMGRP"
+        WHERE IFNULL("U_MGS_CL_ACTIVO", 'NO') = 'SI'
+        ORDER BY "Code";
+
+    ELSEIF vTipo = 'Get_Gas_TipMop' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "TIENDAS_PASTIPIQUEOS"."@MGS_CL_TIPMOP"
+        ORDER BY "Code";
+
+    ELSEIF vTipo = 'Get_Gas_ItemM' THEN
+
+        SELECT
+            "ItemCode" AS "ItemCode",
+            "ItemName" AS "ItemName"
+        FROM "OITM"
+        WHERE "InvntItem" = 'Y'
+          AND (
+                :vParam1 = ''
+             OR UPPER("ItemCode") LIKE '%' || UPPER(:vParam1) || '%'
+             OR UPPER("ItemName") LIKE '%' || UPPER(:vParam1) || '%'
+          )
+        ORDER BY "ItemCode";
+
+    ELSEIF vTipo = 'Get_Gas_Buscar' THEN
+
+		DECLARE lvGasTiendas NVARCHAR(5000);
+        DECLARE lvGasSql     NVARCHAR(5000);
+
+        lvGasTiendas := '''' || REPLACE(:vParam2, ',', ''',''') || '''';
+
+        lvGasSql := '
+        SELECT
+            C."DocEntry" AS "DocEntry",
+            D."LineId" AS "LineId",
+            D."U_MGS_CL_TIENDA" AS "U_MGS_CL_TIENDA",
+            D."U_MGS_CL_CONPRM" AS "U_MGS_CL_CONPRM",
+            D."U_MGS_CL_TIPMOP" AS "U_MGS_CL_TIPMOP",
+            D."U_MGS_CL_ITEMCOD" AS "U_MGS_CL_ITEMCOD",
+            TO_VARCHAR(D."U_MGS_CL_FECHA", ''YYYY-MM-DD'') AS "U_MGS_CL_FECHA",
+            D."U_MGS_CL_IMPORT" AS "U_MGS_CL_IMPORT",
+            IFNULL(D."U_MGS_CL_VALIDO", ''NO'') AS "U_MGS_CL_VALIDO"
+        FROM "@MGS_CL_GASCAB" C
+        JOIN "@MGS_CL_GASDET" D ON D."DocEntry" = C."DocEntry"
+        WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'') = ''' || :vParam1 || '''';
+
+        IF :vParam2 <> '' THEN
+            lvGasSql := lvGasSql || ' AND D."U_MGS_CL_TIENDA" IN (' || lvGasTiendas || ')';
+        END IF;
+
+        IF :vParam3 <> '' AND :vParam3 <> 'TODOS' THEN
+            lvGasSql := lvGasSql || ' AND D."U_MGS_CL_TIPMOP" = ''' || :vParam3 || '''';
+        END IF;
+
+        lvGasSql := lvGasSql || ' ORDER BY D."LineId"';
+
+        EXECUTE IMMEDIATE :lvGasSql;
+
+    ELSEIF vTipo = 'Get_Gas_UltimoDocEntryPeriodo' THEN
+
+        SELECT
+            "DocEntry" AS "DocEntry"
+        FROM "@MGS_CL_GASCAB"
+        WHERE TO_VARCHAR("U_MGS_CL_PERIODO", 'YYYY-MM') = :vParam1
+        ORDER BY "DocEntry" DESC
+        LIMIT 1;
+
     ELSEIF vTipo = 'Get_PrmItemTienda' THEN
 
         SELECT

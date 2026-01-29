@@ -1,0 +1,137 @@
+@model RusticaPortal_PRMVAN.Web.Models.PrevisionGastosViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Previsión de gastos";
+}
+
+<link rel="stylesheet" href="~/css/prevision-gastos.css" />
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Previsión de gastos</h3>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Previsión de gastos</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-content" id="prevision-gastos-app">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Periodo</label>
+                        <div class="input-group input-group-sm">
+                            <button class="btn btn-outline-secondary" type="button" id="btnPeriodoAnterior">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.PeriodoActual" />
+                            <button class="btn btn-outline-secondary" type="button" id="btnPeriodoSiguiente">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Tiendas</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                Seleccionar tiendas
+                            </button>
+                            <div class="dropdown-menu p-3" style="max-height: 280px; overflow: auto; width: 320px;">
+                                <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
+                                <div id="tiendasListado" class="d-grid gap-1"></div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
+                                    <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
+                                    <a href="#" id="tiendaLimpiar" class="link-secondary small">Limpiar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Motivo de gasto</label>
+                        <select id="filtroMotivo" class="form-select form-select-sm"></select>
+                    </div>
+
+                    <div class="col-auto ms-auto d-flex gap-2">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="text-secondary small">Pendientes</span>
+                            <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
+                        </div>
+                        <button id="btnBuscar" class="btn btn-primary btn-sm">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <button id="btnNuevo" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Nuevo
+                        </button>
+                        <button id="btnActualizarTodo" class="btn btn-success btn-sm">
+                            <i class="bi bi-save"></i> Actualizar todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div id="alertContainer" class="px-3 pt-3"></div>
+                <div id="loadingOverlay" class="loading-overlay d-none">
+                    <div class="loading-box text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Procesando...</span>
+                        </div>
+                        <div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="overflow:auto;">
+                    <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaPrevision" style="white-space:nowrap;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th class="sticky-col-start">Tienda</th>
+                                <th>Concepto PRM</th>
+                                <th>Motivo gasto</th>
+                                <th>Item/Servicio</th>
+                                <th>Fecha</th>
+                                <th>Importe (S/)</th>
+                                <th>No válido</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="listaItems"></datalist>
+
+    <div class="modal fade" id="modalCambios" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambios pendientes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Hay cambios pendientes. ¿Desea descartar los cambios?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnDescartar">Sí, descartar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/prevision-gastos.js"></script>

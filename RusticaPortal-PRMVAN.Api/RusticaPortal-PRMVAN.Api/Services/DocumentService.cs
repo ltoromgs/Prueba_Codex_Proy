@@ -16,6 +16,7 @@ using System.Linq;
 using RusticaPortal_PRMVAN.Api.Entities.Dto;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm;
+using RusticaPortal_PRMVAN.Api.Entities.Dto.PrevisionGastos;
 using System.Globalization;
 
 namespace RusticaPortal_PRMVAN.Api.Services
@@ -5871,6 +5872,256 @@ namespace RusticaPortal_PRMVAN.Api.Services
             }
 
             return null;
+        }
+
+        public async Task<ResponseInformation> GetPrevisionGastosTiendas(string empresa)
+        {
+            return await GetPrevisionGastosCatalogo<PrevisionGastoTiendaDto>(empresa, "Get_Gas_Tiendas");
+        }
+
+        public async Task<ResponseInformation> GetPrevisionGastosConceptosPrm(string empresa)
+        {
+            return await GetPrevisionGastosCatalogo<PrevisionGastoCatalogoDto>(empresa, "Get_Gas_ConceptosPRM");
+        }
+
+        public async Task<ResponseInformation> GetPrevisionGastosMotivosGasto(string empresa)
+        {
+            return await GetPrevisionGastosCatalogo<PrevisionGastoCatalogoDto>(empresa, "Get_Gas_TipMop");
+        }
+
+        public async Task<ResponseInformation> GetPrevisionGastosItems(string empresa, string search)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var items = new List<PrevisionGastoItemDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_Gas_ItemM";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = search ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    items.Add(new PrevisionGastoItemDto
+                    {
+                        ItemCode = reader[nameof(PrevisionGastoItemDto.ItemCode)]?.ToString() ?? string.Empty,
+                        ItemName = reader[nameof(PrevisionGastoItemDto.ItemName)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(items)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar artículos de previsión de gastos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetPrevisionGastosBuscar(string empresa, string periodo, string tiendas, string motivo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var registros = new List<PrevisionGastoDetalleDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_Gas_Buscar";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = periodo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 5000).Value = tiendas ?? string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = motivo ?? string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    registros.Add(new PrevisionGastoDetalleDto
+                    {
+                        DocEntry = reader[nameof(PrevisionGastoDetalleDto.DocEntry)]?.ToString() ?? string.Empty,
+                        LineId = reader[nameof(PrevisionGastoDetalleDto.LineId)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIENDA = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_TIENDA)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_CONPRM = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_CONPRM)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPMOP = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_TIPMOP)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_ITEMCOD = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_ITEMCOD)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_FECHA = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_FECHA)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_VALIDO = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_VALIDO)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_IMPORT = decimal.TryParse(reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_IMPORT)]?.ToString(), out var importe) ? importe : 0
+                    });
+                }
+
+                var docEntry = registros.FirstOrDefault()?.DocEntry ?? string.Empty;
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(new PrevisionGastosSearchResponse
+                    {
+                        DocEntry = docEntry,
+                        Items = registros
+                    })
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al buscar previsión de gastos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetPrevisionGastosDocEntryPeriodo(string empresa, string periodo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_Gas_UltimoDocEntryPeriodo";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = periodo ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                var docEntry = string.Empty;
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                if (reader.Read())
+                {
+                    docEntry = reader["DocEntry"]?.ToString() ?? string.Empty;
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = docEntry
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al obtener DocEntry por periodo.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        private async Task<ResponseInformation> GetPrevisionGastosCatalogo<T>(string empresa, string tipo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var resultados = new List<T>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = tipo;
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                var dataTable = new DataTable();
+                dataTable.Load(reader);
+
+                resultados = JsonConvert.DeserializeObject<List<T>>(JsonConvert.SerializeObject(dataTable)) ?? new List<T>();
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(resultados)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar catálogo de previsión de gastos.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
         }
 
         private static void ValidarColumnas(IDataRecord reader, IEnumerable<string> columnas, string vTipo)
