@@ -3,6 +3,7 @@ using RusticaPortal_PRMVAN.Api.Entities.Information;
 using RusticaPortal_PRMVAN.Api.Entities.ObjectSAP;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm;
+using RusticaPortal_PRMVAN.Api.Entities.Dto.PrevisionGastos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -58,6 +59,12 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> SetGrupoPrmPorTiendaBulk(string empresa, string tiendaCodigo, IEnumerable<PrmGrupoDetalleDto> items);
         Task<ResponseInformation> SetGrupoPrmArticulosBulk(string empresa, string tiendaCodigo, string grupoCodigo, IEnumerable<PrmArticuloDetalleDto> items);
         Task<ResponseInformation> CopiarGrupoPrmTienda(string empresa, string tiendaOrigen, string tiendaDestino);
+        Task<ResponseInformation> GetPrevisionGastosTiendas(string empresa);
+        Task<ResponseInformation> GetPrevisionGastosConceptosPrm(string empresa);
+        Task<ResponseInformation> GetPrevisionGastosMotivosGasto(string empresa);
+        Task<ResponseInformation> GetPrevisionGastosItems(string empresa, string search);
+        Task<ResponseInformation> GetPrevisionGastosBuscar(string empresa, string periodo, string tiendas, string motivo);
+        Task<ResponseInformation> GetPrevisionGastosDocEntryPeriodo(string empresa, string periodo);
               
     }
 }
