@@ -43,7 +43,7 @@
                     <div class="col-auto">
                         <label class="form-label mb-1">Tiendas</label>
                         <div class="dropdown">
-                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                            <button id="tiendasDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                     data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 Seleccionar tiendas
                             </button>
@@ -189,7 +189,7 @@
             };
         };
 
-        const connectionMessage = 'No tiene conexión, vuelva a intentar';
+        const connectionMessage = 'Sin conexión / No se pudo cargar la información. Intente nuevamente.';
 
         const state = {
             tiendas: [],
@@ -211,6 +211,7 @@
             tiendasListado: document.getElementById('tiendasListado'),
             btnSelTodas: document.getElementById('tiendaSelTodas'),
             btnLimpiar: document.getElementById('tiendaLimpiar'),
+            btnTiendasDropdown: document.getElementById('tiendasDropdownBtn'),
             filtroMotivo: document.getElementById('filtroMotivo'),
             btnBuscar: document.getElementById('btnBuscar'),
             btnNuevo: document.getElementById('btnNuevo'),
@@ -265,6 +266,28 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+        };
+
+        const unwrapApiData = (raw) => {
+            if (!raw) return [];
+            if (Array.isArray(raw)) return raw;
+            if (raw.data) return raw.data;
+            const content = raw.content ?? raw.Content;
+            if (typeof content === 'string') {
+                try {
+                    const parsed = JSON.parse(content);
+                    if (Array.isArray(parsed)) return parsed;
+                    if (parsed?.data) return parsed.data;
+                    return parsed;
+                } catch (error) {
+                    return [];
+                }
+            }
+            return raw;
+        };
+
+        const pick = (obj, keys) => {
+            return keys.map(key => obj?.[key]).find(value => value !== null && value !== undefined && value !== '');
         };
 
         const fetchJson = async (url, options = {}) => {
@@ -352,29 +375,50 @@
         const cargarTiendas = async () => {
             try {
                 const resp = await fetchJson('/PrevisionGastos/Tiendas');
-                state.tiendas = resp || [];
+                const list = unwrapApiData(resp);
+                state.tiendas = (Array.isArray(list) ? list : [])
+                    .map(tienda => {
+                        const codigo = pick(tienda, ['codigo', 'Codigo', 'Code', 'U_MGS_CL_TIENDA', 'u_MGS_CL_TIENDA']);
+                        const nombre = pick(tienda, ['nombre', 'Nombre', 'Name', 'U_MGS_CL_NOMTIE', 'u_MGS_CL_NOMTIE']);
+                        if (!codigo || !nombre) return null;
+                        return { codigo, nombre };
+                    })
+                    .filter(Boolean);
                 renderTiendas();
             } catch (error) {
-                showAlert('warning', connectionMessage);
+                showLoadError('las tiendas');
             }
+        };
+
+        const showLoadError = (resource) => {
+            showAlert('warning', `Sin conexión / No se pudo cargar ${resource}. Intente nuevamente.`);
         };
 
         const cargarConceptos = async () => {
             try {
                 const resp = await fetchJson('/PrevisionGastos/ConceptosPrm');
-                state.conceptos = resp || [];
+                const list = unwrapApiData(resp);
+                state.conceptos = Array.isArray(list) ? list : [];
             } catch (error) {
-                showAlert('warning', connectionMessage);
+                showLoadError('los conceptos');
             }
         };
 
         const cargarMotivos = async () => {
             try {
                 const resp = await fetchJson('/PrevisionGastos/MotivosGasto');
-                state.motivos = resp || [];
+                const list = unwrapApiData(resp);
+                state.motivos = (Array.isArray(list) ? list : [])
+                    .map(motivo => {
+                        const code = pick(motivo, ['code', 'Code', 'Codigo']);
+                        const name = pick(motivo, ['name', 'Name', 'Nombre', 'Descripcion', 'descripcion']);
+                        if (!code || !name) return null;
+                        return { code, name };
+                    })
+                    .filter(Boolean);
                 renderMotivos();
             } catch (error) {
-                showAlert('warning', connectionMessage);
+                showLoadError('los motivos');
             }
         };
 
@@ -383,17 +427,18 @@
             elements.tiendasListado.innerHTML = '';
             if (state.tiendas.length === 0) {
                 elements.tiendasEstado.textContent = 'No hay tiendas disponibles.';
+                updateTiendasDropdown();
                 return;
             }
 
             elements.tiendasEstado.textContent = '';
             state.tiendas.forEach(tienda => {
-                const id = `chk-${tienda.PrjCode}`;
+                const id = `chk-${tienda.codigo}`;
                 const wrapper = document.createElement('div');
                 wrapper.className = 'form-check';
                 wrapper.innerHTML = `
-                    <input class="form-check-input" type="checkbox" value="${tienda.PrjCode}" id="${id}" checked>
-                    <label class="form-check-label" for="${id}">${tienda.PrjCode} - ${tienda.PrjName}</label>
+                    <input class="form-check-input" type="checkbox" value="${tienda.codigo}" id="${id}" checked>
+                    <label class="form-check-label" for="${id}">${tienda.codigo} - ${tienda.nombre}</label>
                 `;
                 elements.tiendasListado.appendChild(wrapper);
             });
@@ -409,18 +454,38 @@
 
             state.motivos.forEach(motivo => {
                 const option = document.createElement('option');
-                option.value = motivo.Code;
-                option.textContent = motivo.Name;
+                option.value = motivo.code;
+                option.textContent = motivo.name;
                 elements.filtroMotivo.appendChild(option);
             });
             elements.filtroMotivo.value = 'TODOS';
             state.lastMotivo = 'TODOS';
         };
 
+        const updateTiendasDropdown = () => {
+            if (!elements.btnTiendasDropdown) return;
+            const total = elements.tiendasListado.querySelectorAll('input[type="checkbox"]').length;
+            const selected = elements.tiendasListado.querySelectorAll('input[type="checkbox"]:checked').length;
+            if (total === 0) {
+                elements.btnTiendasDropdown.textContent = 'Seleccionar tiendas';
+                return;
+            }
+            if (selected === 0) {
+                elements.btnTiendasDropdown.textContent = 'Sin tiendas';
+                return;
+            }
+            if (selected === total) {
+                elements.btnTiendasDropdown.textContent = 'Todas';
+                return;
+            }
+            elements.btnTiendasDropdown.textContent = `${selected} seleccionadas`;
+        };
+
         const updateSelectedTiendas = () => {
             const selected = Array.from(elements.tiendasListado.querySelectorAll('input[type="checkbox"]:checked'))
                 .map(chk => chk.value);
             state.selectedTiendas = new Set(selected);
+            updateTiendasDropdown();
         };
 
         const buscar = async () => {
@@ -503,8 +568,8 @@
                 }
 
                 const tiendaOptions = buildOptions(state.tiendas.map(t => ({
-                    value: t.PrjCode,
-                    label: `${t.PrjCode} - ${t.PrjName}`
+                    value: t.codigo,
+                    label: `${t.codigo} - ${t.nombre}`
                 })), row.U_MGS_CL_TIENDA);
 
                 const conceptoOptions = buildOptions(state.conceptos.map(c => ({
@@ -513,8 +578,8 @@
                 })), row.U_MGS_CL_CONPRM);
 
                 const motivoOptions = buildOptions(state.motivos.map(m => ({
-                    value: m.Code,
-                    label: `${m.Code} - ${m.Name}`
+                    value: m.code,
+                    label: `${m.code} - ${m.name}`
                 })), row.U_MGS_CL_TIPMOP);
 
                 const validoOptions = buildOptions([
@@ -632,7 +697,7 @@
                 state.itemsCache = items || [];
                 renderItemsList();
             } catch (error) {
-                showAlert('warning', connectionMessage);
+                showLoadError('los ítems');
             }
         }, 300);
 
