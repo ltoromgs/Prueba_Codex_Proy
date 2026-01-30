@@ -315,12 +315,13 @@
         };
 
         const handleActionWithPending = (action) => {
-            clearAlerts();
-            if (state.pending.size > 0 && action !== agregarLinea) {
-                requestDiscard(action);
-            } else {
-                action();
-            }
+            //clearAlerts();
+            //if (state.pending.size > 0 && action !== agregarLinea) {
+            //    requestDiscard(action);
+            //} else {
+            //    action();
+            //}
+            action();
         };
 
         const requestDiscard = (action, onCancel) => {
@@ -378,8 +379,8 @@
                 const list = unwrapApiData(resp);
                 state.tiendas = (Array.isArray(list) ? list : [])
                     .map(tienda => {
-                        const codigo = pick(tienda, ['codigo', 'Codigo', 'Code', 'U_MGS_CL_TIENDA', 'u_MGS_CL_TIENDA']);
-                        const nombre = pick(tienda, ['nombre', 'Nombre', 'Name', 'U_MGS_CL_NOMTIE', 'u_MGS_CL_NOMTIE']);
+                        const codigo = pick(tienda, ['codigo', 'Codigo', 'Code', 'PrjCode', 'prjCode', 'U_MGS_CL_TIENDA', 'u_MGS_CL_TIENDA']);
+                        const nombre = pick(tienda, ['nombre', 'Nombre', 'Name', 'PrjName', 'prjName',  'U_MGS_CL_NOMTIE', 'u_MGS_CL_NOMTIE']);
                         if (!codigo || !nombre) return null;
                         return { codigo, nombre };
                     })
