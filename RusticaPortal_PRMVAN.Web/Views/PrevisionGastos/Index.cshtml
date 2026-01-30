@@ -705,8 +705,16 @@
             if (query.length < 2) return;
 
             try {
-                const items = await fetchJson(`/PrevisionGastos/Items?search=${encodeURIComponent(query)}`);
-                state.itemsCache = items || [];
+                const resp = await fetchJson(`/PrevisionGastos/Items?search=${encodeURIComponent(query)}`);
+                const list = unwrapApiData(resp);
+                state.itemsCache = (Array.isArray(list) ? list : [])
+                    .map(item => {
+                        const code = pick(item, ['itemCode', 'ItemCode', 'Codigo']);
+                        const name = pick(item, ['itemName', 'ItemName', 'Nombre', 'Descripcion', 'descripcion']);
+                        if (!code || !name) return null;
+                        return { code, name };
+                    })
+                    .filter(Boolean);
                 renderItemsList();
             } catch (error) {
                 showLoadError('los ítems');
@@ -717,8 +725,8 @@
             elements.listaItems.innerHTML = '';
             state.itemsCache.forEach(item => {
                 const option = document.createElement('option');
-                option.value = item.ItemCode;
-                option.textContent = `${item.ItemCode} - ${item.ItemName}`;
+                option.value = item.code;
+                option.textContent = `${item.code} - ${item.name}`;
                 elements.listaItems.appendChild(option);
             });
         };
