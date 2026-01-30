@@ -325,6 +325,10 @@
         };
 
         const requestDiscard = (action, onCancel) => {
+            if (action === guardarTodo) {
+                action();
+                return;
+            }
             pendingAction = action;
             if (!modalConfirm) {
                 pendingAction = null;
@@ -399,7 +403,14 @@
             try {
                 const resp = await fetchJson('/PrevisionGastos/ConceptosPrm');
                 const list = unwrapApiData(resp);
-                state.conceptos = Array.isArray(list) ? list : [];
+                state.conceptos = (Array.isArray(list) ? list : [])
+                    .map(concepto => {
+                        const code = pick(concepto, ['code', 'Code', 'Codigo']);
+                        const name = pick(concepto, ['name', 'Name', 'Nombre', 'Descripcion', 'descripcion']);
+                        if (!code || !name) return null;
+                        return { code, name };
+                    })
+                    .filter(Boolean);
             } catch (error) {
                 showLoadError('los conceptos');
             }
@@ -509,7 +520,7 @@
 
             setLoading(true, 'Buscando...');
             try {
-                const resp = await fetchJson(`/PrevisionGastos/Buscar?periodo=${encodeURIComponent(periodo)}&tiendas=${encodeURIComponent(tiendas)}&motivo=${encodeURIComponent(motivo)}`);
+                const resp = await fetchJson(`/PrevisionGastos/Buscar?periodo=${encodeURIComponent(`${elements.periodo.value}-01`)}&tiendas=${encodeURIComponent(tiendas)}&motivo=${encodeURIComponent(motivo)}`);
                 state.docEntry = resp?.DocEntry || '';
                 state.rows = (resp?.Items || []).map(item => ({
                     ...item,
@@ -546,7 +557,7 @@
                 U_MGS_CL_ITEMCOD: '',
                 U_MGS_CL_FECHA: fechaDefault,
                 U_MGS_CL_IMPORT: 0,
-                U_MGS_CL_VALIDO: 'NO',
+                U_MGS_CL_NOVALI: 'NO',
                 isNew: true
             };
 
@@ -574,8 +585,8 @@
                 })), row.U_MGS_CL_TIENDA);
 
                 const conceptoOptions = buildOptions(state.conceptos.map(c => ({
-                    value: c.Code,
-                    label: `${c.Code} - ${c.Name}`
+                    value: c.code,
+                    label: `${c.code} - ${c.name}`
                 })), row.U_MGS_CL_CONPRM);
 
                 const motivoOptions = buildOptions(state.motivos.map(m => ({
@@ -583,10 +594,7 @@
                     label: `${m.code} - ${m.name}`
                 })), row.U_MGS_CL_TIPMOP);
 
-                const validoOptions = buildOptions([
-                    { value: 'NO', label: 'NO' },
-                    { value: 'SI', label: 'SI' }
-                ], row.U_MGS_CL_VALIDO || 'NO');
+                const validoChecked = (row.U_MGS_CL_NOVALI || 'NO') === 'SI';
 
                 tr.innerHTML = `
                     <td>${index + 1}</td>
@@ -614,10 +622,8 @@
                     <td>
                         <input type="text" class="form-control form-control-sm input-inline input-importe" data-field="U_MGS_CL_IMPORT" value="${formatAmount(row.U_MGS_CL_IMPORT)}" />
                     </td>
-                    <td>
-                        <select class="form-select form-select-sm select-inline" data-field="U_MGS_CL_VALIDO">
-                            ${validoOptions}
-                        </select>
+                    <td class="text-center">
+                        <input type="checkbox" class="form-check-input" data-field="U_MGS_CL_NOVALI" ${validoChecked ? 'checked' : ''} />
                     </td>
                 `;
 
@@ -654,7 +660,10 @@
             const field = target.dataset.field;
             let value = target.value;
 
-            if (field === 'U_MGS_CL_IMPORT') {
+            if (field === 'U_MGS_CL_NOVALI') {
+                value = target.checked ? 'SI' : 'NO';
+                row[field] = value;
+            } else if (field === 'U_MGS_CL_IMPORT') {
                 const cleaned = parseAmount(value);
                 row[field] = cleaned;
                 if (isNaN(cleaned)) {
@@ -694,8 +703,16 @@
             if (query.length < 2) return;
 
             try {
-                const items = await fetchJson(`/PrevisionGastos/Items?search=${encodeURIComponent(query)}`);
-                state.itemsCache = items || [];
+                const resp = await fetchJson(`/PrevisionGastos/Items?search=${encodeURIComponent(query)}`);
+                const list = unwrapApiData(resp);
+                state.itemsCache = (Array.isArray(list) ? list : [])
+                    .map(item => {
+                        const code = pick(item, ['itemCode', 'ItemCode', 'Codigo']);
+                        const name = pick(item, ['itemName', 'ItemName', 'Nombre', 'Descripcion', 'descripcion']);
+                        if (!code || !name) return null;
+                        return { code, name };
+                    })
+                    .filter(Boolean);
                 renderItemsList();
             } catch (error) {
                 showLoadError('los ítems');
@@ -706,8 +723,8 @@
             elements.listaItems.innerHTML = '';
             state.itemsCache.forEach(item => {
                 const option = document.createElement('option');
-                option.value = item.ItemCode;
-                option.textContent = `${item.ItemCode} - ${item.ItemName}`;
+                option.value = item.code;
+                option.textContent = `${item.code} - ${item.name}`;
                 elements.listaItems.appendChild(option);
             });
         };
@@ -732,7 +749,7 @@
 
             const payload = {
                 DocEntry: state.docEntry || '',
-                U_MGS_CL_PERIODO: periodo,
+                U_MGS_CL_PERIODO: `${periodo}-01`,
                 MGS_CL_GASDETCollection: state.rows.map(row => ({
                     LineId: row.LineId ? parseInt(row.LineId, 10) : null,
                     U_MGS_CL_TIENDA: row.U_MGS_CL_TIENDA || '',
@@ -741,7 +758,7 @@
                     U_MGS_CL_ITEMCOD: row.U_MGS_CL_ITEMCOD || '',
                     U_MGS_CL_FECHA: row.U_MGS_CL_FECHA || '',
                     U_MGS_CL_IMPORT: isNaN(Number(row.U_MGS_CL_IMPORT)) ? null : Number(row.U_MGS_CL_IMPORT),
-                    U_MGS_CL_VALIDO: row.U_MGS_CL_VALIDO || 'NO'
+                    U_MGS_CL_NOVALI: row.U_MGS_CL_NOVALI || 'NO'
                 }))
             };
 

@@ -698,10 +698,10 @@ BEGIN
             D."U_MGS_CL_ITEMCOD" AS "U_MGS_CL_ITEMCOD",
             TO_VARCHAR(D."U_MGS_CL_FECHA", ''YYYY-MM-DD'') AS "U_MGS_CL_FECHA",
             D."U_MGS_CL_IMPORT" AS "U_MGS_CL_IMPORT",
-            IFNULL(D."U_MGS_CL_VALIDO", ''NO'') AS "U_MGS_CL_VALIDO"
+            IFNULL(D."U_MGS_CL_NOVALI", ''NO'') AS "U_MGS_CL_NOVALI"
         FROM "@MGS_CL_GASCAB" C
         JOIN "@MGS_CL_GASDET" D ON D."DocEntry" = C."DocEntry"
-        WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM'') = ''' || :vParam1 || '''';
+        WHERE TO_VARCHAR(C."U_MGS_CL_PERIODO", ''YYYY-MM-DD'') = ''' || :vParam1 || '''';
 
         IF :vParam2 <> '' THEN
             lvGasSql := lvGasSql || ' AND D."U_MGS_CL_TIENDA" IN (' || lvGasTiendas || ')';
