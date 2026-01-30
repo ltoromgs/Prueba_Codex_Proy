@@ -325,6 +325,10 @@
         };
 
         const requestDiscard = (action, onCancel) => {
+            if (action === guardarTodo) {
+                action();
+                return;
+            }
             pendingAction = action;
             if (!modalConfirm) {
                 pendingAction = null;
@@ -399,7 +403,14 @@
             try {
                 const resp = await fetchJson('/PrevisionGastos/ConceptosPrm');
                 const list = unwrapApiData(resp);
-                state.conceptos = Array.isArray(list) ? list : [];
+                state.conceptos = (Array.isArray(list) ? list : [])
+                    .map(concepto => {
+                        const code = pick(concepto, ['code', 'Code', 'Codigo']);
+                        const name = pick(concepto, ['name', 'Name', 'Nombre', 'Descripcion', 'descripcion']);
+                        if (!code || !name) return null;
+                        return { code, name };
+                    })
+                    .filter(Boolean);
             } catch (error) {
                 showLoadError('los conceptos');
             }
@@ -574,8 +585,8 @@
                 })), row.U_MGS_CL_TIENDA);
 
                 const conceptoOptions = buildOptions(state.conceptos.map(c => ({
-                    value: c.Code,
-                    label: `${c.Code} - ${c.Name}`
+                    value: c.code,
+                    label: `${c.code} - ${c.name}`
                 })), row.U_MGS_CL_CONPRM);
 
                 const motivoOptions = buildOptions(state.motivos.map(m => ({
