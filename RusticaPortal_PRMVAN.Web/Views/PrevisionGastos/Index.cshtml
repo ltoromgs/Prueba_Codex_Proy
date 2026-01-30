@@ -557,7 +557,7 @@
                 U_MGS_CL_ITEMCOD: '',
                 U_MGS_CL_FECHA: fechaDefault,
                 U_MGS_CL_IMPORT: 0,
-                U_MGS_CL_VALIDO: 'NO',
+                U_MGS_CL_NOVALI: 'NO',
                 isNew: true
             };
 
@@ -594,7 +594,7 @@
                     label: `${m.code} - ${m.name}`
                 })), row.U_MGS_CL_TIPMOP);
 
-                const validoChecked = (row.U_MGS_CL_VALIDO || 'NO') === 'SI';
+                const validoChecked = (row.U_MGS_CL_NOVALI || 'NO') === 'SI';
 
                 tr.innerHTML = `
                     <td>${index + 1}</td>
@@ -623,7 +623,7 @@
                         <input type="text" class="form-control form-control-sm input-inline input-importe" data-field="U_MGS_CL_IMPORT" value="${formatAmount(row.U_MGS_CL_IMPORT)}" />
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" class="form-check-input" data-field="U_MGS_CL_VALIDO" ${validoChecked ? 'checked' : ''} />
+                        <input type="checkbox" class="form-check-input" data-field="U_MGS_CL_NOVALI" ${validoChecked ? 'checked' : ''} />
                     </td>
                 `;
 
@@ -660,7 +660,7 @@
             const field = target.dataset.field;
             let value = target.value;
 
-            if (field === 'U_MGS_CL_VALIDO') {
+            if (field === 'U_MGS_CL_NOVALI') {
                 value = target.checked ? 'SI' : 'NO';
                 row[field] = value;
             } else if (field === 'U_MGS_CL_IMPORT') {
@@ -758,7 +758,7 @@
                     U_MGS_CL_ITEMCOD: row.U_MGS_CL_ITEMCOD || '',
                     U_MGS_CL_FECHA: row.U_MGS_CL_FECHA || '',
                     U_MGS_CL_IMPORT: isNaN(Number(row.U_MGS_CL_IMPORT)) ? null : Number(row.U_MGS_CL_IMPORT),
-                    U_MGS_CL_VALIDO: row.U_MGS_CL_VALIDO || 'NO'
+                    U_MGS_CL_NOVALI: row.U_MGS_CL_NOVALI || 'NO'
                 }))
             };
 

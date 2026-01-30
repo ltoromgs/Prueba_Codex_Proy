@@ -17,7 +17,7 @@ namespace RusticaPortal_PRMVAN.Web.Models
         public string U_MGS_CL_ITEMCOD { get; set; } = string.Empty;
         public string U_MGS_CL_FECHA { get; set; } = string.Empty;
         public decimal U_MGS_CL_IMPORT { get; set; }
-        public string U_MGS_CL_VALIDO { get; set; } = string.Empty;
+        public string U_MGS_CL_NOVALI { get; set; } = string.Empty;
     }
 
     public class PrevisionGastosSearchResponse
@@ -35,7 +35,7 @@ namespace RusticaPortal_PRMVAN.Web.Models
         public string U_MGS_CL_ITEMCOD { get; set; } = string.Empty;
         public string U_MGS_CL_FECHA { get; set; } = string.Empty;
         public decimal? U_MGS_CL_IMPORT { get; set; }
-        public string U_MGS_CL_VALIDO { get; set; } = string.Empty;
+        public string U_MGS_CL_NOVALI { get; set; } = string.Empty;
     }
 
     public class PrevisionGastoSaveRequest

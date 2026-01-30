@@ -5984,7 +5984,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                         U_MGS_CL_TIPMOP = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_TIPMOP)]?.ToString() ?? string.Empty,
                         U_MGS_CL_ITEMCOD = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_ITEMCOD)]?.ToString() ?? string.Empty,
                         U_MGS_CL_FECHA = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_FECHA)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_VALIDO = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_VALIDO)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_NOVALI = reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_NOVALI)]?.ToString() ?? string.Empty,
                         U_MGS_CL_IMPORT = decimal.TryParse(reader[nameof(PrevisionGastoDetalleDto.U_MGS_CL_IMPORT)]?.ToString(), out var importe) ? importe : 0
                     });
                 }
