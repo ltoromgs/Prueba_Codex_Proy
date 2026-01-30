@@ -520,10 +520,19 @@
 
             setLoading(true, 'Buscando...');
             try {
-                const resp = await fetchJson(`/PrevisionGastos/Buscar?periodo=${encodeURIComponent(`${elements.periodo.value}-01`)}&tiendas=${encodeURIComponent(tiendas)}&motivo=${encodeURIComponent(motivo)}`);
-                state.docEntry = resp?.DocEntry || '';
-                state.rows = (resp?.Items || []).map(item => ({
-                    ...item,
+                const data = await fetchJson(`/PrevisionGastos/Buscar?periodo=${encodeURIComponent(`${elements.periodo.value}-01`)}&tiendas=${encodeURIComponent(tiendas)}&motivo=${encodeURIComponent(motivo)}`);
+                const rows = Array.isArray(data?.Items) ? data.Items : (Array.isArray(data) ? data : []);
+                state.docEntry = data?.DocEntry || rows[0]?.DocEntry || '';
+                state.rows = rows.map(item => ({
+                    LineId: item.LineId,
+                    U_MGS_CL_TIENDA: item.U_MGS_CL_TIENDA,
+                    U_MGS_CL_CONPRM: item.U_MGS_CL_CONPRM,
+                    U_MGS_CL_TIPMOP: item.U_MGS_CL_TIPMOP,
+                    U_MGS_CL_ITEMCOD: item.U_MGS_CL_ITEMCOD,
+                    U_MGS_CL_FECHA: item.U_MGS_CL_FECHA,
+                    U_MGS_CL_IMPORT: item.U_MGS_CL_IMPORT,
+                    U_MGS_CL_NOVALI: item.U_MGS_CL_NOVALI,
+                    DocEntry: item.DocEntry,
                     rowKey: state.rowSeq++,
                     isNew: false
                 }));
@@ -569,6 +578,9 @@
         const renderTable = () => {
             elements.tablaBody.innerHTML = '';
             if (state.rows.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="8" class="text-center text-muted">Sin datos</td>';
+                elements.tablaBody.appendChild(tr);
                 return;
             }
 
