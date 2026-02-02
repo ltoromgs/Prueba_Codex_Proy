@@ -315,12 +315,11 @@
         };
 
         const handleActionWithPending = (action) => {
-            //clearAlerts();
-            //if (state.pending.size > 0 && action !== agregarLinea) {
-            //    requestDiscard(action);
-            //} else {
-            //    action();
-            //}
+            clearAlerts();
+            if (state.pending.size > 0 && action !== agregarLinea && action !== guardarTodo) {
+                requestDiscard(action);
+                return;
+            }
             action();
         };
 
@@ -504,7 +503,7 @@
             if (!navigator.onLine) {
                 showAlert('warning', connectionMessage);
                 return;
-            }
+            } cambiarPeriodo
 
             const periodo = elements.periodo.value;
             if (!periodo) {
@@ -520,10 +519,19 @@
 
             setLoading(true, 'Buscando...');
             try {
-                const resp = await fetchJson(`/PrevisionGastos/Buscar?periodo=${encodeURIComponent(`${elements.periodo.value}-01`)}&tiendas=${encodeURIComponent(tiendas)}&motivo=${encodeURIComponent(motivo)}`);
-                state.docEntry = resp?.DocEntry || '';
-                state.rows = (resp?.Items || []).map(item => ({
-                    ...item,
+                const data = await fetchJson(`/PrevisionGastos/Buscar?periodo=${encodeURIComponent(`${elements.periodo.value}-01`)}&tiendas=${encodeURIComponent(tiendas)}&motivo=${encodeURIComponent(motivo)}`);
+                const rows = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+                state.docEntry = data?.docEntry || rows[0]?.DocEntry || '';
+                state.rows = rows.map(item => ({
+                    LineId: item.lineId,
+                    U_MGS_CL_TIENDA: item.u_MGS_CL_TIENDA,
+                    U_MGS_CL_CONPRM: item.u_MGS_CL_CONPRM,
+                    U_MGS_CL_TIPMOP: item.u_MGS_CL_TIPMOP,
+                    U_MGS_CL_ITEMCOD: item.u_MGS_CL_ITEMCOD,
+                    U_MGS_CL_FECHA: item.u_MGS_CL_FECHA,
+                    U_MGS_CL_IMPORT: item.u_MGS_CL_IMPORT,
+                    U_MGS_CL_NOVALI: item.u_MGS_CL_NOVALI,
+                    DocEntry: item.DocEntry,
                     rowKey: state.rowSeq++,
                     isNew: false
                 }));
@@ -569,6 +577,9 @@
         const renderTable = () => {
             elements.tablaBody.innerHTML = '';
             if (state.rows.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="8" class="text-center text-muted">Sin datos</td>';
+                elements.tablaBody.appendChild(tr);
                 return;
             }
 
@@ -881,6 +892,17 @@
 
             elements.periodo.value = newValue;
             state.lastPeriod = newValue;
+
+            // limpiar detalle
+            state.rows = [];
+            state.docEntry = '';
+            state.pending.clear();
+            updatePendingBadge();
+            elements.tablaBody.innerHTML = `
+  <tr>
+    <td colspan="8" class="text-center text-muted">Sin datos</td>
+  </tr>`;
+
         };
 
         const init = () => {
