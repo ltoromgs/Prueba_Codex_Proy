@@ -1,0 +1,159 @@
+@model RusticaPortal_PRMVAN.Web.Models.AdministracionGaeViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Administración GAE";
+}
+
+<link rel="stylesheet" href="~/css/administracion-gae.css" />
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Administración GAE</h3>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Administración GAE</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-content" id="administracion-gae-app">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Desde</label>
+                        <input type="date" id="filtroDesde" class="form-control form-control-sm" value="@Model.FechaDesde" />
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Hasta</label>
+                        <input type="date" id="filtroHasta" class="form-control form-control-sm" value="@Model.FechaHasta" />
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Tiendas</label>
+                        <div class="dropdown">
+                            <button id="tiendasDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                Seleccionar tiendas
+                            </button>
+                            <div class="dropdown-menu p-3 tiendas-menu">
+                                <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
+                                <div id="tiendasListado" class="d-grid gap-1"></div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
+                                    <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
+                                    <a href="#" id="tiendaLimpiar" class="link-secondary small">Limpiar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Factura</label>
+                        <input type="text" id="filtroFactura" class="form-control form-control-sm" placeholder="N° factura" />
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Concepto</label>
+                        <input type="text" id="filtroConcepto" class="form-control form-control-sm" placeholder="Concepto" />
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Tipo GAE</label>
+                        <select id="filtroTipoGae" class="form-select form-select-sm"></select>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Tipo de gasto</label>
+                        <select id="filtroTipoGasto" class="form-select form-select-sm"></select>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Motivo de gasto</label>
+                        <select id="filtroMotivo" class="form-select form-select-sm"></select>
+                    </div>
+
+                    <div class="col-auto ms-auto d-flex gap-2 align-items-center">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="text-secondary small">Pendientes</span>
+                            <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
+                        </div>
+                        <button id="btnExportar" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-file-earmark-excel"></i> Exportar
+                        </button>
+                        <button id="btnBuscar" class="btn btn-primary btn-sm">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <button id="btnActualizarTodo" class="btn btn-success btn-sm">
+                            <i class="bi bi-save"></i> Actualizar todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0 position-relative">
+                <div id="alertContainer" class="px-3 pt-3"></div>
+                <div id="loadingOverlay" class="loading-overlay d-none">
+                    <div class="loading-box text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Procesando...</span>
+                        </div>
+                        <div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="overflow:auto;">
+                    <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaGae" style="white-space:nowrap;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sel</th>
+                                <th>Código interno</th>
+                                <th>Línea</th>
+                                <th>N° Factura</th>
+                                <th>Concepto</th>
+                                <th>Tienda</th>
+                                <th>GAE</th>
+                                <th>Autorizado</th>
+                                <th>Tipo de gasto</th>
+                                <th>Motivo de gasto</th>
+                                <th>Importe</th>
+                                <th>Fecha PRM</th>
+                                <th>Solicitado por</th>
+                                <th>No válido</th>
+                                <th>Estado</th>
+                                <th class="col-error">Mensaje</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCambios" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambios pendientes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Hay cambios pendientes. ¿Desea descartar los cambios?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnDescartar">Sí, descartar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/administracion-gae.js"></script>

@@ -16,6 +16,7 @@ using System.Linq;
 using RusticaPortal_PRMVAN.Api.Entities.Dto;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoVan;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.GrupoPrm;
+using RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.PrevisionGastos;
 using System.Globalization;
 
@@ -6060,6 +6061,155 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 {
                     Registered = false,
                     Message = "Error al obtener DocEntry por periodo.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        public async Task<ResponseInformation> GetAdministracionGaeTiendas(string empresa)
+        {
+            return await GetAdministracionGaeCatalogo<AdministracionGaeTiendaDto>(empresa, "Get_Gae_Tiendas");
+        }
+
+        public async Task<ResponseInformation> GetAdministracionGaeTiposGae(string empresa)
+        {
+            return await GetAdministracionGaeCatalogo<AdministracionGaeCatalogoDto>(empresa, "Get_Gae_TipGae");
+        }
+
+        public async Task<ResponseInformation> GetAdministracionGaeTiposGasto(string empresa)
+        {
+            return await GetAdministracionGaeCatalogo<AdministracionGaeCatalogoDto>(empresa, "Get_Gae_TipGas");
+        }
+
+        public async Task<ResponseInformation> GetAdministracionGaeMotivosGasto(string empresa)
+        {
+            return await GetAdministracionGaeCatalogo<AdministracionGaeCatalogoDto>(empresa, "Get_Gae_TipMop");
+        }
+
+        public async Task<ResponseInformation> GetAdministracionGaeBuscar(string empresa, string fechaDesde, string fechaHasta, string tiendas, string filtros)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var registros = new List<AdministracionGaeDetalleDto>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_Gae_Buscar";
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = fechaDesde ?? string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = fechaHasta ?? string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 5000).Value = tiendas ?? string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = filtros ?? string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    registros.Add(new AdministracionGaeDetalleDto
+                    {
+                        IdEmpresa = reader[nameof(AdministracionGaeDetalleDto.IdEmpresa)]?.ToString() ?? string.Empty,
+                        NombreEmpresa = reader[nameof(AdministracionGaeDetalleDto.NombreEmpresa)]?.ToString() ?? string.Empty,
+                        BaseDatos = reader[nameof(AdministracionGaeDetalleDto.BaseDatos)]?.ToString() ?? string.Empty,
+                        ObjectType = reader[nameof(AdministracionGaeDetalleDto.ObjectType)]?.ToString() ?? string.Empty,
+                        DocEntry = reader[nameof(AdministracionGaeDetalleDto.DocEntry)]?.ToString() ?? string.Empty,
+                        LineId = reader[nameof(AdministracionGaeDetalleDto.LineId)]?.ToString() ?? string.Empty,
+                        NumAtCard = reader[nameof(AdministracionGaeDetalleDto.NumAtCard)]?.ToString() ?? string.Empty,
+                        Concepto = reader[nameof(AdministracionGaeDetalleDto.Concepto)]?.ToString() ?? string.Empty,
+                        Tienda = reader[nameof(AdministracionGaeDetalleDto.Tienda)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPGAE = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAE)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_AUTORI = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_AUTORI)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPGAS = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAS)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_TIPMOP = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPMOP)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_IMPORT = decimal.TryParse(reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_IMPORT)]?.ToString(), out var importe) ? importe : 0,
+                        U_MGS_CL_FEPRM = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_FEPRM)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_SOLICI = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_SOLICI)]?.ToString() ?? string.Empty,
+                        U_MGS_CL_VALIDO = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_VALIDO)]?.ToString() ?? string.Empty,
+                        Pendiente = reader[nameof(AdministracionGaeDetalleDto.Pendiente)]?.ToString() ?? string.Empty,
+                        MensajeError = reader[nameof(AdministracionGaeDetalleDto.MensajeError)]?.ToString() ?? string.Empty
+                    });
+                }
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(registros)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al buscar información de administración GAE.",
+                    Content = ex.Message
+                };
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        private async Task<ResponseInformation> GetAdministracionGaeCatalogo<T>(string empresa, string tipo)
+        {
+            if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
+            {
+                return error;
+            }
+
+            var resultados = new List<T>();
+
+            using var conn = new HanaConnection(cfg.ConnectionString);
+            try
+            {
+                await conn.OpenAsync();
+
+                using var cmd = new HanaCommand("MGS_HDB_PE_SP_PORTALWEB", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = tipo;
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 50).Value = string.Empty;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 50).Value = string.Empty;
+
+                using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                var dataTable = new DataTable();
+                dataTable.Load(reader);
+
+                resultados = JsonConvert.DeserializeObject<List<T>>(JsonConvert.SerializeObject(dataTable)) ?? new List<T>();
+
+                return new ResponseInformation
+                {
+                    Registered = true,
+                    Message = string.Empty,
+                    Content = JsonConvert.SerializeObject(resultados)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseInformation
+                {
+                    Registered = false,
+                    Message = "Error al cargar catálogo de administración GAE.",
                     Content = ex.Message
                 };
             }
