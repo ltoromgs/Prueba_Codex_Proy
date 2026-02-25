@@ -4,6 +4,7 @@ namespace RusticaPortal_PRMVAN.Web.Models
 {
     public class AdministracionGaeViewModel
     {
+        public string Periodo { get; set; } = string.Empty;
         public string FechaDesde { get; set; } = string.Empty;
         public string FechaHasta { get; set; } = string.Empty;
     }
@@ -37,6 +38,7 @@ namespace RusticaPortal_PRMVAN.Web.Models
         public string U_MGS_CL_TIPMOP { get; set; } = string.Empty;
         public decimal U_MGS_CL_IMPORT { get; set; }
         public string U_MGS_CL_FEPRM { get; set; } = string.Empty;
+        public string FecFiltro { get; set; } = string.Empty;
         public string U_MGS_CL_SOLICI { get; set; } = string.Empty;
         public string U_MGS_CL_VALIDO { get; set; } = string.Empty;
         public string Pendiente { get; set; } = string.Empty;
@@ -50,6 +52,8 @@ namespace RusticaPortal_PRMVAN.Web.Models
 
     public class AdministracionGaeUpdateLine
     {
+        public string IdEmpresa { get; set; } = string.Empty;
+        public string NombreEmpresa { get; set; } = string.Empty;
         public string BaseDatos { get; set; } = string.Empty;
         public string ObjectType { get; set; } = string.Empty;
         public string DocEntry { get; set; } = string.Empty;

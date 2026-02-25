@@ -14,5 +14,8 @@ namespace RusticaPortal_PRMVAN.Api.Services
 
         public EmpresaConfig GetEmpresa(int id)
             => _empresas.FirstOrDefault(e => e.Id == id);
+
+        public IReadOnlyList<EmpresaConfig> GetEmpresas()
+            => _empresas;
     }
 }

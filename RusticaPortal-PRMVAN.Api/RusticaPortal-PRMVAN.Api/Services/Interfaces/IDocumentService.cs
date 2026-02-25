@@ -69,7 +69,7 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetAdministracionGaeTiposGae(string empresa);
         Task<ResponseInformation> GetAdministracionGaeTiposGasto(string empresa);
         Task<ResponseInformation> GetAdministracionGaeMotivosGasto(string empresa);
-        Task<ResponseInformation> GetAdministracionGaeBuscar(string empresa, string fechaDesde, string fechaHasta, string tiendas, string filtros);
+        Task<ResponseInformation> GetAdministracionGaeBuscar(string empresa, string fechaDesde, string fechaHasta, string tiendas, string filtros, int page, int pageSize);
               
     }
 }
