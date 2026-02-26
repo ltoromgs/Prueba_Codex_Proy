@@ -362,30 +362,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setLoading(true, 'Buscando...');
         try {
+            const query = new URLSearchParams(window.location.search);
+            const empresa = query.get('empresa') || query.get('Empresa') || '1';
+            const desde = elements.filtroDesde.value;
+            const hasta = elements.filtroHasta.value;
+
             const selectedTiendas = getSelectedTiendas();
             const tiendas = selectedTiendas.length === state.tiendas.length ? '' : selectedTiendas.join(',');
-            const filtros = buildFiltroPayload();
 
-            console.debug('[AdministracionGAE] parámetros búsqueda', {
-                vParam1: elements.filtroDesde.value,
-                vParam2: elements.filtroHasta.value,
-                vParam3: tiendas,
-                vParam4: filtros
-            });
+            const factura = elements.filtroFactura.value.trim();
+            const concepto = elements.filtroConcepto.value.trim();
+            const selectedTiposGae = getSelectedTiposGae();
+            const tipoGae = selectedTiposGae.length === state.tiposGae.length ? '' : selectedTiposGae.join(',');
+            const tipoGas = elements.filtroTipoGasto.value || '';
+            const motivo = elements.filtroMotivo.value || '';
+            const pagina = String(state.page || 1);
+            const cantidad = String(state.pageSize || 50);
 
-            const query = new URLSearchParams(window.location.search);
-            const empresa = query.get('Empresa') || query.get('empresa') || '1';
-            const params = new URLSearchParams({
-                Empresa: empresa,
-                fechaDesde: elements.filtroDesde.value,
-                fechaHasta: elements.filtroHasta.value,
-                tiendas,
-                filtros
-            });
+            const filtrosRaw = `${factura}|${concepto}|${tipoGae}|${tipoGas}|${motivo}|${pagina}|${cantidad}`;
+            const urlFinal = `${api.buscar}?empresa=${encodeURIComponent(empresa)}&fechaDesde=${encodeURIComponent(desde)}&fechaHasta=${encodeURIComponent(hasta)}&tiendas=${encodeURIComponent(tiendas)}&filtros=${encodeURIComponent(filtrosRaw)}`;
 
-            const urlFinal = `${api.buscar}?${params.toString()}`;
-            console.log('URL Buscar GAE:', urlFinal);
-            const data = await fetchJson(urlFinal);
+            console.log('GAE buscar filtrosRaw:', filtrosRaw);
+            console.log('GAE buscar urlFinal:', urlFinal);
+
+            const response = await fetch(urlFinal, { method: 'GET' });
+
+            if (!response.ok) {
+                const bodyText = await response.text();
+                let mensaje = bodyText;
+                try {
+                    const parsed = JSON.parse(bodyText);
+                    mensaje = parsed?.message || parsed?.Message || bodyText;
+                } catch (_) {
+                    mensaje = bodyText;
+                }
+
+                const errorMessage = `HTTP ${response.status} ${response.statusText} - ${mensaje || 'Sin detalle.'}`;
+                console.error('GAE buscar error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    url: urlFinal,
+                    bodyText
+                });
+                showAlert(errorMessage, 'danger');
+                return;
+            }
+
+            const data = await response.json();
             state.rows = (data || []).map(mapRow).map((row) => {
                 row.estado = row.pendiente ? 'Pendiente' : (row.mensajeError ? 'Error' : 'OK');
                 return row;
@@ -396,7 +419,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderRows();
             updatePageInfo();
         } catch (error) {
-            showAlert(error.message || connectionMessage, 'danger');
+            console.error(error);
+            showAlert('No tiene conexión. Intente nuevamente.', 'danger');
         } finally {
             setLoading(false);
         }
