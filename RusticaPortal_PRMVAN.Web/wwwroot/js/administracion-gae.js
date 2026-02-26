@@ -373,14 +373,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 vParam4: filtros
             });
 
+            const query = new URLSearchParams(window.location.search);
+            const empresa = query.get('Empresa') || query.get('empresa') || '1';
             const params = new URLSearchParams({
+                Empresa: empresa,
                 fechaDesde: elements.filtroDesde.value,
                 fechaHasta: elements.filtroHasta.value,
                 tiendas,
                 filtros
             });
 
-            const data = await fetchJson(`${api.buscar}?${params.toString()}`);
+            const urlFinal = `${api.buscar}?${params.toString()}`;
+            console.log('URL Buscar GAE:', urlFinal);
+            const data = await fetchJson(urlFinal);
             state.rows = (data || []).map(mapRow).map((row) => {
                 row.estado = row.pendiente ? 'Pendiente' : (row.mensajeError ? 'Error' : 'OK');
                 return row;
