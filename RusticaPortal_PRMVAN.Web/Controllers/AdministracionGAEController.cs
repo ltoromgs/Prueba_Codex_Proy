@@ -23,6 +23,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var vm = new AdministracionGaeViewModel
             {
+                Periodo = primerDia.ToString("yyyy-MM"),
                 FechaDesde = primerDia.ToString("yyyy-MM-dd"),
                 FechaHasta = ultimoDia.ToString("yyyy-MM-dd")
             };
@@ -119,7 +120,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Buscar(string fechaDesde, string fechaHasta, string? tiendas, string? filtros)
+        public async Task<IActionResult> Buscar(string fechaDesde, string fechaHasta, string? tiendas, string? filtros, int pagina = 1, int pageSize = 50)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(empresa))
@@ -131,7 +132,9 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
                 ["fechaDesde"] = fechaDesde,
                 ["fechaHasta"] = fechaHasta,
                 ["tiendas"] = tiendas ?? string.Empty,
-                ["filtros"] = filtros ?? string.Empty
+                ["filtros"] = filtros ?? string.Empty,
+                ["pagina"] = pagina.ToString(),
+                ["pageSize"] = pageSize.ToString()
             });
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);

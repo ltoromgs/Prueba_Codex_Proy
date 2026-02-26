@@ -53,3 +53,7 @@
 #administracion-gae-app .col-error {
     min-width: 220px;
 }
+
+#administracion-gae-app .col-estado {
+    min-width: 120px;
+}

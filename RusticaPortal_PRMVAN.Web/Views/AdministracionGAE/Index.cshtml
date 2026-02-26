@@ -28,6 +28,11 @@
             <div class="card-header">
                 <div class="row g-2 align-items-end">
                     <div class="col-auto">
+                        <label class="form-label mb-1">Periodo</label>
+                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.Periodo" />
+                    </div>
+
+                    <div class="col-auto">
                         <label class="form-label mb-1">Desde</label>
                         <input type="date" id="filtroDesde" class="form-control form-control-sm" value="@Model.FechaDesde" />
                     </div>
@@ -55,18 +60,21 @@
                     </div>
 
                     <div class="col-auto">
-                        <label class="form-label mb-1">Factura</label>
-                        <input type="text" id="filtroFactura" class="form-control form-control-sm" placeholder="N° factura" />
-                    </div>
-
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Concepto</label>
-                        <input type="text" id="filtroConcepto" class="form-control form-control-sm" placeholder="Concepto" />
-                    </div>
-
-                    <div class="col-auto">
                         <label class="form-label mb-1">Tipo GAE</label>
-                        <select id="filtroTipoGae" class="form-select form-select-sm"></select>
+                        <div class="dropdown">
+                            <button id="tipoGaeDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                Todas
+                            </button>
+                            <div class="dropdown-menu p-3 tiendas-menu">
+                                <div id="tiposGaeEstado" class="small text-secondary mb-2">Cargando tipos GAE...</div>
+                                <div id="tiposGaeListado" class="d-grid gap-1"></div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
+                                    <a href="#" id="tipoGaeSelTodos" class="link-primary small">Seleccionar todo</a>
+                                    <a href="#" id="tipoGaeLimpiar" class="link-secondary small">Limpiar</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-auto">
@@ -77,6 +85,25 @@
                     <div class="col-auto">
                         <label class="form-label mb-1">Motivo de gasto</label>
                         <select id="filtroMotivo" class="form-select form-select-sm"></select>
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Factura</label>
+                        <input type="text" id="filtroFactura" class="form-control form-control-sm" placeholder="N° factura" />
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Concepto</label>
+                        <input type="text" id="filtroConcepto" class="form-control form-control-sm" placeholder="Concepto" />
+                    </div>
+
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Paginación</label>
+                        <select id="pageSize" class="form-select form-select-sm">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select>
                     </div>
 
                     <div class="col-auto ms-auto d-flex gap-2 align-items-center">
@@ -115,6 +142,7 @@
                                 <th>Sel</th>
                                 <th>Código interno</th>
                                 <th>Línea</th>
+                                <th>Fecha</th>
                                 <th>N° Factura</th>
                                 <th>Concepto</th>
                                 <th>Tienda</th>
@@ -126,12 +154,20 @@
                                 <th>Fecha PRM</th>
                                 <th>Solicitado por</th>
                                 <th>No válido</th>
-                                <th>Estado</th>
-                                <th class="col-error">Mensaje</th>
+                                <th class="col-estado d-none">Estado</th>
+                                <th class="col-error d-none">Mensaje</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center p-2 border-top">
+                    <small id="pageInfo" class="text-secondary">Página 1</small>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" id="btnPrevPage" class="btn btn-outline-secondary">Anterior</button>
+                        <button type="button" id="btnNextPage" class="btn btn-outline-secondary">Siguiente</button>
+                    </div>
                 </div>
             </div>
         </div>
