@@ -6091,7 +6091,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
             return await GetAdministracionGaeCatalogo<AdministracionGaeCatalogoDto>(empresa, "Get_Gae_TipMop");
         }
 
-        public async Task<ResponseInformation> GetAdministracionGaeBuscar(string empresa, string fechaDesde, string fechaHasta, string tiendas, string filtros)
+        public async Task<ResponseInformation> GetAdministracionGaeBuscar(string empresa, string fechaDesde, string fechaHasta, string tiendas, string filtros, int page, int pageSize)
         {
             if (!TryGetEmpresaConfig(empresa, out var cfg, out var error))
             {
@@ -6110,36 +6110,38 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_Gae_Buscar";
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 50).Value = "Get_Gae_Todo_Buscar";
                 cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = fechaDesde ?? string.Empty;
                 cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = fechaHasta ?? string.Empty;
                 cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 5000).Value = tiendas ?? string.Empty;
-                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = filtros ?? string.Empty;
+                var filtrosConPaginacion = $"{(filtros ?? string.Empty)}|{page}|{pageSize}";
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = filtrosConPaginacion;
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
                     registros.Add(new AdministracionGaeDetalleDto
                     {
-                        IdEmpresa = reader[nameof(AdministracionGaeDetalleDto.IdEmpresa)]?.ToString() ?? string.Empty,
-                        NombreEmpresa = reader[nameof(AdministracionGaeDetalleDto.NombreEmpresa)]?.ToString() ?? string.Empty,
-                        BaseDatos = reader[nameof(AdministracionGaeDetalleDto.BaseDatos)]?.ToString() ?? string.Empty,
-                        ObjectType = reader[nameof(AdministracionGaeDetalleDto.ObjectType)]?.ToString() ?? string.Empty,
-                        DocEntry = reader[nameof(AdministracionGaeDetalleDto.DocEntry)]?.ToString() ?? string.Empty,
-                        LineId = reader[nameof(AdministracionGaeDetalleDto.LineId)]?.ToString() ?? string.Empty,
-                        NumAtCard = reader[nameof(AdministracionGaeDetalleDto.NumAtCard)]?.ToString() ?? string.Empty,
-                        Concepto = reader[nameof(AdministracionGaeDetalleDto.Concepto)]?.ToString() ?? string.Empty,
-                        Tienda = reader[nameof(AdministracionGaeDetalleDto.Tienda)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPGAE = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAE)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_AUTORI = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_AUTORI)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPGAS = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAS)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPMOP = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPMOP)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_IMPORT = decimal.TryParse(reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_IMPORT)]?.ToString(), out var importe) ? importe : 0,
-                        U_MGS_CL_FEPRM = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_FEPRM)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_SOLICI = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_SOLICI)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_VALIDO = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_VALIDO)]?.ToString() ?? string.Empty,
-                        Pendiente = reader[nameof(AdministracionGaeDetalleDto.Pendiente)]?.ToString() ?? string.Empty,
-                        MensajeError = reader[nameof(AdministracionGaeDetalleDto.MensajeError)]?.ToString() ?? string.Empty
+                        IdEmpresa = ReadByAliases(reader, "IdEmpresa", "idEmpresa"),
+                        NombreEmpresa = ReadByAliases(reader, "NombreEmpresa", "nombreEmpresa"),
+                        BaseDatos = ReadByAliases(reader, "BaseDatos", "baseDatos", "NombreEmpresa"),
+                        ObjectType = ReadByAliases(reader, "ObjectType", "objectType"),
+                        DocEntry = ReadByAliases(reader, "DocEntry", "docEntry"),
+                        LineId = ReadByAliases(reader, "LineId", "lineId", "LineNum"),
+                        NumAtCard = ReadByAliases(reader, "NumAtCard", "numAtCard", "Factura"),
+                        Concepto = ReadByAliases(reader, "Concepto", "concepto"),
+                        Tienda = ReadByAliases(reader, "Tienda", "tienda"),
+                        U_MGS_CL_TIPGAE = ReadByAliases(reader, "U_MGS_CL_TIPGAE"),
+                        U_MGS_CL_AUTORI = ReadByAliases(reader, "U_MGS_CL_AUTORI"),
+                        U_MGS_CL_TIPGAS = ReadByAliases(reader, "U_MGS_CL_TIPGAS"),
+                        U_MGS_CL_TIPMOP = ReadByAliases(reader, "U_MGS_CL_TIPMOP"),
+                        U_MGS_CL_IMPORT = decimal.TryParse(ReadByAliases(reader, "U_MGS_CL_IMPORT"), out var importe) ? importe : 0,
+                        U_MGS_CL_FEPRM = ReadByAliases(reader, "U_MGS_CL_FEPRM"),
+                        FecFiltro = ReadByAliases(reader, "FecFiltro", "FECFILTRO"),
+                        U_MGS_CL_SOLICI = ReadByAliases(reader, "U_MGS_CL_SOLICI"),
+                        U_MGS_CL_VALIDO = ReadByAliases(reader, "U_MGS_CL_VALIDO"),
+                        Pendiente = ReadByAliases(reader, "Pendiente", "pendiente"),
+                        MensajeError = ReadByAliases(reader, "MensajeError", "mensajeError")
                     });
                 }
 
@@ -6164,6 +6166,24 @@ namespace RusticaPortal_PRMVAN.Api.Services
                 if (conn.State == ConnectionState.Open)
                     conn.Close();
             }
+        }
+
+        private static string ReadByAliases(HanaDataReader reader, params string[] aliases)
+        {
+            foreach (var alias in aliases)
+            {
+                for (var i = 0; i < reader.FieldCount; i++)
+                {
+                    if (!string.Equals(reader.GetName(i), alias, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    return reader.IsDBNull(i) ? string.Empty : reader.GetValue(i)?.ToString() ?? string.Empty;
+                }
+            }
+
+            return string.Empty;
         }
 
         private async Task<ResponseInformation> GetAdministracionGaeCatalogo<T>(string empresa, string tipo)

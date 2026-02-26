@@ -9,9 +9,7 @@
 <div class="app-content-header">
     <div class="container-fluid">
         <div class="row align-items-center">
-            <div class="col-sm-6">
-                <h3 class="mb-0">Administración GAE</h3>
-            </div>
+            <div class="col-sm-6"><h3 class="mb-0">Administración GAE</h3></div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-end">
                     <li class="breadcrumb-item"><a href="/Home/Index">Home</a></li>
@@ -28,131 +26,84 @@
             <div class="card-header">
                 <div class="row g-2 align-items-end">
                     <div class="col-auto">
-                        <label class="form-label mb-1">Desde</label>
-                        <input type="date" id="filtroDesde" class="form-control form-control-sm" value="@Model.FechaDesde" />
+                        <label class="form-label mb-1">Periodo</label>
+                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.Periodo" />
                     </div>
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Hasta</label>
-                        <input type="date" id="filtroHasta" class="form-control form-control-sm" value="@Model.FechaHasta" />
-                    </div>
+                    <div class="col-auto"><label class="form-label mb-1">Desde</label><input type="date" id="filtroDesde" class="form-control form-control-sm" value="@Model.FechaDesde" /></div>
+                    <div class="col-auto"><label class="form-label mb-1">Hasta</label><input type="date" id="filtroHasta" class="form-control form-control-sm" value="@Model.FechaHasta" /></div>
 
                     <div class="col-auto">
                         <label class="form-label mb-1">Tiendas</label>
                         <div class="dropdown">
-                            <button id="tiendasDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                Seleccionar tiendas
-                            </button>
+                            <button id="tiendasDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">Seleccionar tiendas</button>
                             <div class="dropdown-menu p-3 tiendas-menu">
                                 <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
                                 <div id="tiendasListado" class="d-grid gap-1"></div>
-                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
-                                    <a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a>
-                                    <a href="#" id="tiendaLimpiar" class="link-secondary small">Limpiar</a>
-                                </div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between"><a href="#" id="tiendaSelTodas" class="link-primary small">Seleccionar todo</a><a href="#" id="tiendaLimpiar" class="link-secondary small">Limpiar</a></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-auto">
-                        <label class="form-label mb-1">Factura</label>
-                        <input type="text" id="filtroFactura" class="form-control form-control-sm" placeholder="N° factura" />
-                    </div>
-
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Concepto</label>
-                        <input type="text" id="filtroConcepto" class="form-control form-control-sm" placeholder="Concepto" />
-                    </div>
-
-                    <div class="col-auto">
                         <label class="form-label mb-1">Tipo GAE</label>
-                        <select id="filtroTipoGae" class="form-select form-select-sm"></select>
+                        <div class="dropdown">
+                            <button id="tipoGaeDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">Todas</button>
+                            <div class="dropdown-menu p-3 tipo-gae-menu">
+                                <div id="tipoGaeEstado" class="small text-secondary mb-2">Cargando tipos GAE...</div>
+                                <div id="tipoGaeListado" class="d-grid gap-1"></div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between"><a href="#" id="tipoGaeSelTodos" class="link-primary small">Seleccionar todo</a><a href="#" id="tipoGaeLimpiar" class="link-secondary small">Limpiar</a></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Tipo de gasto</label>
-                        <select id="filtroTipoGasto" class="form-select form-select-sm"></select>
-                    </div>
-
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Motivo de gasto</label>
-                        <select id="filtroMotivo" class="form-select form-select-sm"></select>
-                    </div>
+                    <div class="col-auto"><label class="form-label mb-1">Tipo de gasto</label><select id="filtroTipoGasto" class="form-select form-select-sm"></select></div>
+                    <div class="col-auto"><label class="form-label mb-1">Motivo de gasto</label><select id="filtroMotivo" class="form-select form-select-sm"></select></div>
+                    <div class="col-auto"><label class="form-label mb-1">Factura</label><input type="text" id="filtroFactura" class="form-control form-control-sm" placeholder="N° factura" /></div>
+                    <div class="col-auto"><label class="form-label mb-1">Concepto</label><input type="text" id="filtroConcepto" class="form-control form-control-sm" placeholder="Concepto" /></div>
 
                     <div class="col-auto ms-auto d-flex gap-2 align-items-center">
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="text-secondary small">Pendientes</span>
-                            <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
-                        </div>
-                        <button id="btnExportar" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-file-earmark-excel"></i> Exportar
-                        </button>
-                        <button id="btnBuscar" class="btn btn-primary btn-sm">
-                            <i class="bi bi-search"></i> Buscar
-                        </button>
-                        <button id="btnActualizarTodo" class="btn btn-success btn-sm">
-                            <i class="bi bi-save"></i> Actualizar todo
-                        </button>
+                        <div class="d-flex align-items-center gap-1"><span class="text-secondary small">Pendientes</span><span class="badge bg-warning text-dark" id="pendingBadge">0</span></div>
+                        <button id="btnBuscar" class="btn btn-primary btn-sm"><i class="bi bi-search"></i> Buscar</button>
+                        <button id="btnActualizarTodo" class="btn btn-success btn-sm"><i class="bi bi-save"></i> Actualizar todo</button>
                     </div>
                 </div>
             </div>
 
             <div class="card-body p-0 position-relative">
                 <div id="alertContainer" class="px-3 pt-3"></div>
-                <div id="loadingOverlay" class="loading-overlay d-none">
-                    <div class="loading-box text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Procesando...</span>
-                        </div>
-                        <div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div>
-                    </div>
-                </div>
+                <div id="loadingOverlay" class="loading-overlay d-none"><div class="loading-box text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Procesando...</span></div><div id="loadingMessage" class="mt-2 small text-primary">Procesando...</div></div></div>
 
                 <div class="table-responsive" style="overflow:auto;">
                     <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaGae" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
-                                <th>Sel</th>
-                                <th>Código interno</th>
-                                <th>Línea</th>
-                                <th>N° Factura</th>
-                                <th>Concepto</th>
-                                <th>Tienda</th>
-                                <th>GAE</th>
-                                <th>Autorizado</th>
-                                <th>Tipo de gasto</th>
-                                <th>Motivo de gasto</th>
-                                <th>Importe</th>
-                                <th>Fecha PRM</th>
-                                <th>Solicitado por</th>
-                                <th>No válido</th>
-                                <th>Estado</th>
-                                <th class="col-error">Mensaje</th>
+                                <th>Sel</th><th>N° Doc</th><th>Línea</th><th>N° Factura</th><th>Concepto</th><th>Tienda</th><th>GAE</th><th>Autorizado</th><th>Tipo de gasto</th><th>Motivo de gasto</th><th>Importe</th><th>Fecha</th><th>Solicitado por</th><th>No válido</th><th class="col-estado">Estado</th><th class="col-error">Mensaje</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+                <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-secondary">Tamaño página</label>
+                        <select id="pageSize" class="form-select form-select-sm">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button id="btnPrevPage" class="btn btn-outline-secondary btn-sm">Anterior</button>
+                        <span id="pageInfo" class="small text-secondary">Página 1</span>
+                        <button id="btnNextPage" class="btn btn-outline-secondary btn-sm">Siguiente</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalCambios" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cambios pendientes</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Hay cambios pendientes. ¿Desea descartar los cambios?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="btnDescartar">Sí, descartar</button>
-                </div>
-            </div>
-        </div>
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Cambios pendientes</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>Hay cambios pendientes. ¿Desea descartar los cambios?</p></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-danger" id="btnDescartar">Sí, descartar</button></div></div></div>
     </div>
 </div>
 
