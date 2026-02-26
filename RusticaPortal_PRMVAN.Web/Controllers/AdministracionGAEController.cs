@@ -120,7 +120,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Buscar(string fechaDesde, string fechaHasta, string? tiendas, string? filtros, int pagina = 1, int pageSize = 50)
+        public async Task<IActionResult> Buscar(string fechaDesde, string fechaHasta, string? tiendas, string? filtros)
         {
             var empresa = User.Claims.FirstOrDefault(c => c.Type == "Empresa")?.Value;
             if (string.IsNullOrEmpty(empresa))
@@ -132,9 +132,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
                 ["fechaDesde"] = fechaDesde,
                 ["fechaHasta"] = fechaHasta,
                 ["tiendas"] = tiendas ?? string.Empty,
-                ["filtros"] = filtros ?? string.Empty,
-                ["pagina"] = pagina.ToString(),
-                ["pageSize"] = pageSize.ToString()
+                ["filtros"] = filtros ?? string.Empty
             });
 
             var resp = await _apiService.GetAsync<ResponseInformation>(endpoint);

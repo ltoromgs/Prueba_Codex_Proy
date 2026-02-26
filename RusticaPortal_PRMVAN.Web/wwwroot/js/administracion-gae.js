@@ -125,13 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const updateMultiLabel = (button, selected, total, emptyLabel) => {
+    const updateMultiLabel = (button, selected, total) => {
         if (!total || selected === total) {
             button.textContent = 'Todas';
             return;
         }
         if (!selected) {
-            button.textContent = emptyLabel;
+            button.textContent = 'Sin selección';
             return;
         }
         button.textContent = `${selected} seleccionadas`;
@@ -347,10 +347,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const buildFiltroPayload = () => {
         const factura = elements.filtroFactura.value.trim();
         const concepto = elements.filtroConcepto.value.trim();
-        const tiposGae = getSelectedTiposGae().join(',');
-        const tipoGasto = elements.filtroTipoGasto.value;
-        const motivo = elements.filtroMotivo.value;
-        return `${factura}|${concepto}|${tiposGae}|${tipoGasto}|${motivo}`;
+        const selectedTiposGae = getSelectedTiposGae();
+        const tipoGae = selectedTiposGae.length === state.tiposGae.length ? '' : selectedTiposGae.join(',');
+        const tipoGasto = elements.filtroTipoGasto.value || '';
+        const motivo = elements.filtroMotivo.value || '';
+        const pagina = String(state.page || 1);
+        const cantidad = String(state.pageSize || 50);
+        return [factura, concepto, tipoGae, tipoGasto, motivo, pagina, cantidad].join('|');
     };
 
     const buscar = async () => {
@@ -359,13 +362,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setLoading(true, 'Buscando...');
         try {
+            const selectedTiendas = getSelectedTiendas();
+            const tiendas = selectedTiendas.length === state.tiendas.length ? '' : selectedTiendas.join(',');
+            const filtros = buildFiltroPayload();
+
+            console.debug('[AdministracionGAE] parámetros búsqueda', {
+                vParam1: elements.filtroDesde.value,
+                vParam2: elements.filtroHasta.value,
+                vParam3: tiendas,
+                vParam4: filtros
+            });
+
             const params = new URLSearchParams({
                 fechaDesde: elements.filtroDesde.value,
                 fechaHasta: elements.filtroHasta.value,
-                tiendas: getSelectedTiendas().join(','),
-                filtros: buildFiltroPayload(),
-                pagina: String(state.page),
-                pageSize: String(state.pageSize)
+                tiendas,
+                filtros
             });
 
             const data = await fetchJson(`${api.buscar}?${params.toString()}`);
@@ -502,8 +514,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSelectOptions(elements.filtroTipoGasto, state.tiposGasto);
             renderSelectOptions(elements.filtroMotivo, state.motivos);
 
-            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length, 'Sin selección');
-            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length, 'Sin selección');
+            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length);
+            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length);
         } catch (error) {
             showAlert(error.message || connectionMessage, 'warning');
         } finally {
@@ -548,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.tiendasListado.addEventListener('change', (event) => {
         if (event.target.type !== 'checkbox') return;
         tryFilterAction(() => {
-            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length, 'Sin selección');
+            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length);
         }, () => {
             event.target.checked = !event.target.checked;
         });
@@ -557,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.tiposGaeListado.addEventListener('change', (event) => {
         if (event.target.type !== 'checkbox') return;
         tryFilterAction(() => {
-            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length, 'Sin selección');
+            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length);
         }, () => {
             event.target.checked = !event.target.checked;
         });
@@ -567,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         tryFilterAction(() => {
             setAllChecks(elements.tiendasListado, true);
-            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length, 'Sin selección');
+            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length);
         });
     });
 
@@ -575,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         tryFilterAction(() => {
             setAllChecks(elements.tiendasListado, false);
-            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length, 'Sin selección');
+            updateMultiLabel(elements.tiendasDropdownBtn, getSelectedTiendas().length, state.tiendas.length);
         });
     });
 
@@ -583,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         tryFilterAction(() => {
             setAllChecks(elements.tiposGaeListado, true);
-            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length, 'Sin selección');
+            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length);
         });
     });
 
@@ -591,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         tryFilterAction(() => {
             setAllChecks(elements.tiposGaeListado, false);
-            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length, 'Sin selección');
+            updateMultiLabel(elements.tipoGaeDropdownBtn, getSelectedTiposGae().length, state.tiposGae.length);
         });
     });
 
