@@ -65,6 +65,11 @@ namespace RusticaPortal_PRMVAN.Api.Services.Interfaces
         Task<ResponseInformation> GetPrevisionGastosItems(string empresa, string search);
         Task<ResponseInformation> GetPrevisionGastosBuscar(string empresa, string periodo, string tiendas, string motivo);
         Task<ResponseInformation> GetPrevisionGastosDocEntryPeriodo(string empresa, string periodo);
+        Task<ResponseInformation> GetAdministracionGaeTiendas(string empresa);
+        Task<ResponseInformation> GetAdministracionGaeTiposGae(string empresa);
+        Task<ResponseInformation> GetAdministracionGaeTiposGasto(string empresa);
+        Task<ResponseInformation> GetAdministracionGaeMotivosGasto(string empresa);
+        Task<ResponseInformation> GetAdministracionGaeBuscar(string empresa, string fechaDesde, string fechaHasta, string tiendas, string filtros);
               
     }
 }

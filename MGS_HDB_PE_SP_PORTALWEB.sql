@@ -755,6 +755,168 @@ BEGIN
         ORDER BY D."LineId"
         LIMIT 1;
 
+    ELSEIF vTipo = 'Get_Gae_Tiendas' THEN
+
+        SELECT
+            "PrjCode" AS "Codigo",
+            "PrjName" AS "Nombre"
+        FROM "OPRJ"
+        WHERE "Active" = 'Y' and "PrjCode" <> 'GENERICO'
+        ORDER BY "PrjCode";
+
+    ELSEIF vTipo = 'Get_Gae_TipGae' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "@MGS_CL_TIPGAE"
+        ORDER BY "Name";
+
+    ELSEIF vTipo = 'Get_Gae_TipGas' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "TIENDAS_PASTIPIQUEOS"."@MGS_CL_TIPGAS"
+        ORDER BY "Name";
+
+    ELSEIF vTipo = 'Get_Gae_TipMop' THEN
+
+        SELECT
+            "Code" AS "Code",
+            "Name" AS "Name"
+        FROM "TIENDAS_PASTIPIQUEOS"."@MGS_CL_TIPMOP"
+        ORDER BY "Name";
+
+    ELSEIF vTipo = 'Get_Gae_Buscar' THEN
+
+        DECLARE lvTiendas NVARCHAR(5000);
+        DECLARE lvSql NVARCHAR(20000);
+        DECLARE lvFiltroFactura NVARCHAR(200);
+        DECLARE lvFiltroConcepto NVARCHAR(200);
+        DECLARE lvFiltroTipGae NVARCHAR(50);
+        DECLARE lvFiltroTipGas NVARCHAR(50);
+        DECLARE lvFiltroTipMop NVARCHAR(50);
+        DECLARE lvTmp NVARCHAR(5000);
+
+        lvTiendas := '';
+        IF :vParam3 <> '' THEN
+            lvTiendas := '''' || REPLACE(:vParam3, ',', ''',''') || '''';
+        END IF;
+
+        lvTmp := :vParam4;
+        lvFiltroFactura := SUBSTRING_BEFORE(:lvTmp, '|');
+        lvTmp := SUBSTRING_AFTER(:lvTmp, '|');
+        lvFiltroConcepto := SUBSTRING_BEFORE(:lvTmp, '|');
+        lvTmp := SUBSTRING_AFTER(:lvTmp, '|');
+        lvFiltroTipGae := SUBSTRING_BEFORE(:lvTmp, '|');
+        lvTmp := SUBSTRING_AFTER(:lvTmp, '|');
+        lvFiltroTipGas := SUBSTRING_BEFORE(:lvTmp, '|');
+        lvFiltroTipMop := SUBSTRING_AFTER(:lvTmp, '|');
+
+        lvSql := '
+            SELECT
+                ''1'' AS "IdEmpresa",
+                ''TIENDAS_PASTIPIQUEOS'' AS "NombreEmpresa",
+                ''TIENDAS_PASTIPIQUEOS'' AS "BaseDatos",
+                ''17'' AS "ObjectType",
+                H."DocEntry" AS "DocEntry",
+                L."LineNum" AS "LineId",
+                IFNULL(H."NumAtCard", '''') AS "NumAtCard",
+                IFNULL(L."Dscription", '''') AS "Concepto",
+                IFNULL(L."Project", '''') AS "Tienda",
+                IFNULL(L."U_MGS_CL_TIPGAE", '''') AS "U_MGS_CL_TIPGAE",
+                CASE WHEN IFNULL(L."U_MGS_CL_AUTORI", ''NO'') = ''SI'' THEN ''SI'' ELSE ''NO'' END AS "U_MGS_CL_AUTORI",
+                IFNULL(L."U_MGS_CL_TIPGAS", '''') AS "U_MGS_CL_TIPGAS",
+                IFNULL(L."U_MGS_CL_TIPMOP", '''') AS "U_MGS_CL_TIPMOP",
+                IFNULL(L."U_MGS_CL_IMPORT", L."LineTotal") AS "U_MGS_CL_IMPORT",
+                IFNULL(TO_VARCHAR(L."U_MGS_CL_FEPRM", ''YYYY-MM-DD''), '''') AS "U_MGS_CL_FEPRM",
+                IFNULL(L."U_MGS_CL_SOLICI", '''') AS "U_MGS_CL_SOLICI",
+                CASE WHEN IFNULL(L."U_MGS_CL_VALIDO", ''NO'') = ''SI'' THEN ''SI'' ELSE ''NO'' END AS "U_MGS_CL_VALIDO",
+                ''NO'' AS "Pendiente",
+                NULL AS "MensajeError"
+            FROM "TIENDAS_PASTIPIQUEOS"."ORDR" H
+            JOIN "TIENDAS_PASTIPIQUEOS"."RDR1" L
+              ON H."DocEntry" = L."DocEntry"
+            WHERE H."DocDate" BETWEEN ''' || :vParam1 || ''' AND ''' || :vParam2 || '''';
+
+        IF :vParam3 <> '' THEN
+            lvSql := lvSql || ' AND L."Project" IN (' || lvTiendas || ')';
+        END IF;
+
+        IF :lvFiltroFactura <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(H."NumAtCard", '''') LIKE ''%' || :lvFiltroFactura || '%''';
+        END IF;
+
+        IF :lvFiltroConcepto <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."Dscription", '''') LIKE ''%' || :lvFiltroConcepto || '%''';
+        END IF;
+
+        IF :lvFiltroTipGae <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."U_MGS_CL_TIPGAE", '''') = ''' || :lvFiltroTipGae || '''';
+        END IF;
+
+        IF :lvFiltroTipGas <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."U_MGS_CL_TIPGAS", '''') = ''' || :lvFiltroTipGas || '''';
+        END IF;
+
+        IF :lvFiltroTipMop <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."U_MGS_CL_TIPMOP", '''') = ''' || :lvFiltroTipMop || '''';
+        END IF;
+
+        lvSql := lvSql || '
+            UNION ALL
+            SELECT
+                ''2'' AS "IdEmpresa",
+                ''PRUEBAS_PLAZAGASTRO'' AS "NombreEmpresa",
+                ''PRUEBAS_PLAZAGASTRO'' AS "BaseDatos",
+                ''17'' AS "ObjectType",
+                H."DocEntry" AS "DocEntry",
+                L."LineNum" AS "LineId",
+                IFNULL(H."NumAtCard", '''') AS "NumAtCard",
+                IFNULL(L."Dscription", '''') AS "Concepto",
+                IFNULL(L."Project", '''') AS "Tienda",
+                IFNULL(L."U_MGS_CL_TIPGAE", '''') AS "U_MGS_CL_TIPGAE",
+                CASE WHEN IFNULL(L."U_MGS_CL_AUTORI", ''NO'') = ''SI'' THEN ''SI'' ELSE ''NO'' END AS "U_MGS_CL_AUTORI",
+                IFNULL(L."U_MGS_CL_TIPGAS", '''') AS "U_MGS_CL_TIPGAS",
+                IFNULL(L."U_MGS_CL_TIPMOP", '''') AS "U_MGS_CL_TIPMOP",
+                IFNULL(L."U_MGS_CL_IMPORT", L."LineTotal") AS "U_MGS_CL_IMPORT",
+                IFNULL(TO_VARCHAR(L."U_MGS_CL_FEPRM", ''YYYY-MM-DD''), '''') AS "U_MGS_CL_FEPRM",
+                IFNULL(L."U_MGS_CL_SOLICI", '''') AS "U_MGS_CL_SOLICI",
+                CASE WHEN IFNULL(L."U_MGS_CL_VALIDO", ''NO'') = ''SI'' THEN ''SI'' ELSE ''NO'' END AS "U_MGS_CL_VALIDO",
+                ''NO'' AS "Pendiente",
+                NULL AS "MensajeError"
+            FROM "PRUEBAS_PLAZAGASTRO"."ORDR" H
+            JOIN "PRUEBAS_PLAZAGASTRO"."RDR1" L
+              ON H."DocEntry" = L."DocEntry"
+            WHERE H."DocDate" BETWEEN ''' || :vParam1 || ''' AND ''' || :vParam2 || '''';
+
+        IF :vParam3 <> '' THEN
+            lvSql := lvSql || ' AND L."Project" IN (' || lvTiendas || ')';
+        END IF;
+
+        IF :lvFiltroFactura <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(H."NumAtCard", '''') LIKE ''%' || :lvFiltroFactura || '%''';
+        END IF;
+
+        IF :lvFiltroConcepto <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."Dscription", '''') LIKE ''%' || :lvFiltroConcepto || '%''';
+        END IF;
+
+        IF :lvFiltroTipGae <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."U_MGS_CL_TIPGAE", '''') = ''' || :lvFiltroTipGae || '''';
+        END IF;
+
+        IF :lvFiltroTipGas <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."U_MGS_CL_TIPGAS", '''') = ''' || :lvFiltroTipGas || '''';
+        END IF;
+
+        IF :lvFiltroTipMop <> '' THEN
+            lvSql := lvSql || ' AND IFNULL(L."U_MGS_CL_TIPMOP", '''') = ''' || :lvFiltroTipMop || '''';
+        END IF;
+
+        EXECUTE IMMEDIATE :lvSql;
+
 
 
     ELSEIF vTipo = 'Get_OVByPrj' THEN

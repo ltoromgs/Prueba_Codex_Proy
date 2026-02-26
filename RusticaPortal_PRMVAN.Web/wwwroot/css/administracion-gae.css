@@ -1,0 +1,55 @@
+#administracion-gae-app .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+#administracion-gae-app .loading-box {
+    background: #fff;
+    border-radius: 0.5rem;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+}
+
+#administracion-gae-app .fila-pendiente {
+    background-color: #fff7e6;
+}
+
+#administracion-gae-app .estado-ok {
+    color: #198754;
+    font-weight: 600;
+}
+
+#administracion-gae-app .estado-error {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+#administracion-gae-app .estado-pendiente {
+    color: #d97706;
+    font-weight: 600;
+}
+
+#administracion-gae-app .input-inline,
+#administracion-gae-app .select-inline {
+    min-width: 160px;
+}
+
+#administracion-gae-app .input-importe {
+    text-align: right;
+    min-width: 120px;
+}
+
+#administracion-gae-app .tiendas-menu {
+    max-height: 280px;
+    overflow: auto;
+    width: 320px;
+}
+
+#administracion-gae-app .col-error {
+    min-width: 220px;
+}
