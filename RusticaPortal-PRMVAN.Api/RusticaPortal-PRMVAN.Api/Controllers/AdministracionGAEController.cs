@@ -146,7 +146,8 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
             if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.BaseDatos)
                 || string.IsNullOrWhiteSpace(item.ObjectType)
-                || string.IsNullOrWhiteSpace(item.DocEntry)))
+                || string.IsNullOrWhiteSpace(item.DocEntry)
+                || string.IsNullOrWhiteSpace(item.IdEmpresa)))
             {
                 return BadRequest(new ResponseInformation
                 {

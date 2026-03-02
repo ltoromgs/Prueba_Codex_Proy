@@ -6148,7 +6148,7 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     {
                         IdEmpresa = ReadString(nameof(AdministracionGaeDetalleDto.IdEmpresa)),
                         NombreEmpresa = ReadString(nameof(AdministracionGaeDetalleDto.NombreEmpresa)),
-                        BaseDatos = ReadString(nameof(AdministracionGaeDetalleDto.BaseDatos)),
+                        BaseDatos = ReadString(nameof(AdministracionGaeDetalleDto.NombreEmpresa)),
                         ObjectType = ReadString(nameof(AdministracionGaeDetalleDto.ObjectType)),
                         DocEntry = ReadString(nameof(AdministracionGaeDetalleDto.DocEntry)),
                         LineId = ReadString(nameof(AdministracionGaeDetalleDto.LineId)),

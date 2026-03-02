@@ -47,6 +47,7 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE
     public class AdministracionGaeUpdateLine
     {
         public string BaseDatos { get; set; } = string.Empty;
+        public string IdEmpresa { get; set; } = string.Empty;
         public string ObjectType { get; set; } = string.Empty;
         public string DocEntry { get; set; } = string.Empty;
         public string LineId { get; set; } = string.Empty;
