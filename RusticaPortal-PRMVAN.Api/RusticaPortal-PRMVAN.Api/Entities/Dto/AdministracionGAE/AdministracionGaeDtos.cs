@@ -48,6 +48,7 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE
     {
         public string BaseDatos { get; set; } = string.Empty;
         public string IdEmpresa { get; set; } = string.Empty;
+        public string NombreEmpresa { get; set; } = string.Empty;
         public string ObjectType { get; set; } = string.Empty;
         public string DocEntry { get; set; } = string.Empty;
         public string LineId { get; set; } = string.Empty;
@@ -62,11 +63,15 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE
 
     public class AdministracionGaeUpdateResult
     {
+        public string IdEmpresa { get; set; } = string.Empty;
+        public string NombreEmpresa { get; set; } = string.Empty;
         public string BaseDatos { get; set; } = string.Empty;
         public string ObjectType { get; set; } = string.Empty;
         public string DocEntry { get; set; } = string.Empty;
         public string LineId { get; set; } = string.Empty;
         public bool Ok { get; set; }
+        public string Estado { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
+        public string MensajeError { get; set; } = string.Empty;
     }
 }
