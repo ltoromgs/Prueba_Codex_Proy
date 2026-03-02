@@ -23,6 +23,7 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE
         public string ObjectType { get; set; } = string.Empty;
         public string DocEntry { get; set; } = string.Empty;
         public string LineId { get; set; } = string.Empty;
+        public string FecFiltro { get; set; } = string.Empty;
         public string NumAtCard { get; set; } = string.Empty;
         public string Concepto { get; set; } = string.Empty;
         public string Tienda { get; set; } = string.Empty;

@@ -6110,36 +6110,62 @@ namespace RusticaPortal_PRMVAN.Api.Services
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = "Get_Gae_Buscar";
-                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = fechaDesde ?? string.Empty;
-                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = fechaHasta ?? string.Empty;
-                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 5000).Value = tiendas ?? string.Empty;
-                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = filtros ?? string.Empty;
+                var vTipo = "Get_Gae_Todo_Buscar";
+                var vParam1 = fechaDesde ?? string.Empty;
+                var vParam2 = fechaHasta ?? string.Empty;
+                var vParam3 = tiendas ?? string.Empty;
+                var vParam4 = filtros ?? string.Empty;
+
+                cmd.Parameters.Add("@vTipo", HanaDbType.NVarChar, 20).Value = vTipo;
+                cmd.Parameters.Add("@vParam1", HanaDbType.NVarChar, 50).Value = vParam1;
+                cmd.Parameters.Add("@vParam2", HanaDbType.NVarChar, 50).Value = vParam2;
+                cmd.Parameters.Add("@vParam3", HanaDbType.NVarChar, 5000).Value = vParam3;
+                cmd.Parameters.Add("@vParam4", HanaDbType.NVarChar, 5000).Value = vParam4;
+
+                Console.WriteLine($"[AdministracionGAE][Buscar] vTipo={vTipo}, vParam1={vParam1}, vParam2={vParam2}, vParam3={vParam3}, vParam4={vParam4}");
 
                 using var reader = (HanaDataReader)await cmd.ExecuteReaderAsync();
+                var columns = Enumerable.Range(0, reader.FieldCount)
+                    .Select(reader.GetName)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                string ReadString(string columnName)
+                {
+                    if (!columns.Contains(columnName)) return string.Empty;
+                    var ordinal = reader.GetOrdinal(columnName);
+                    return reader.IsDBNull(ordinal) ? string.Empty : reader.GetValue(ordinal)?.ToString() ?? string.Empty;
+                }
+
+                decimal ReadDecimal(string columnName)
+                {
+                    var raw = ReadString(columnName);
+                    return decimal.TryParse(raw, out var value) ? value : 0;
+                }
+
                 while (reader.Read())
                 {
                     registros.Add(new AdministracionGaeDetalleDto
                     {
-                        IdEmpresa = reader[nameof(AdministracionGaeDetalleDto.IdEmpresa)]?.ToString() ?? string.Empty,
-                        NombreEmpresa = reader[nameof(AdministracionGaeDetalleDto.NombreEmpresa)]?.ToString() ?? string.Empty,
-                        BaseDatos = reader[nameof(AdministracionGaeDetalleDto.BaseDatos)]?.ToString() ?? string.Empty,
-                        ObjectType = reader[nameof(AdministracionGaeDetalleDto.ObjectType)]?.ToString() ?? string.Empty,
-                        DocEntry = reader[nameof(AdministracionGaeDetalleDto.DocEntry)]?.ToString() ?? string.Empty,
-                        LineId = reader[nameof(AdministracionGaeDetalleDto.LineId)]?.ToString() ?? string.Empty,
-                        NumAtCard = reader[nameof(AdministracionGaeDetalleDto.NumAtCard)]?.ToString() ?? string.Empty,
-                        Concepto = reader[nameof(AdministracionGaeDetalleDto.Concepto)]?.ToString() ?? string.Empty,
-                        Tienda = reader[nameof(AdministracionGaeDetalleDto.Tienda)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPGAE = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAE)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_AUTORI = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_AUTORI)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPGAS = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAS)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_TIPMOP = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPMOP)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_IMPORT = decimal.TryParse(reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_IMPORT)]?.ToString(), out var importe) ? importe : 0,
-                        U_MGS_CL_FEPRM = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_FEPRM)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_SOLICI = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_SOLICI)]?.ToString() ?? string.Empty,
-                        U_MGS_CL_VALIDO = reader[nameof(AdministracionGaeDetalleDto.U_MGS_CL_VALIDO)]?.ToString() ?? string.Empty,
-                        Pendiente = reader[nameof(AdministracionGaeDetalleDto.Pendiente)]?.ToString() ?? string.Empty,
-                        MensajeError = reader[nameof(AdministracionGaeDetalleDto.MensajeError)]?.ToString() ?? string.Empty
+                        IdEmpresa = ReadString(nameof(AdministracionGaeDetalleDto.IdEmpresa)),
+                        NombreEmpresa = ReadString(nameof(AdministracionGaeDetalleDto.NombreEmpresa)),
+                        BaseDatos = ReadString(nameof(AdministracionGaeDetalleDto.BaseDatos)),
+                        ObjectType = ReadString(nameof(AdministracionGaeDetalleDto.ObjectType)),
+                        DocEntry = ReadString(nameof(AdministracionGaeDetalleDto.DocEntry)),
+                        LineId = ReadString(nameof(AdministracionGaeDetalleDto.LineId)),
+                        FecFiltro = ReadString(nameof(AdministracionGaeDetalleDto.FecFiltro)),
+                        NumAtCard = ReadString(nameof(AdministracionGaeDetalleDto.NumAtCard)),
+                        Concepto = ReadString(nameof(AdministracionGaeDetalleDto.Concepto)),
+                        Tienda = ReadString(nameof(AdministracionGaeDetalleDto.Tienda)),
+                        U_MGS_CL_TIPGAE = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAE)),
+                        U_MGS_CL_AUTORI = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_AUTORI)),
+                        U_MGS_CL_TIPGAS = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPGAS)),
+                        U_MGS_CL_TIPMOP = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_TIPMOP)),
+                        U_MGS_CL_IMPORT = ReadDecimal(nameof(AdministracionGaeDetalleDto.U_MGS_CL_IMPORT)),
+                        U_MGS_CL_FEPRM = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_FEPRM)),
+                        U_MGS_CL_SOLICI = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_SOLICI)),
+                        U_MGS_CL_VALIDO = ReadString(nameof(AdministracionGaeDetalleDto.U_MGS_CL_VALIDO)),
+                        Pendiente = ReadString(nameof(AdministracionGaeDetalleDto.Pendiente)),
+                        MensajeError = ReadString(nameof(AdministracionGaeDetalleDto.MensajeError))
                     });
                 }
 
