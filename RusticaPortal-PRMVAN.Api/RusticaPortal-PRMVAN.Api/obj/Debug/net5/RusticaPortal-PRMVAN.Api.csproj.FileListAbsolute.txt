@@ -52,7 +52,6 @@ C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Ap
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\bin\Debug\net5\SAPBusinessOneSDK.dll
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\bin\Debug\net5\Sap.Data.Hana.v4.5.xml
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\bin\Debug\net5\Sap.Data.Hana.v4.5.dll.config
-C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.csproj.AssemblyReference.cache
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.GeneratedMSBuildEditorConfig.editorconfig
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.AssemblyInfoInputs.cache
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.AssemblyInfo.cs
@@ -68,3 +67,4 @@ C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Ap
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\ref\RusticaPortal-PRMVAN.Api.dll
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.pdb
 C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.genruntimeconfig.cache
+C:\Desarrollos Rustica\PRM Y VAN\CODEX\Prueba_Codex_Proy\RusticaPortal-PRMVAN.Api\RusticaPortal-PRMVAN.Api\obj\Debug\net5\RusticaPortal-PRMVAN.Api.csproj.AssemblyReference.cache

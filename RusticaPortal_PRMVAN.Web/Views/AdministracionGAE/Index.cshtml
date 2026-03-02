@@ -26,24 +26,27 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-                <div class="row g-2 align-items-end">
-                    <div class="col-auto">
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-12 col-md-2 col-lg-2">
+                        <label class="form-label mb-1">Periodo</label>
+                        <input type="month" id="filtroPeriodo" class="form-control form-control-sm" value="@Model.Periodo" />
+                    </div>
+                    <div class="col-6 col-md-2 col-lg-2">
                         <label class="form-label mb-1">Desde</label>
                         <input type="date" id="filtroDesde" class="form-control form-control-sm" value="@Model.FechaDesde" />
                     </div>
-                    <div class="col-auto">
+                    <div class="col-6 col-md-2 col-lg-2">
                         <label class="form-label mb-1">Hasta</label>
                         <input type="date" id="filtroHasta" class="form-control form-control-sm" value="@Model.FechaHasta" />
                     </div>
-
-                    <div class="col-auto">
+                    <div class="col-12 col-md-3 col-lg-3">
                         <label class="form-label mb-1">Tiendas</label>
-                        <div class="dropdown">
-                            <button id="tiendasDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                        <div class="dropdown w-100">
+                            <button id="tiendasDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle w-100 text-start" type="button"
                                     data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                Seleccionar tiendas
+                                Todas
                             </button>
-                            <div class="dropdown-menu p-3 tiendas-menu">
+                            <div class="dropdown-menu p-3 tiendas-menu menu-ancho">
                                 <div id="tiendasEstado" class="small text-secondary mb-2">Cargando tiendas...</div>
                                 <div id="tiendasListado" class="d-grid gap-1"></div>
                                 <div class="border-top pt-2 mt-2 d-flex justify-content-between">
@@ -53,45 +56,56 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-12 col-md-3 col-lg-3">
+                        <label class="form-label mb-1">Tipo GAE</label>
+                        <div class="dropdown w-100">
+                            <button id="tipoGaeDropdownBtn" class="btn btn-outline-secondary btn-sm dropdown-toggle w-100 text-start" type="button"
+                                    data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                Todas
+                            </button>
+                            <div class="dropdown-menu p-3 tiendas-menu menu-ancho">
+                                <div id="tiposGaeEstado" class="small text-secondary mb-2">Cargando tipos GAE...</div>
+                                <div id="tiposGaeListado" class="d-grid gap-1"></div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between">
+                                    <a href="#" id="tipoGaeSelTodos" class="link-primary small">Seleccionar todo</a>
+                                    <a href="#" id="tipoGaeLimpiar" class="link-secondary small">Limpiar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <div class="col-auto">
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-2 col-lg-2">
                         <label class="form-label mb-1">Factura</label>
                         <input type="text" id="filtroFactura" class="form-control form-control-sm" placeholder="N° factura" />
                     </div>
-
-                    <div class="col-auto">
+                    <div class="col-12 col-md-5 col-lg-5">
                         <label class="form-label mb-1">Concepto</label>
                         <input type="text" id="filtroConcepto" class="form-control form-control-sm" placeholder="Concepto" />
                     </div>
-
-                    <div class="col-auto">
-                        <label class="form-label mb-1">Tipo GAE</label>
-                        <select id="filtroTipoGae" class="form-select form-select-sm"></select>
-                    </div>
-
-                    <div class="col-auto">
+                    <div class="col-6 col-md-2 col-lg-2">
                         <label class="form-label mb-1">Tipo de gasto</label>
                         <select id="filtroTipoGasto" class="form-select form-select-sm"></select>
                     </div>
-
-                    <div class="col-auto">
+                    <div class="col-6 col-md-2 col-lg-2">
                         <label class="form-label mb-1">Motivo de gasto</label>
                         <select id="filtroMotivo" class="form-select form-select-sm"></select>
                     </div>
 
-                    <div class="col-auto ms-auto d-flex gap-2 align-items-center">
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="text-secondary small">Pendientes</span>
-                            <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
-                        </div>
-                        <button id="btnExportar" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-file-earmark-excel"></i> Exportar
-                        </button>
+                    <div class="col-12 col-md-12 col-lg-1 ms-lg-auto d-flex gap-2 align-items-center justify-content-lg-end acciones-gae">
                         <button id="btnBuscar" class="btn btn-primary btn-sm">
                             <i class="bi bi-search"></i> Buscar
                         </button>
                         <button id="btnActualizarTodo" class="btn btn-success btn-sm">
                             <i class="bi bi-save"></i> Actualizar todo
+                        </button>
+                        <div class="d-flex align-items-center gap-1 border rounded px-2 py-1">
+                            <span class="text-secondary small">Pendientes</span>
+                            <span class="badge bg-warning text-dark" id="pendingBadge">0</span>
+                        </div>
+                        <button id="btnExportar" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-file-earmark-excel"></i> Exportar
                         </button>
                     </div>
                 </div>
@@ -115,6 +129,7 @@
                                 <th>Sel</th>
                                 <th>Código interno</th>
                                 <th>Línea</th>
+                                <th>Fecha</th>
                                 <th>N° Factura</th>
                                 <th>Concepto</th>
                                 <th>Tienda</th>
@@ -126,12 +141,28 @@
                                 <th>Fecha PRM</th>
                                 <th>Solicitado por</th>
                                 <th>No válido</th>
-                                <th>Estado</th>
-                                <th class="col-error">Mensaje</th>
+                                <th class="col-estado d-none">Estado</th>
+                                <th class="col-error d-none">Mensaje</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-2 border-top">
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-secondary mb-0" for="pageSize">Filas</label>
+                        <select id="pageSize" class="form-select form-select-sm" style="width:90px;">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <small id="pageInfo" class="text-secondary">Página 1</small>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" id="btnPrevPage" class="btn btn-outline-secondary">Anterior</button>
+                        <button type="button" id="btnNextPage" class="btn btn-outline-secondary">Siguiente</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -53,3 +53,22 @@
 #administracion-gae-app .col-error {
     min-width: 220px;
 }
+
+#administracion-gae-app .col-estado {
+    min-width: 120px;
+}
+
+
+#administracion-gae-app .menu-ancho {
+    min-width: 420px;
+}
+
+#administracion-gae-app .acciones-gae {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 992px) {
+    #administracion-gae-app .menu-ancho {
+        min-width: 320px;
+    }
+}

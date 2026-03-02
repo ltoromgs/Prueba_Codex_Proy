@@ -23,6 +23,7 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
             var vm = new AdministracionGaeViewModel
             {
+                Periodo = primerDia.ToString("yyyy-MM"),
                 FechaDesde = primerDia.ToString("yyyy-MM-dd"),
                 FechaHasta = ultimoDia.ToString("yyyy-MM-dd")
             };

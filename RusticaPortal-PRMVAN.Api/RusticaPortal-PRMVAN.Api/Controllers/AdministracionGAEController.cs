@@ -111,12 +111,12 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         public async Task<ActionResult<ResponseInformation>> Buscar([FromQuery] string Empresa,
             [FromQuery] string fechaDesde,
             [FromQuery] string fechaHasta,
-            [FromQuery] string tiendas,
-            [FromQuery] string filtros)
+            [FromQuery] string? tiendas = null,
+            [FromQuery] string filtros = "")
         {
             try
             {
-                var rp = await _documentService.GetAdministracionGaeBuscar(Empresa, fechaDesde, fechaHasta, tiendas, filtros);
+                var rp = await _documentService.GetAdministracionGaeBuscar(Empresa, fechaDesde, fechaHasta, tiendas ?? string.Empty, filtros ?? string.Empty);
                 return Ok(rp);
             }
             catch (Exception ex)
@@ -146,7 +146,8 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
             if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.BaseDatos)
                 || string.IsNullOrWhiteSpace(item.ObjectType)
-                || string.IsNullOrWhiteSpace(item.DocEntry)))
+                || string.IsNullOrWhiteSpace(item.DocEntry)
+                || string.IsNullOrWhiteSpace(item.IdEmpresa)))
             {
                 return BadRequest(new ResponseInformation
                 {

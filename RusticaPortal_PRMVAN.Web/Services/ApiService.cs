@@ -53,10 +53,14 @@ namespace RusticaPortal_PRMVAN.Web.Services
                 var url = $"{_baseUrl}{endpoint}";
 
                 var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
 
-                var result = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(result);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"HTTP {(int)response.StatusCode} {response.ReasonPhrase}. URL: {url}. BODY: {body}");
+                }
+
+                return JsonConvert.DeserializeObject<T>(body);
             }
             catch (HttpRequestException)
             {
