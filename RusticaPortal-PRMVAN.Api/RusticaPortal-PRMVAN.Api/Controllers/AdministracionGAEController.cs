@@ -1,10 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RusticaPortal_PRMVAN.Api.Entities.Dto;
 using RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE;
 using RusticaPortal_PRMVAN.Api.Entities.Information;
 using RusticaPortal_PRMVAN.Api.Services.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RusticaPortal_PRMVAN.Api.Controllers
@@ -13,17 +19,30 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
     [ApiController]
     public class AdministracionGAEController : ControllerBase
     {
+        private static readonly Dictionary<string, string> SapObjectEndpointMap = new()
+        {
+            { "18", "PurchaseInvoices" },
+            { "19", "PurchaseCreditNotes" },
+            { "20", "GoodsReceiptPO" },
+            { "22", "PurchaseOrders" },
+            { "1470000113", "InventoryGenEntries" },
+            { "1470000114", "InventoryGenExits" }
+        };
+
         private readonly IDocumentService _documentService;
         private readonly IEmpresaRuntimeService _empresaRuntime;
+        private readonly IEmpresaConfigService _empresaConfigService;
         private readonly ILogger<AdministracionGAEController> _logger;
 
         public AdministracionGAEController(
             IDocumentService documentService,
             IEmpresaRuntimeService empresaRuntime,
+            IEmpresaConfigService empresaConfigService,
             ILogger<AdministracionGAEController> logger)
         {
             _documentService = documentService;
             _empresaRuntime = empresaRuntime;
+            _empresaConfigService = empresaConfigService;
             _logger = logger;
         }
 
@@ -134,7 +153,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
         [HttpPost("actualizar-todo")]
         public async Task<ActionResult<ResponseInformation>> ActualizarTodo([FromQuery] string Empresa, [FromBody] AdministracionGaeUpdateRequest request)
         {
-            if (request == null || request.Items == null || request.Items.Count == 0)
+            if (request?.Items == null || request.Items.Count == 0)
             {
                 return BadRequest(new ResponseInformation
                 {
@@ -144,59 +163,159 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 });
             }
 
-            if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.BaseDatos)
+            if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.IdEmpresa)
+                || string.IsNullOrWhiteSpace(item.NombreEmpresa)
                 || string.IsNullOrWhiteSpace(item.ObjectType)
-                || string.IsNullOrWhiteSpace(item.DocEntry)
-                || string.IsNullOrWhiteSpace(item.IdEmpresa)))
+                || string.IsNullOrWhiteSpace(item.DocEntry)))
             {
                 return BadRequest(new ResponseInformation
                 {
                     Registered = false,
-                    Message = "Existen filas sin datos de base, ObjectType o DocEntry.",
+                    Message = "Existen filas sin IdEmpresa, NombreEmpresa, ObjectType o DocEntry.",
                     Content = string.Empty
                 });
             }
 
-            var prep = await _empresaRuntime.ResolveAndLoginAsync(Empresa);
-            if (!prep.Ok)
-            {
-                return BadRequest(prep.Error);
-            }
+            var results = new List<AdministracionGaeUpdateResult>();
 
-            var grouped = request.Items
-                .GroupBy(item => new { item.BaseDatos, item.ObjectType, item.DocEntry })
+            var companyGroups = request.Items
+                .GroupBy(x => new { x.IdEmpresa, x.NombreEmpresa })
                 .ToList();
 
-            var results = new System.Collections.Generic.List<AdministracionGaeUpdateResult>();
-
-            foreach (var group in grouped)
+            foreach (var companyGroup in companyGroups)
             {
-                var updates = group.ToList();
-                var route = GetServiceLayerRoute(group.Key.ObjectType, group.Key.DocEntry);
-
-                if (string.IsNullOrWhiteSpace(route))
+                if (!int.TryParse(companyGroup.Key.IdEmpresa, out var companyId))
                 {
-                    foreach (var line in updates)
-                    {
-                        results.Add(new AdministracionGaeUpdateResult
-                        {
-                            BaseDatos = line.BaseDatos,
-                            ObjectType = line.ObjectType,
-                            DocEntry = line.DocEntry,
-                            LineId = line.LineId,
-                            Ok = false,
-                            Message = "ObjectType no soportado."
-                        });
-                    }
-
+                    var msg = $"No se tiene acceso/configuración para la empresa {companyGroup.Key.IdEmpresa} - {companyGroup.Key.NombreEmpresa}";
+                    AppendErrorResults(results, companyGroup.ToList(), msg);
                     continue;
                 }
 
-                var payload = new
+                var empresaConfig = _empresaConfigService.GetEmpresa(companyId);
+                if (empresaConfig == null || !string.Equals(empresaConfig.Nombre?.Trim(), companyGroup.Key.NombreEmpresa?.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
-                    DocumentLines = updates.Select(line => new
+                    var msg = $"No se tiene acceso/configuración para la empresa {companyGroup.Key.IdEmpresa} - {companyGroup.Key.NombreEmpresa}";
+                    AppendErrorResults(results, companyGroup.ToList(), msg);
+                    continue;
+                }
+
+                var prep = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
+                if (!prep.Ok)
+                {
+                    AppendErrorResults(results, companyGroup.ToList(), prep.Error?.Message ?? "No fue posible iniciar sesión en Service Layer.");
+                    continue;
+                }
+
+                try
+                {
+                    var objectGroups = companyGroup
+                        .GroupBy(item => new { item.ObjectType, item.DocEntry })
+                        .ToList();
+
+                    foreach (var objectGroup in objectGroups)
                     {
-                        LineNum = int.TryParse(line.LineId, out var lineNum) ? lineNum : 0,
+                        var updates = objectGroup.ToList();
+                        try
+                        {
+                            var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
+                            var route = $"{endpoint}({objectGroup.Key.DocEntry})";
+                            var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates, prep.Token, prep.Cfg);
+                            var patchResult = await PatchServiceLayer(route, payload, prep.Token, prep.Cfg);
+
+                            if (!patchResult.ok)
+                            {
+                                AppendErrorResults(results, updates, patchResult.error);
+                                continue;
+                            }
+
+                            foreach (var line in updates)
+                            {
+                                results.Add(new AdministracionGaeUpdateResult
+                                {
+                                    IdEmpresa = line.IdEmpresa,
+                                    NombreEmpresa = line.NombreEmpresa,
+                                    BaseDatos = line.BaseDatos,
+                                    ObjectType = line.ObjectType,
+                                    DocEntry = line.DocEntry,
+                                    LineId = line.LineId,
+                                    Ok = true,
+                                    Estado = "OK",
+                                    Message = string.Empty,
+                                    MensajeError = string.Empty
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            AppendErrorResults(results, updates, ex.Message);
+                        }
+                    }
+                }
+                finally
+                {
+                    await LogoutServiceLayer(prep.Cfg, prep.Token);
+                }
+            }
+
+            var allOk = results.All(x => x.Ok);
+            return Ok(new ResponseInformation
+            {
+                Registered = allOk,
+                Message = allOk ? "Actualización realizada correctamente" : "Se encontraron errores al actualizar.",
+                Content = JsonConvert.SerializeObject(results)
+            });
+        }
+
+        private static string ResolveEndpoint(string objectType)
+        {
+            if (string.IsNullOrWhiteSpace(objectType))
+                throw new Exception("ObjectType vacío.");
+
+            if (objectType.StartsWith("@"))
+                return objectType.Substring(1);
+
+            if (SapObjectEndpointMap.TryGetValue(objectType, out var endpoint))
+                return endpoint;
+
+            throw new Exception($"ObjectType no soportado: {objectType}");
+        }
+
+        private static void AppendErrorResults(List<AdministracionGaeUpdateResult> results, List<AdministracionGaeUpdateLine> updates, string message)
+        {
+            foreach (var line in updates)
+            {
+                results.Add(new AdministracionGaeUpdateResult
+                {
+                    IdEmpresa = line.IdEmpresa,
+                    NombreEmpresa = line.NombreEmpresa,
+                    BaseDatos = line.BaseDatos,
+                    ObjectType = line.ObjectType,
+                    DocEntry = line.DocEntry,
+                    LineId = line.LineId,
+                    Ok = false,
+                    Estado = "Error",
+                    Message = message,
+                    MensajeError = message
+                });
+            }
+        }
+
+        private async Task<string> BuildPayloadByObjectType(string objectType, List<AdministracionGaeUpdateLine> updates, string token, EmpresaConfig cfg)
+        {
+            if (objectType == "@MGS_CL_GASCAB")
+            {
+                var headerDetailPayload = new
+                {
+                    U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,
+                    U_MGS_CL_AUTORI = updates.FirstOrDefault()?.U_MGS_CL_AUTORI,
+                    U_MGS_CL_TIPGAS = updates.FirstOrDefault()?.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPMOP = updates.FirstOrDefault()?.U_MGS_CL_TIPMOP,
+                    U_MGS_CL_IMPORT = updates.FirstOrDefault()?.U_MGS_CL_IMPORT,
+                    U_MGS_CL_FEPRM = updates.FirstOrDefault()?.U_MGS_CL_FEPRM,
+                    U_MGS_CL_VALIDO = updates.FirstOrDefault()?.U_MGS_CL_VALIDO,
+                    MGS_CL_GASDETCollection = updates.Select(line => new
+                    {
+                        LineId = int.TryParse(line.LineId, out var lineId) ? lineId : 0,
                         line.U_MGS_CL_TIPGAE,
                         line.U_MGS_CL_AUTORI,
                         line.U_MGS_CL_TIPGAS,
@@ -204,78 +323,125 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                         line.U_MGS_CL_IMPORT,
                         line.U_MGS_CL_FEPRM,
                         line.U_MGS_CL_VALIDO
-                    })
+                    }).ToList()
                 };
 
-                var requestInformation = new RequestInformation
+                return JsonConvert.SerializeObject(headerDetailPayload, new JsonSerializerSettings
                 {
-                    Route = route,
-                    Token = prep.Token,
-                    Doc = Newtonsoft.Json.JsonConvert.SerializeObject(payload, new Newtonsoft.Json.JsonSerializerSettings
-                    {
-                        NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-                    })
-                };
-
-                var response = await _documentService.UpdateInfo(requestInformation, "PYP", prep.Cfg);
-
-                if (response == null || !response.Registered)
-                {
-                    var message = response?.Message ?? "Error al actualizar por Service Layer.";
-                    foreach (var line in updates)
-                    {
-                        results.Add(new AdministracionGaeUpdateResult
-                        {
-                            BaseDatos = line.BaseDatos,
-                            ObjectType = line.ObjectType,
-                            DocEntry = line.DocEntry,
-                            LineId = line.LineId,
-                            Ok = false,
-                            Message = message
-                        });
-                    }
-
-                    continue;
-                }
-
-                foreach (var line in updates)
-                {
-                    results.Add(new AdministracionGaeUpdateResult
-                    {
-                        BaseDatos = line.BaseDatos,
-                        ObjectType = line.ObjectType,
-                        DocEntry = line.DocEntry,
-                        LineId = line.LineId,
-                        Ok = true,
-                        Message = string.Empty
-                    });
-                }
+                    NullValueHandling = NullValueHandling.Ignore
+                });
             }
 
-            return Ok(new ResponseInformation
+            if (objectType.StartsWith("@"))
             {
-                Registered = true,
-                Message = string.Empty,
-                Content = Newtonsoft.Json.JsonConvert.SerializeObject(results)
+                var headerPayload = new
+                {
+                    U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,
+                    U_MGS_CL_AUTORI = updates.FirstOrDefault()?.U_MGS_CL_AUTORI,
+                    U_MGS_CL_TIPGAS = updates.FirstOrDefault()?.U_MGS_CL_TIPGAS,
+                    U_MGS_CL_TIPMOP = updates.FirstOrDefault()?.U_MGS_CL_TIPMOP,
+                    U_MGS_CL_IMPORT = updates.FirstOrDefault()?.U_MGS_CL_IMPORT,
+                    U_MGS_CL_FEPRM = updates.FirstOrDefault()?.U_MGS_CL_FEPRM,
+                    U_MGS_CL_VALIDO = updates.FirstOrDefault()?.U_MGS_CL_VALIDO
+                };
+
+                return JsonConvert.SerializeObject(headerPayload, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+            }
+
+            var documentPayload = new
+            {
+                DocumentLines = updates.Select(line => new
+                {
+                    LineNum = int.TryParse(line.LineId, out var lineNum) ? lineNum : 0,
+                    line.U_MGS_CL_TIPGAE,
+                    line.U_MGS_CL_AUTORI,
+                    line.U_MGS_CL_TIPGAS,
+                    line.U_MGS_CL_TIPMOP,
+                    line.U_MGS_CL_IMPORT,
+                    line.U_MGS_CL_FEPRM,
+                    line.U_MGS_CL_VALIDO
+                }).ToList()
+            };
+
+            return JsonConvert.SerializeObject(documentPayload, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
             });
         }
 
-        private static string GetServiceLayerRoute(string objectType, string docEntry)
+        private static async Task<(bool ok, string error)> PatchServiceLayer(string route, string payload, string token, EmpresaConfig cfg)
         {
-            if (string.IsNullOrWhiteSpace(objectType) || string.IsNullOrWhiteSpace(docEntry))
+            try
             {
-                return string.Empty;
-            }
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
 
-            return objectType switch
+                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
+                if (!baseUrl.EndsWith("/"))
+                    baseUrl += "/";
+
+                var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
+                request.ContentType = "application/json";
+                request.Method = "PATCH";
+
+                var cookies = new CookieContainer();
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+                request.CookieContainer = cookies;
+
+                using (var sw = new StreamWriter(request.GetRequestStream()))
+                {
+                    sw.Write(payload);
+                }
+
+                using var response = (HttpWebResponse)await request.GetResponseAsync();
+                return (response.StatusCode is HttpStatusCode.OK or HttpStatusCode.NoContent, string.Empty);
+            }
+            catch (WebException ex)
             {
-                "17" => $"Orders({docEntry})",
-                "22" => $"PurchaseOrders({docEntry})",
-                "20" => $"PurchaseDeliveryNotes({docEntry})",
-                "18" => $"PurchaseInvoices({docEntry})",
-                "19" => $"PurchaseCreditNotes({docEntry})",
-                _ => string.Empty
-            };
+                var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
+                var responseBody = string.Empty;
+                if (ex.Response != null)
+                {
+                    using var sr = new StreamReader(ex.Response.GetResponseStream());
+                    responseBody = await sr.ReadToEndAsync();
+                }
+
+                return (false, $"StatusCode: {statusCode}. {responseBody}");
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
+        private static async Task LogoutServiceLayer(EmpresaConfig cfg, string token)
+        {
+            try
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
+
+                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
+                if (!baseUrl.EndsWith("/"))
+                    baseUrl += "/";
+
+                var request = (HttpWebRequest)WebRequest.Create(baseUrl + "Logout");
+                request.ContentType = "application/json";
+                request.Method = "POST";
+
+                var cookies = new CookieContainer();
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+                request.CookieContainer = cookies;
+
+                using var _ = (HttpWebResponse)await request.GetResponseAsync();
+            }
+            catch
+            {
+                // Evitar que un fallo de logout rompa el flujo.
+            }
         }
     }
 }
