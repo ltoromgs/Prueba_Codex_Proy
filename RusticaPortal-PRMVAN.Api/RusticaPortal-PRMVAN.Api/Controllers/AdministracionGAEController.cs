@@ -19,16 +19,6 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
     [ApiController]
     public class AdministracionGAEController : ControllerBase
     {
-        private static readonly Dictionary<string, string> SapObjectEndpointMap = new()
-        {
-            { "18", "PurchaseInvoices" },
-            { "19", "PurchaseCreditNotes" },
-            { "20", "GoodsReceiptPO" },
-            { "22", "PurchaseOrders" },
-            { "1470000113", "InventoryGenEntries" },
-            { "1470000114", "InventoryGenExits" }
-        };
-
         private readonly IDocumentService _documentService;
         private readonly IEmpresaRuntimeService _empresaRuntime;
         private readonly IEmpresaConfigService _empresaConfigService;
@@ -217,15 +207,28 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                         var updates = objectGroup.ToList();
                         try
                         {
-                            var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
-                            var route = $"{endpoint}({objectGroup.Key.DocEntry})";
-                            var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates, prep.Token, prep.Cfg);
-                            var patchResult = await PatchServiceLayer(route, payload, prep.Token, prep.Cfg);
-
-                            if (!patchResult.ok)
+                            if (IsNumericObjectType(objectGroup.Key.ObjectType))
                             {
-                                AppendErrorResults(results, updates, patchResult.error);
-                                continue;
+                                var upsertResult = await UpsertGaeCabAndDetailForNumericObjectType(objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, updates, prep.Token, prep.Cfg);
+                                if (!upsertResult.ok)
+                                {
+                                    AppendErrorResults(results, updates, upsertResult.error);
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
+                                var route = $"{endpoint}({objectGroup.Key.DocEntry})";
+                                var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates);
+                                _logger.LogInformation("AdministracionGAE ActualizarTodo: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}, route={Route}", objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, endpoint, route);
+                                var patchResult = await PatchServiceLayer(route, payload, prep.Token, prep.Cfg);
+
+                                if (!patchResult.ok)
+                                {
+                                    AppendErrorResults(results, updates, patchResult.error);
+                                    continue;
+                                }
                             }
 
                             foreach (var line in updates)
@@ -274,10 +277,15 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             if (objectType.StartsWith("@"))
                 return objectType.Substring(1);
 
-            if (SapObjectEndpointMap.TryGetValue(objectType, out var endpoint))
-                return endpoint;
+            if (IsNumericObjectType(objectType))
+                return "MGS_CL_GAECAB";
 
             throw new Exception($"ObjectType no soportado: {objectType}");
+        }
+
+        private static bool IsNumericObjectType(string objectType)
+        {
+            return int.TryParse(objectType, out _);
         }
 
         private static void AppendErrorResults(List<AdministracionGaeUpdateResult> results, List<AdministracionGaeUpdateLine> updates, string message)
@@ -300,7 +308,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             }
         }
 
-        private async Task<string> BuildPayloadByObjectType(string objectType, List<AdministracionGaeUpdateLine> updates, string token, EmpresaConfig cfg)
+        private Task<string> BuildPayloadByObjectType(string objectType, List<AdministracionGaeUpdateLine> updates)
         {
             if (objectType == "@MGS_CL_GASCAB")
             {
@@ -326,10 +334,10 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     }).ToList()
                 };
 
-                return JsonConvert.SerializeObject(headerDetailPayload, new JsonSerializerSettings
+                return Task.FromResult(JsonConvert.SerializeObject(headerDetailPayload, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore
-                });
+                }));
             }
 
             if (objectType.StartsWith("@"))
@@ -345,31 +353,228 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     U_MGS_CL_VALIDO = updates.FirstOrDefault()?.U_MGS_CL_VALIDO
                 };
 
-                return JsonConvert.SerializeObject(headerPayload, new JsonSerializerSettings
+                return Task.FromResult(JsonConvert.SerializeObject(headerPayload, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore
-                });
+                }));
             }
 
-            var documentPayload = new
-            {
-                DocumentLines = updates.Select(line => new
-                {
-                    LineNum = int.TryParse(line.LineId, out var lineNum) ? lineNum : 0,
-                    line.U_MGS_CL_TIPGAE,
-                    line.U_MGS_CL_AUTORI,
-                    line.U_MGS_CL_TIPGAS,
-                    line.U_MGS_CL_TIPMOP,
-                    line.U_MGS_CL_IMPORT,
-                    line.U_MGS_CL_FEPRM,
-                    line.U_MGS_CL_VALIDO
-                }).ToList()
-            };
+            throw new Exception($"ObjectType no soportado para payload directo: {objectType}");
+        }
 
-            return JsonConvert.SerializeObject(documentPayload, new JsonSerializerSettings
+        private async Task<(bool ok, string error)> UpsertGaeCabAndDetailForNumericObjectType(string objectType, string docEntryOrigen, List<AdministracionGaeUpdateLine> updates, string token, EmpresaConfig cfg)
+        {
+            var endpoint = ResolveEndpoint(objectType);
+            _logger.LogInformation("AdministracionGAE ActualizarTodo Numérico: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}", objectType, docEntryOrigen, endpoint);
+
+            var existing = await FindGaeCabByDocEntryAndObjectType(docEntryOrigen, objectType, token, cfg);
+            if (!existing.ok)
+                return (false, existing.error);
+
+            var gaeCabDocEntry = existing.docEntry;
+            var wasCreated = false;
+
+            if (string.IsNullOrWhiteSpace(gaeCabDocEntry))
             {
-                NullValueHandling = NullValueHandling.Ignore
-            });
+                var first = updates.FirstOrDefault();
+                var docNumber = !string.IsNullOrWhiteSpace(first?.DocNum)
+                    ? first.DocNum
+                    : (!string.IsNullOrWhiteSpace(first?.NumAtCard) ? first.NumAtCard : docEntryOrigen);
+
+                var createPayload = JsonConvert.SerializeObject(new
+                {
+                    U_MGS_CL_DOCENT = docEntryOrigen,
+                    U_MGS_CL_OBJTYP = objectType,
+                    U_MGS_CL_DOCNUM = docNumber
+                }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+
+                var postResult = await PostServiceLayer(endpoint, createPayload, token, cfg);
+                if (!postResult.ok)
+                    return (false, postResult.error);
+
+                gaeCabDocEntry = postResult.docEntry;
+                wasCreated = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(gaeCabDocEntry))
+                return (false, "No se pudo determinar el DocEntry del UDO MGS_CL_GAECAB.");
+
+            var currentLines = await GetCurrentGaeDetLines(gaeCabDocEntry, token, cfg);
+            if (!currentLines.ok)
+                return (false, currentLines.error);
+
+            var lineMap = currentLines.lines;
+            foreach (var line in updates)
+            {
+                _logger.LogInformation("AdministracionGAE Detalle Numérico: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, LineId={LineId}", objectType, docEntryOrigen, line.LineId);
+
+                if (!int.TryParse(line.LineId, out var lineNum))
+                    lineNum = 0;
+
+                var detail = currentLines.collection
+                    .OfType<JObject>()
+                    .FirstOrDefault(x => string.Equals(x["U_MGS_CL_LINENUM"]?.ToString(), line.LineId, StringComparison.Ordinal));
+
+                if (detail == null)
+                {
+                    detail = new JObject
+                    {
+                        ["U_MGS_CL_LINENUM"] = line.LineId
+                    };
+                    currentLines.collection.Add(detail);
+                }
+
+                if (lineMap.TryGetValue(lineNum, out var existingLineId))
+                    detail["LineId"] = existingLineId;
+
+                detail["U_MGS_CL_TIPGAE"] = ToNullableToken(line.U_MGS_CL_TIPGAE);
+                detail["U_MGS_CL_AUTORI"] = ToNullableToken(line.U_MGS_CL_AUTORI);
+                detail["U_MGS_CL_TIPGAS"] = ToNullableToken(line.U_MGS_CL_TIPGAS);
+                detail["U_MGS_CL_TIPMOP"] = ToNullableToken(line.U_MGS_CL_TIPMOP);
+                detail["U_MGS_CL_IMPORT"] = line.U_MGS_CL_IMPORT.HasValue ? JToken.FromObject(line.U_MGS_CL_IMPORT.Value) : null;
+                detail["U_MGS_CL_FEPRM"] = ToNullableToken(line.U_MGS_CL_FEPRM);
+                detail["U_MGS_CL_VALIDO"] = ToNullableToken(line.U_MGS_CL_VALIDO);
+                detail["U_MGS_CL_SOLICI"] = ToNullableToken(line.U_MGS_CL_SOLICI);
+            }
+
+            var updatePayload = JsonConvert.SerializeObject(new JObject
+            {
+                ["MGS_CL_GAEDETCollection"] = currentLines.collection
+            }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+
+            _logger.LogInformation("AdministracionGAE GAECAB upsert: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}, Accion={Accion}, DocEntryUdo={DocEntryUdo}", objectType, docEntryOrigen, endpoint, wasCreated ? "Creado" : "Actualizado", gaeCabDocEntry);
+            return await PatchServiceLayer($"{endpoint}({gaeCabDocEntry})", updatePayload, token, cfg);
+        }
+
+        private static JToken ToNullableToken(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : JToken.FromObject(value);
+        }
+
+        private static async Task<(bool ok, string docEntry, string error)> FindGaeCabByDocEntryAndObjectType(string docEntryOrigen, string objectType, string token, EmpresaConfig cfg)
+        {
+            var filter = Uri.EscapeDataString($"U_MGS_CL_DOCENT eq '{docEntryOrigen}' and U_MGS_CL_OBJTYP eq '{objectType}'");
+            var route = $"MGS_CL_GAECAB?$select=DocEntry&$filter={filter}";
+            var getResult = await GetServiceLayer(route, token, cfg);
+            if (!getResult.ok)
+                return (false, string.Empty, getResult.error);
+
+            var value = getResult.body?["value"] as JArray;
+            var docEntry = value?.FirstOrDefault()?["DocEntry"]?.ToString() ?? string.Empty;
+            return (true, docEntry, string.Empty);
+        }
+
+        private static async Task<(bool ok, Dictionary<int, int> lines, JArray collection, string error)> GetCurrentGaeDetLines(string gaeCabDocEntry, string token, EmpresaConfig cfg)
+        {
+            var route = $"MGS_CL_GAECAB({gaeCabDocEntry})?$select=DocEntry&$expand=MGS_CL_GAEDETCollection";
+            var getResult = await GetServiceLayer(route, token, cfg);
+            if (!getResult.ok)
+                return (false, new Dictionary<int, int>(), new JArray(), getResult.error);
+
+            var collection = getResult.body?["MGS_CL_GAEDETCollection"] as JArray ?? new JArray();
+            var map = new Dictionary<int, int>();
+            foreach (var tokenLine in collection.OfType<JObject>())
+            {
+                var keyStr = tokenLine["U_MGS_CL_LINENUM"]?.ToString();
+                if (!int.TryParse(keyStr, out var key))
+                    continue;
+
+                var lineId = tokenLine["LineId"]?.Value<int>() ?? 0;
+                map[key] = lineId;
+            }
+
+            return (true, map, collection, string.Empty);
+        }
+
+        private static async Task<(bool ok, JObject body, string error)> GetServiceLayer(string route, string token, EmpresaConfig cfg)
+        {
+            try
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
+
+                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
+                if (!baseUrl.EndsWith("/"))
+                    baseUrl += "/";
+
+                var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
+                request.ContentType = "application/json";
+                request.Method = "GET";
+
+                var cookies = new CookieContainer();
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+                request.CookieContainer = cookies;
+
+                using var response = (HttpWebResponse)await request.GetResponseAsync();
+                using var sr = new StreamReader(response.GetResponseStream());
+                var raw = await sr.ReadToEndAsync();
+                var json = string.IsNullOrWhiteSpace(raw) ? new JObject() : JObject.Parse(raw);
+                return (true, json, string.Empty);
+            }
+            catch (WebException ex)
+            {
+                var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
+                var responseBody = string.Empty;
+                if (ex.Response != null)
+                {
+                    using var sr = new StreamReader(ex.Response.GetResponseStream());
+                    responseBody = await sr.ReadToEndAsync();
+                }
+
+                return (false, null, $"StatusCode: {statusCode}. {responseBody}");
+            }
+            catch (Exception ex)
+            {
+                return (false, null, ex.Message);
+            }
+        }
+
+        private static async Task<(bool ok, string docEntry, string error)> PostServiceLayer(string route, string payload, string token, EmpresaConfig cfg)
+        {
+            try
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
+
+                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
+                if (!baseUrl.EndsWith("/"))
+                    baseUrl += "/";
+
+                var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
+                request.ContentType = "application/json";
+                request.Method = "POST";
+
+                var cookies = new CookieContainer();
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+                request.CookieContainer = cookies;
+
+                using (var sw = new StreamWriter(request.GetRequestStream()))
+                {
+                    sw.Write(payload);
+                }
+
+                using var response = (HttpWebResponse)await request.GetResponseAsync();
+                using var sr = new StreamReader(response.GetResponseStream());
+                var raw = await sr.ReadToEndAsync();
+                var json = string.IsNullOrWhiteSpace(raw) ? new JObject() : JObject.Parse(raw);
+                return (response.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK, json["DocEntry"]?.ToString() ?? string.Empty, string.Empty);
+            }
+            catch (WebException ex)
+            {
+                var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
+                var responseBody = string.Empty;
+                if (ex.Response != null)
+                {
+                    using var sr = new StreamReader(ex.Response.GetResponseStream());
+                    responseBody = await sr.ReadToEndAsync();
+                }
+
+                return (false, string.Empty, $"StatusCode: {statusCode}. {responseBody}");
+            }
+            catch (Exception ex)
+            {
+                return (false, string.Empty, ex.Message);
+            }
         }
 
         private static async Task<(bool ok, string error)> PatchServiceLayer(string route, string payload, string token, EmpresaConfig cfg)

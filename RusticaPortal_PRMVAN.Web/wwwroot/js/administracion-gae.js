@@ -451,12 +451,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     objectType: row.objectType,
                     docEntry: row.docEntry,
                     lineId: row.lineId,
+                    docNum: row.docNum || '',
+                    numAtCard: row.numAtCard || '',
                     U_MGS_CL_TIPGAE: row.U_MGS_CL_TIPGAE,
                     U_MGS_CL_AUTORI: row.U_MGS_CL_AUTORI,
                     U_MGS_CL_TIPGAS: row.U_MGS_CL_TIPGAS,
                     U_MGS_CL_TIPMOP: row.U_MGS_CL_TIPMOP,
                     U_MGS_CL_IMPORT: row.U_MGS_CL_IMPORT,
                     U_MGS_CL_FEPRM: row.U_MGS_CL_FEPRM,
+                    U_MGS_CL_SOLICI: row.U_MGS_CL_SOLICI,
                     U_MGS_CL_VALIDO: row.U_MGS_CL_VALIDO
                 }))
             };
