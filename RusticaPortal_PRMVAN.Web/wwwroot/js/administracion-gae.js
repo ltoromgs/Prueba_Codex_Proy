@@ -51,7 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCambios: document.getElementById('modalCambios'),
         btnDescartar: document.getElementById('btnDescartar'),
         colEstadoHeader: document.querySelector('#tablaGae thead .col-estado'),
-        colErrorHeader: document.querySelector('#tablaGae thead .col-error')
+        colErrorHeader: document.querySelector('#tablaGae thead .col-error'),
+        tableScroll: document.getElementById('gaeTableScroll'),
+        topScroll: document.getElementById('gaeTopScroll'),
+        topScrollInner: document.getElementById('gaeTopScrollInner')
     };
 
     const connectionMessage = 'No tiene conexión. Intente nuevamente.';
@@ -230,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateRowStatus = (rowEl, row) => {
         if (!rowEl) return;
         rowEl.classList.toggle('fila-pendiente', row.pendiente);
+        rowEl.classList.toggle('fila-error', row.estado === 'Error' || Boolean(row.mensajeError));
         const estadoEl = rowEl.querySelector('.estado');
         if (estadoEl) {
             estadoEl.textContent = row.estado || '';
@@ -464,23 +468,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 }))
             };
 
-            const results = await fetchJson(api.actualizar, {
+            const response = await fetchJson(api.actualizar, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
+            const registered = Boolean(getValue(response, ['registered', 'Registered']));
+            const message = String(getValue(response, ['message', 'Message'])).trim();
+            const content = String(getValue(response, ['content', 'Content'])).trim();
+            const items = Array.isArray(getValue(response, ['items', 'Items'])) ? getValue(response, ['items', 'Items']) : [];
+
+            if (!registered) {
+                if (!items.length) {
+                    showAlert(message || content || 'Error al actualizar', 'danger');
+                    return;
+                }
+            }
+
+            const indexByKey = new Map();
+            state.rows.forEach((row, idx) => {
+                const fullKey = [row.baseDatos || '', row.objectType, row.docEntry, row.lineId].join('|');
+                const shortKey = [row.objectType, row.docEntry, row.lineId].join('|');
+                indexByKey.set(fullKey, idx);
+                if (!indexByKey.has(shortKey)) indexByKey.set(shortKey, idx);
+            });
+
             let errors = 0;
-            (results || []).forEach((result) => {
-                const idx = state.rows.findIndex((row) =>
-                    row.baseDatos === String(getValue(result, ['BaseDatos', 'baseDatos'])) &&
-                    row.objectType === String(getValue(result, ['ObjectType', 'objectType'])) &&
-                    row.docEntry === String(getValue(result, ['DocEntry', 'docEntry'])) &&
-                    row.lineId === String(getValue(result, ['LineId', 'lineId']))
-                );
-                if (idx < 0) return;
+            items.forEach((result) => {
+                const resultBase = String(getValue(result, ['BaseDatos', 'baseDatos']));
+                const resultObjectType = String(getValue(result, ['ObjectType', 'objectType']));
+                const resultDocEntry = String(getValue(result, ['DocEntry', 'docEntry']));
+                const resultLineId = String(getValue(result, ['LineId', 'lineId']));
+
+                const idx = indexByKey.get([resultBase, resultObjectType, resultDocEntry, resultLineId].join('|'))
+                    ?? indexByKey.get([resultObjectType, resultDocEntry, resultLineId].join('|'));
+
+                if (idx == null) return;
                 const row = state.rows[idx];
-                if (Boolean(getValue(result, ['Ok', 'ok']))) {
+                const ok = Boolean(getValue(result, ['Ok', 'ok']));
+
+                if (ok) {
                     clearPendiente(row);
                     row.estado = 'OK';
                     row.mensajeError = '';
@@ -493,15 +521,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateRowStatus(elements.tablaBody.querySelector(`tr[data-index="${idx}"]`), row);
             });
 
-            if (errors) {
+            if (!registered && errors === 0 && !items.length) {
+                showAlert(message || content || 'Error al actualizar', 'danger');
+                return;
+            }
+
+            if (errors > 0) {
                 setErrorColumnsVisible(true);
                 showAlert('Se encontraron errores al actualizar. Revise Estado/Mensaje.', 'danger');
-            } else {
+                return;
+            }
+
+            if (registered && items.length === 0) {
                 setErrorColumnsVisible(false);
-                showAlert('Actualización realizada correctamente. Ejecute Buscar para recargar.', 'success');
+                state.rows.forEach((row) => {
+                    row.estado = row.pendiente ? 'Pendiente' : 'OK';
+                    if (!row.pendiente) row.mensajeError = '';
+                });
+                renderRows();
+                showAlert('Actualización realizada correctamente', 'success');
                 state.page = 1;
                 await buscar();
+                return;
             }
+
+            setErrorColumnsVisible(false);
+            showAlert('Actualización realizada correctamente', 'success');
+            state.page = 1;
+            await buscar();
         } catch (error) {
             showAlert(error.message || connectionMessage, 'danger');
         } finally {
@@ -524,6 +571,38 @@ document.addEventListener('DOMContentLoaded', () => {
         a.download = 'administracion-gae.csv';
         a.click();
         URL.revokeObjectURL(url);
+    };
+
+
+    const setupHorizontalScrollSync = () => {
+        if (!elements.tableScroll || !elements.topScroll || !elements.topScrollInner) return;
+
+        let syncing = false;
+        const syncSize = () => {
+            const table = document.getElementById('tablaGae');
+            if (!table) return;
+            elements.topScrollInner.style.width = `${table.scrollWidth}px`;
+            elements.topScroll.classList.toggle('d-none', table.scrollWidth <= elements.tableScroll.clientWidth);
+        };
+
+        elements.topScroll.addEventListener('scroll', () => {
+            if (syncing) return;
+            syncing = true;
+            elements.tableScroll.scrollLeft = elements.topScroll.scrollLeft;
+            syncing = false;
+        });
+
+        elements.tableScroll.addEventListener('scroll', () => {
+            if (syncing) return;
+            syncing = true;
+            elements.topScroll.scrollLeft = elements.tableScroll.scrollLeft;
+            syncing = false;
+        });
+
+        window.addEventListener('resize', syncSize);
+        const observer = new MutationObserver(syncSize);
+        observer.observe(elements.tablaBody, { childList: true, subtree: true });
+        syncSize();
     };
 
     const loadCatalogos = async () => {
@@ -556,6 +635,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const tryFilterAction = (onConfirm, onCancel) => confirmDiscard(onConfirm, onCancel);
+
+    setupHorizontalScrollSync();
 
     elements.btnDescartar.addEventListener('click', () => {
         handlePendingResult(true);
