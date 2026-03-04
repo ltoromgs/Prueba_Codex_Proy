@@ -428,12 +428,12 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     detail["LineId"] = existingLineId;
 
                 detail["U_MGS_CL_TIPGAE"] = ToNullableToken(line.U_MGS_CL_TIPGAE);
-                detail["U_MGS_CL_AUTORI"] = ToNullableToken(line.U_MGS_CL_AUTORI);
+                detail["U_MGS_CL_AUTORI"] = ToNullableToken(line.U_MGS_CL_AUTORI?.Trim().ToUpper() == "SI" ? "Y" : (line.U_MGS_CL_AUTORI?.Trim().ToUpper() == "NO" ? "N" : line.U_MGS_CL_AUTORI));
                 detail["U_MGS_CL_TIPGAS"] = ToNullableToken(line.U_MGS_CL_TIPGAS);
                 detail["U_MGS_CL_TIPMOP"] = ToNullableToken(line.U_MGS_CL_TIPMOP);
                 detail["U_MGS_CL_IMPORT"] = line.U_MGS_CL_IMPORT.HasValue ? JToken.FromObject(line.U_MGS_CL_IMPORT.Value) : null;
                 detail["U_MGS_CL_FEPRM"] = ToNullableToken(line.U_MGS_CL_FEPRM);
-                detail["U_MGS_CL_VALIDO"] = ToNullableToken(line.U_MGS_CL_VALIDO);
+                detail["U_MGS_CL_VALIDO"] = ToNullableToken(line.U_MGS_CL_VALIDO?.Trim().ToUpper() == "SI" ? "Y" : (line.U_MGS_CL_VALIDO?.Trim().ToUpper() == "NO" ? "N" : line.U_MGS_CL_VALIDO));
                 detail["U_MGS_CL_SOLICI"] = ToNullableToken(line.U_MGS_CL_SOLICI);
             }
 
@@ -466,7 +466,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
         private static async Task<(bool ok, Dictionary<int, int> lines, JArray collection, string error)> GetCurrentGaeDetLines(string gaeCabDocEntry, string token, EmpresaConfig cfg)
         {
-            var route = $"MGS_CL_GAECAB({gaeCabDocEntry})?$select=DocEntry&$expand=MGS_CL_GAEDETCollection";
+            var route = $"MGS_CL_GAECAB({gaeCabDocEntry})";
             var getResult = await GetServiceLayer(route, token, cfg);
             if (!getResult.ok)
                 return (false, new Dictionary<int, int>(), new JArray(), getResult.error);
