@@ -52,12 +52,15 @@ namespace RusticaPortal_PRMVAN.Api.Entities.Dto.AdministracionGAE
         public string ObjectType { get; set; } = string.Empty;
         public string DocEntry { get; set; } = string.Empty;
         public string LineId { get; set; } = string.Empty;
+        public string DocNum { get; set; } = string.Empty;
+        public string NumAtCard { get; set; } = string.Empty;
         public string U_MGS_CL_TIPGAE { get; set; } = string.Empty;
         public string U_MGS_CL_AUTORI { get; set; } = string.Empty;
         public string U_MGS_CL_TIPGAS { get; set; } = string.Empty;
         public string U_MGS_CL_TIPMOP { get; set; } = string.Empty;
         public decimal? U_MGS_CL_IMPORT { get; set; }
         public string U_MGS_CL_FEPRM { get; set; } = string.Empty;
+        public string U_MGS_CL_SOLICI { get; set; } = string.Empty;
         public string U_MGS_CL_VALIDO { get; set; } = string.Empty;
     }
 
