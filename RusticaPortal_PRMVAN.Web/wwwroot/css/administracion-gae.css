@@ -72,3 +72,25 @@
         min-width: 320px;
     }
 }
+
+
+#administracion-gae-app .gae-top-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 14px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#administracion-gae-app .gae-top-scroll > div {
+    height: 1px;
+}
+
+#administracion-gae-app .gae-table-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 360px);
+}
+
+#administracion-gae-app .fila-error {
+    background-color: #ffe5e5;
+}

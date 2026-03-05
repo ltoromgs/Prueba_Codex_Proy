@@ -314,13 +314,13 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             {
                 var headerDetailPayload = new
                 {
-                    U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,
-                    U_MGS_CL_AUTORI = updates.FirstOrDefault()?.U_MGS_CL_AUTORI,
+                    U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,                    
                     U_MGS_CL_TIPGAS = updates.FirstOrDefault()?.U_MGS_CL_TIPGAS,
                     U_MGS_CL_TIPMOP = updates.FirstOrDefault()?.U_MGS_CL_TIPMOP,
                     U_MGS_CL_IMPORT = updates.FirstOrDefault()?.U_MGS_CL_IMPORT,
                     U_MGS_CL_FEPRM = updates.FirstOrDefault()?.U_MGS_CL_FEPRM,
                     U_MGS_CL_VALIDO = updates.FirstOrDefault()?.U_MGS_CL_VALIDO,
+                    U_MGS_CL_AUTORI = updates.FirstOrDefault()?.U_MGS_CL_AUTORI,
                     MGS_CL_GASDETCollection = updates.Select(line => new
                     {
                         LineId = int.TryParse(line.LineId, out var lineId) ? lineId : 0,

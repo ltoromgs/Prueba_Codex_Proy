@@ -160,11 +160,27 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
             var resp = await _apiService.PostAsync<ResponseInformation>(endpoint, request);
 
             if (resp == null) return StatusCode(503, new { message = "Sin conexión con el API." });
-            if (!resp.Registered || string.IsNullOrEmpty(resp.Content))
-                return Ok(new List<AdministracionGaeUpdateResult>());
 
-            var lista = JsonConvert.DeserializeObject<List<AdministracionGaeUpdateResult>>(resp.Content) ?? new List<AdministracionGaeUpdateResult>();
-            return Ok(lista);
+            List<AdministracionGaeUpdateResult> listaParsed = new();
+            if (!string.IsNullOrWhiteSpace(resp.Content))
+            {
+                try
+                {
+                    listaParsed = JsonConvert.DeserializeObject<List<AdministracionGaeUpdateResult>>(resp.Content) ?? new List<AdministracionGaeUpdateResult>();
+                }
+                catch
+                {
+                    listaParsed = new List<AdministracionGaeUpdateResult>();
+                }
+            }
+
+            return Ok(new
+            {
+                registered = resp.Registered,
+                message = resp.Message,
+                content = resp.Content,
+                items = listaParsed
+            });
         }
     }
 }
