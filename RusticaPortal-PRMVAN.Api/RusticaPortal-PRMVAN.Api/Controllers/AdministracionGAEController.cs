@@ -140,59 +140,46 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             }
         }
 
-        [HttpPost("actualizar-todo")]
+        [HttpPost("actualizar-todo")]     
         public async Task<ActionResult<ResponseInformation>> ActualizarTodo([FromQuery] string Empresa, [FromBody] AdministracionGaeUpdateRequest request)
         {
+            // 1. VALIDACIONES INICIALES
             if (request?.Items == null || request.Items.Count == 0)
             {
-                return BadRequest(new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "No se recibieron datos para actualizar.",
-                    Content = string.Empty
-                });
+                return BadRequest(new ResponseInformation { Registered = false, Message = "No se recibieron datos para actualizar." });
             }
 
-            if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.IdEmpresa)
-                || string.IsNullOrWhiteSpace(item.NombreEmpresa)
-                || string.IsNullOrWhiteSpace(item.ObjectType)
-                || string.IsNullOrWhiteSpace(item.DocEntry)))
+            if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.IdEmpresa) || string.IsNullOrWhiteSpace(item.NombreEmpresa) ||
+                                         string.IsNullOrWhiteSpace(item.ObjectType) || string.IsNullOrWhiteSpace(item.DocEntry)))
             {
-                return BadRequest(new ResponseInformation
-                {
-                    Registered = false,
-                    Message = "Existen filas sin IdEmpresa, NombreEmpresa, ObjectType o DocEntry.",
-                    Content = string.Empty
-                });
+                return BadRequest(new ResponseInformation { Registered = false, Message = "Existen filas sin IdEmpresa, NombreEmpresa, ObjectType o DocEntry." });
             }
 
             var results = new List<AdministracionGaeUpdateResult>();
+            var companyGroups = request.Items.GroupBy(x => new { x.IdEmpresa, x.NombreEmpresa }).ToList();
 
-            var companyGroups = request.Items
-                .GroupBy(x => new { x.IdEmpresa, x.NombreEmpresa })
-                .ToList();
-
+            // 2. PROCESAMIENTO POR EMPRESA
             foreach (var companyGroup in companyGroups)
             {
                 if (!int.TryParse(companyGroup.Key.IdEmpresa, out var companyId))
                 {
-                    var msg = $"No se tiene acceso/configuración para la empresa {companyGroup.Key.IdEmpresa} - {companyGroup.Key.NombreEmpresa}";
-                    AppendErrorResults(results, companyGroup.ToList(), msg);
+                    AppendErrorResults(results, companyGroup.ToList(), $"ID de empresa inválido: {companyGroup.Key.IdEmpresa}");
                     continue;
                 }
 
+                // Validar configuración de la empresa en BD local
                 var empresaConfig = _empresaConfigService.GetEmpresa(companyId);
-                if (empresaConfig == null || !string.Equals(empresaConfig.Nombre?.Trim(), companyGroup.Key.NombreEmpresa?.Trim(), StringComparison.OrdinalIgnoreCase))
+                if (empresaConfig == null)
                 {
-                    var msg = $"No se tiene acceso/configuración para la empresa {companyGroup.Key.IdEmpresa} - {companyGroup.Key.NombreEmpresa}";
-                    AppendErrorResults(results, companyGroup.ToList(), msg);
+                    AppendErrorResults(results, companyGroup.ToList(), $"No existe configuración para la empresa {companyId}");
                     continue;
                 }
 
+                // LOGIN INICIAL
                 var prep = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
                 if (!prep.Ok)
                 {
-                    AppendErrorResults(results, companyGroup.ToList(), prep.Error?.Message ?? "No fue posible iniciar sesión en Service Layer.");
+                    AppendErrorResults(results, companyGroup.ToList(), prep.Error?.Message ?? "Login inicial fallido en Service Layer");
                     continue;
                 }
 
@@ -201,85 +188,62 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
                 try
                 {
-                    var objectGroups = companyGroup
-                        .GroupBy(item => new { item.ObjectType, item.DocEntry })
-                        .ToList();
+                    // Agrupar por Objeto + DocEntry para procesar como un solo payload (Cabecera + Líneas)
+                    var objectGroups = companyGroup.GroupBy(x => new { x.ObjectType, x.DocEntry });
 
                     foreach (var objectGroup in objectGroups)
                     {
                         var updates = objectGroup.ToList();
-                        try
+                        bool success = false;
+                        string lastError = string.Empty;
+
+                        // BUCLE DE REINTENTO (Máximo 2 intentos)
+                        for (int attempt = 1; attempt <= 2; attempt++)
                         {
-                            var success = false;
-                            var lastError = string.Empty;
-
-                            for (var attempt = 0; attempt < 2; attempt++)
+                            // A) PING LIGERO (Metadata)
+                            var ping = await EnsureServiceLayerSession(currentToken, currentCfg);
+                            if (!ping.ok && IsInvalidSessionError(ping.error))
                             {
-                                var sessionCheck = await EnsureServiceLayerSession(currentToken, currentCfg);
-                                if (!sessionCheck.ok)
+                                if (attempt == 1)
                                 {
-                                    if (attempt == 0 && IsInvalidSessionError(sessionCheck.error))
-                                    {
-                                        var relogin = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
-                                        if (!relogin.Ok)
-                                        {
-                                            lastError = "Invalid session (relogin failed)";
-                                            break;
-                                        }
-
-                                        currentCfg = relogin.Cfg;
-                                        currentToken = relogin.Token;
-                                        continue;
-                                    }
-
-                                    lastError = IsInvalidSessionError(sessionCheck.error) ? "Invalid session (relogin failed)" : sessionCheck.error;
-                                    break;
-                                }
-
-                                (bool ok, string error) operationResult;
-                                if (IsNumericObjectType(objectGroup.Key.ObjectType))
-                                {
-                                    operationResult = await UpsertGaeCabAndDetailForNumericObjectType(objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, updates, currentToken, currentCfg);
-                                }
-                                else
-                                {
-                                    var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
-                                    var route = $"{endpoint}({objectGroup.Key.DocEntry})";
-                                    var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates);
-                                    _logger.LogInformation("AdministracionGAE ActualizarTodo: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}, route={Route}", objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, endpoint, route);
-                                    operationResult = await PatchServiceLayer(route, payload, currentToken, currentCfg);
-                                }
-
-                                if (operationResult.ok)
-                                {
-                                    success = true;
-                                    break;
-                                }
-
-                                if (attempt == 0 && IsInvalidSessionError(operationResult.error))
-                                {
+                                    _logger.LogWarning("Empresa {ID}: Sesión expirada en PING. Reintentando login...", companyId);
                                     var relogin = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
-                                    if (!relogin.Ok)
-                                    {
-                                        lastError = "Invalid session (relogin failed)";
-                                        break;
-                                    }
-
-                                    currentCfg = relogin.Cfg;
-                                    currentToken = relogin.Token;
-                                    continue;
+                                    if (relogin.Ok) { currentToken = relogin.Token; continue; }
                                 }
-
-                                lastError = IsInvalidSessionError(operationResult.error) ? "Invalid session (relogin failed)" : operationResult.error;
+                                lastError = "Invalid session (relogin failed)";
                                 break;
                             }
 
-                            if (!success)
+                            // B) EJECUTAR OPERACIÓN (PATCH O UPSERT NUMÉRICO)
+                            (bool ok, string error) opRes;
+                            if (IsNumericObjectType(objectGroup.Key.ObjectType))
                             {
-                                AppendErrorResults(results, updates, string.IsNullOrWhiteSpace(lastError) ? "Error al actualizar." : lastError);
-                                continue;
+                                opRes = await UpsertGaeCabAndDetailForNumericObjectType(objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, updates, currentToken, currentCfg);
+                            }
+                            else
+                            {
+                                var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
+                                var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates);
+                                opRes = await PatchServiceLayer($"{endpoint}({objectGroup.Key.DocEntry})", payload, currentToken, currentCfg);
                             }
 
+                            if (opRes.ok)
+                            {
+                                success = true;
+                                break;
+                            }
+                            else if (attempt == 1 && IsInvalidSessionError(opRes.error))
+                            {
+                                _logger.LogWarning("Empresa {ID}: 401 en Operación. Reintentando login...", companyId);
+                                var relogin = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
+                                if (relogin.Ok) { currentToken = relogin.Token; continue; }
+                            }
+                            lastError = opRes.error;
+                        }
+
+                        // C) REGISTRO DE RESULTADOS
+                        if (success)
+                        {
                             foreach (var line in updates)
                             {
                                 results.Add(new AdministracionGaeUpdateResult
@@ -292,28 +256,32 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                                     LineId = line.LineId,
                                     Ok = true,
                                     Estado = "OK",
-                                    Message = string.Empty,
-                                    MensajeError = string.Empty
+                                    Message = "Actualizado correctamente"
                                 });
                             }
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            AppendErrorResults(results, updates, ex.Message);
+                            var finalMsg = IsInvalidSessionError(lastError) ? "Invalid session (relogin failed)" : lastError;
+                            AppendErrorResults(results, updates, finalMsg);
                         }
                     }
                 }
                 finally
                 {
-                    await LogoutServiceLayer(currentCfg, currentToken);
+                    // SIEMPRE CERRAR SESIÓN POR EMPRESA 
+                    //no es recomendable ya que se puede reutizar
+                    //await LogoutServiceLayer(currentCfg, currentToken);
+                    _logger.LogInformation("Fin del procesamiento para empresa {ID}. Sesión mantenida en caché.", companyId);
                 }
             }
 
-            var allOk = results.All(x => x.Ok);
+            // 3. RESPUESTA FINAL
+            var totalOk = results.All(x => x.Ok);
             return Ok(new ResponseInformation
             {
-                Registered = allOk,
-                Message = allOk ? "Actualización realizada correctamente" : "Se encontraron errores al actualizar.",
+                Registered = totalOk,
+                Message = totalOk ? "Actualización realizada correctamente" : "Se encontraron errores en algunas filas.",
                 Content = JsonConvert.SerializeObject(results)
             });
         }
@@ -363,7 +331,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
             {
                 var headerDetailPayload = new
                 {
-                    U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,                    
+                    U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,
                     U_MGS_CL_TIPGAS = updates.FirstOrDefault()?.U_MGS_CL_TIPGAS,
                     U_MGS_CL_TIPMOP = updates.FirstOrDefault()?.U_MGS_CL_TIPMOP,
                     U_MGS_CL_IMPORT = updates.FirstOrDefault()?.U_MGS_CL_IMPORT,
@@ -505,19 +473,22 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
         private static bool IsInvalidSessionError(string error)
         {
-            if (string.IsNullOrWhiteSpace(error)) return false;
-            var value = error.Trim();
-            return value.Contains("Invalid session", StringComparison.OrdinalIgnoreCase)
-                || value.Contains("\"code\":301", StringComparison.OrdinalIgnoreCase)
-                || value.Contains("StatusCode: 401", StringComparison.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(error)) return false;
+            // Service Layer a veces devuelve JSON con "code": 301 o HTTP 401
+            return error.Contains("401") ||
+                   error.Contains("Invalid session", StringComparison.OrdinalIgnoreCase) ||
+                   error.Contains("\"code\":301");
         }
 
         private static async Task<(bool ok, string error)> EnsureServiceLayerSession(string token, EmpresaConfig cfg)
         {
-            var ping = await GetServiceLayer("$metadata", token, cfg);
-            return ping.ok ? (true, string.Empty) : (false, ping.error);
-        }
+            // Llamamos al metadata
+            var res = await GetServiceLayer("$metadata", token, cfg);
 
+            // Si res.ok es true, no nos importa si el body es un XML o un JObject ficticio,
+            // significa que el Service Layer aceptó nuestra cookie de sesión.
+            return (res.ok, res.error);
+        }
         private static JToken ToNullableToken(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : JToken.FromObject(value);
@@ -557,168 +528,306 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
             return (true, map, collection, string.Empty);
         }
-
         private static async Task<(bool ok, JObject body, string error)> GetServiceLayer(string route, string token, EmpresaConfig cfg)
         {
             try
             {
+                // 1. Configuración de Seguridad
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
 
-                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
-                if (!baseUrl.EndsWith("/"))
-                    baseUrl += "/";
 
-                var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
-                request.ContentType = "application/json";
+                // 2. Construcción de URL
+                var baseUrl = cfg.ServiceLayer.sl_route.Trim();
+                if (!baseUrl.EndsWith("/")) baseUrl += "/";
+                var fullUrl = baseUrl + route;
+
+                var request = (HttpWebRequest)WebRequest.Create(fullUrl);
                 request.Method = "GET";
+                request.ContentType = "application/json";
+                request.Timeout = 30000; // 30 segundos
 
+                // 3. Configuración de Cookies (Aislamiento por Host)
+                Uri uri = new Uri(baseUrl);
                 var cookies = new CookieContainer();
-                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+                // Importante: Domain debe ser el Host (IP o Nombre del servidor)
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = uri.Host });
                 request.CookieContainer = cookies;
 
-                using var response = (HttpWebResponse)await request.GetResponseAsync();
-                using var sr = new StreamReader(response.GetResponseStream());
-                var raw = await sr.ReadToEndAsync();
-                var json = string.IsNullOrWhiteSpace(raw) ? new JObject() : JObject.Parse(raw);
-                return (true, json, string.Empty);
+                // 4. Ejecución y Lectura de Respuesta
+                using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    var result = await sr.ReadToEndAsync();
+
+                    // --- LÓGICA DE FILTRADO DE CONTENIDO ---
+
+                    // A. CONTROL DE PING (METADATA): Si responde XML, la sesión está VIVA.
+                    // Evitamos JObject.Parse porque el XML empieza con '<' y daría error.
+                    if (result.Trim().StartsWith("<?xml") || result.Contains("edmx:Edmx"))
+                    {
+                        // Devolvemos un objeto ficticio pero con ok = true
+                        return (true, new JObject { ["ping"] = "pong", ["type"] = "xml" }, string.Empty);
+                    }
+
+                    // B. CONTROL DE JSON: Si la respuesta es un JSON válido (empieza con '{')
+                    if (!string.IsNullOrWhiteSpace(result) && result.Trim().StartsWith("{"))
+                    {
+                        return (true, JObject.Parse(result), string.Empty);
+                    }
+
+                    // C. CASO RESPUESTA EXITOSA PERO VACÍA (204 No Content o similar)
+                    return (true, new JObject(), string.Empty);
+                }
             }
             catch (WebException ex)
             {
+                // Capturamos errores de HTTP (401 Unauthorized, 404 Not Found, etc.)
                 var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
-                var responseBody = string.Empty;
+                string resp = "";
                 if (ex.Response != null)
                 {
-                    using var sr = new StreamReader(ex.Response.GetResponseStream());
-                    responseBody = await sr.ReadToEndAsync();
+                    using (var s = new StreamReader(ex.Response.GetResponseStream()))
+                    {
+                        resp = await s.ReadToEndAsync();
+                    }
                 }
 
-                return (false, null, $"StatusCode: {statusCode}. {responseBody}");
+                // Si es 401, el mensaje dirá Unauthorized y activará tu lógica de reintento
+                return (false, null, $"StatusCode: {statusCode}. {resp}");
             }
             catch (Exception ex)
             {
-                return (false, null, ex.Message);
+                // Errores genéricos de conexión o código
+                return (false, null, $"Error inesperado: {ex.Message}");
             }
         }
+        //private static async Task<(bool ok, JObject body, string error)> GetServiceLayer(string route, string token, EmpresaConfig cfg)
+        //{
+        //    try
+        //    {
+
+        //        var baseUrl = cfg.ServiceLayer.sl_route.Trim();
+
+        //        ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+
+        //        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
+
+        //        var httpWebGetRequest = (HttpWebRequest)WebRequest.Create(baseUrl + route);
+        //        httpWebGetRequest.ContentType = "application/json";
+        //        httpWebGetRequest.Method = "GET";
+        //        CookieContainer cookies = new CookieContainer();
+        //        cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+        //        //cookies.Add(new Cookie("ROUTEID", ".node1") { Domain = _configuration["ServiceLayer:ip_value"].ToString() });
+        //        httpWebGetRequest.CookieContainer = cookies;
+
+        //       using (var streamReader = new StreamReader(httpWebGetRequest.GetResponse().GetResponseStream()))
+        //        {
+        //            string result = await streamReader.ReadToEndAsync();
+
+        //            // 1. CONTROL DE PING (METADATA)
+        //            // Si la respuesta es XML de SAP, no intentamos parsear a JSON
+        //            if (result.Trim().StartsWith("<?xml") || result.Contains("edmx:Edmx"))
+        //            {
+        //                // Devolvemos un JObject ficticio para no romper la firma del método
+        //                // Lo importante es que ok = true
+        //                return (true, new JObject { ["ping"] = "pong", ["type"] = "xml" }, string.Empty);
+        //            }
+
+        //            // 2. CONTROL DE JSON (CONSULTAS NORMALES)
+        //            if (!string.IsNullOrWhiteSpace(result) && result.Trim().StartsWith("{"))
+        //            {
+        //                return (true, JObject.Parse(result), string.Empty);
+        //            }
+
+        //            // 3. CASO RESPUESTA VACÍA
+        //            return (true, new JObject(), string.Empty);
+
+        //        }               
+        //    }
+        //    catch (WebException ex)
+        //    {
+        //        var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
+        //        string resp = "";
+        //        if (ex.Response != null)
+        //        {
+        //            using var s = new StreamReader(ex.Response.GetResponseStream());
+        //            resp = await s.ReadToEndAsync();
+        //        }
+        //        return (false, null, $"StatusCode: {statusCode}. {resp}");
+        //    }
+        //    catch (Exception ex) { return (false, null, ex.Message); }
+        //}
+        //private static async Task<(bool ok, JObject body, string error)> GetServiceLayer(string route, string token, EmpresaConfig cfg)
+        //        {
+        //            try
+        //            {
+        //                // 1. Configuración de Seguridad
+        //                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+        //                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+
+        //                var baseUrl = cfg.ServiceLayer.sl_route.Trim();
+        //                if (!baseUrl.EndsWith("/")) baseUrl += "/";
+
+        //                var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
+        //                request.Method = "GET";
+        //                request.ContentType = "application/json";
+
+        //                // 2. EXTRACCIÓN DEL HOST (Crucial para que la cookie funcione)
+        //                // Si sl_route es "https://192.168.1.1:50000/b1s/v1/", extraemos "192.168.1.1"
+        //                Uri uri = new Uri(baseUrl);
+        //                string host = uri.Host;
+
+        //                var cookies = new CookieContainer();
+        //                cookies.Add(new Cookie("B1SESSION", token) { Domain = host });
+        //                request.CookieContainer = cookies;
+
+        //                using var response = (HttpWebResponse)await request.GetResponseAsync();
+        //                using var sr = new StreamReader(response.GetResponseStream());
+        //                var raw = await sr.ReadToEndAsync();
+        //                return (true, string.IsNullOrWhiteSpace(raw) ? new JObject() : JObject.Parse(raw), string.Empty);
+        //            }
+        //            catch (WebException ex)
+        //            {
+        //                var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
+        //                string resp = "";
+        //                if (ex.Response != null)
+        //                {
+        //                    using var s = new StreamReader(ex.Response.GetResponseStream());
+        //                    resp = await s.ReadToEndAsync();
+        //                }
+        //                return (false, null, $"StatusCode: {statusCode}. {resp}");
+        //            }
+        //            catch (Exception ex) { return (false, null, ex.Message); }
+        //        }
 
         private static async Task<(bool ok, string docEntry, string error)> PostServiceLayer(string route, string payload, string token, EmpresaConfig cfg)
         {
             try
             {
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
 
-                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
-                if (!baseUrl.EndsWith("/"))
-                    baseUrl += "/";
+                var baseUrl = cfg.ServiceLayer.sl_route.Trim();
+                if (!baseUrl.EndsWith("/")) baseUrl += "/";
 
                 var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
-                request.ContentType = "application/json";
                 request.Method = "POST";
+                request.ContentType = "application/json";
 
+                Uri uri = new Uri(baseUrl);
                 var cookies = new CookieContainer();
-                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = uri.Host });
                 request.CookieContainer = cookies;
 
                 using (var sw = new StreamWriter(request.GetRequestStream()))
                 {
-                    sw.Write(payload);
+                    await sw.WriteAsync(payload);
                 }
 
                 using var response = (HttpWebResponse)await request.GetResponseAsync();
                 using var sr = new StreamReader(response.GetResponseStream());
                 var raw = await sr.ReadToEndAsync();
-                var json = string.IsNullOrWhiteSpace(raw) ? new JObject() : JObject.Parse(raw);
-                return (response.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK, json["DocEntry"]?.ToString() ?? string.Empty, string.Empty);
+                var json = JObject.Parse(raw);
+
+                return (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.OK,
+                        json["DocEntry"]?.ToString() ?? string.Empty,
+                        string.Empty);
             }
             catch (WebException ex)
             {
                 var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
-                var responseBody = string.Empty;
+                string resp = "";
                 if (ex.Response != null)
                 {
-                    using var sr = new StreamReader(ex.Response.GetResponseStream());
-                    responseBody = await sr.ReadToEndAsync();
+                    using var s = new StreamReader(ex.Response.GetResponseStream());
+                    resp = await s.ReadToEndAsync();
                 }
-
-                return (false, string.Empty, $"StatusCode: {statusCode}. {responseBody}");
+                return (false, string.Empty, $"StatusCode: {statusCode}. {resp}");
             }
-            catch (Exception ex)
-            {
-                return (false, string.Empty, ex.Message);
-            }
+            catch (Exception ex) { return (false, string.Empty, ex.Message); }
         }
 
         private static async Task<(bool ok, string error)> PatchServiceLayer(string route, string payload, string token, EmpresaConfig cfg)
         {
+            HttpWebRequest httpWebGetRequest = null;
             try
             {
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
 
-                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
-                if (!baseUrl.EndsWith("/"))
-                    baseUrl += "/";
+                var baseUrl = cfg.ServiceLayer.sl_route.Trim();
+                if (!baseUrl.EndsWith("/")) baseUrl += "/";
 
-                var request = (HttpWebRequest)WebRequest.Create(baseUrl + route);
-                request.ContentType = "application/json";
-                request.Method = "PATCH";
+                httpWebGetRequest = (HttpWebRequest)WebRequest.Create(baseUrl + route);
+                httpWebGetRequest.Method = "PATCH";
+                httpWebGetRequest.ContentType = "application/json";
 
+                Uri uri = new Uri(baseUrl);
                 var cookies = new CookieContainer();
-                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
-                request.CookieContainer = cookies;
+                cookies.Add(new Cookie("B1SESSION", token) { Domain = uri.Host });
+                httpWebGetRequest.CookieContainer = cookies;
 
-                using (var sw = new StreamWriter(request.GetRequestStream()))
+                using (var streamWriter = new StreamWriter(httpWebGetRequest.GetRequestStream()))
+                { await streamWriter.WriteAsync(payload); }
+
+                // 2. OBTENER RESPUESTA
+                using (var response = (HttpWebResponse)await httpWebGetRequest.GetResponseAsync())
                 {
-                    sw.Write(payload);
+                    // En PATCH, SAP devuelve 204 No Content. 
+                    // No hace falta StreamReader a menos que quieras leer errores (que van al catch)
+                    bool isOk = response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.OK;
+                    return (isOk, string.Empty);
                 }
 
-                using var response = (HttpWebResponse)await request.GetResponseAsync();
-                return (response.StatusCode is HttpStatusCode.OK or HttpStatusCode.NoContent, string.Empty);
+                //using (var sw = new StreamWriter(request.GetRequestStream()))
+                //{
+                //    await sw.WriteAsync(payload);
+                //}
+
+                //using var response = (HttpWebResponse)await request.GetResponseAsync();
+                //// El PATCH exitoso suele devolver 204 No Content o 200 OK
+                //return (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.OK, string.Empty);
             }
             catch (WebException ex)
             {
                 var statusCode = ex.Response is HttpWebResponse wr ? (int)wr.StatusCode : 0;
-                var responseBody = string.Empty;
+                string resp = "";
                 if (ex.Response != null)
                 {
-                    using var sr = new StreamReader(ex.Response.GetResponseStream());
-                    responseBody = await sr.ReadToEndAsync();
+                    using var s = new StreamReader(ex.Response.GetResponseStream());
+                    resp = await s.ReadToEndAsync();
                 }
-
-                return (false, $"StatusCode: {statusCode}. {responseBody}");
+                return (false, $"StatusCode: {statusCode}. {resp}");
             }
-            catch (Exception ex)
-            {
-                return (false, ex.Message);
-            }
+            catch (Exception ex) { return (false, ex.Message); }
         }
 
-        private static async Task LogoutServiceLayer(EmpresaConfig cfg, string token)
-        {
-            try
-            {
-                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13 | SecurityProtocolType.Tls;
+        //private async Task LogoutServiceLayer(EmpresaConfig cfg, string token)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(token)) return;
 
-                var baseUrl = (cfg.ServiceLayer.sl_route ?? string.Empty).Trim();
-                if (!baseUrl.EndsWith("/"))
-                    baseUrl += "/";
+        //        // 1. ELIMINAR DEL CACHÉ LOCAL INMEDIATAMENTE
+        //        // Generamos la misma llave que usa el LoginService
+        //        var cacheKey = $"sl_session_empresa_{cfg.Id}";
+        //        _cache.Remove(cacheKey);
 
-                var request = (HttpWebRequest)WebRequest.Create(baseUrl + "Logout");
-                request.ContentType = "application/json";
-                request.Method = "POST";
+        //        // 2. LOGOUT EN SAP
+        //        var baseUrl = cfg.ServiceLayer.sl_route.Trim();
+        //        if (!baseUrl.EndsWith("/")) baseUrl += "/";
+        //        var request = (HttpWebRequest)WebRequest.Create(baseUrl + "Logout");
+        //        request.Method = "POST";
 
-                var cookies = new CookieContainer();
-                cookies.Add(new Cookie("B1SESSION", token) { Domain = cfg.ServiceLayer.sl_value });
-                request.CookieContainer = cookies;
+        //        Uri uri = new Uri(baseUrl);
+        //        var cookies = new CookieContainer();
+        //        cookies.Add(new Cookie("B1SESSION", token) { Domain = uri.Host });
+        //        request.CookieContainer = cookies;
 
-                using var _ = (HttpWebResponse)await request.GetResponseAsync();
-            }
-            catch
-            {
-                // Evitar que un fallo de logout rompa el flujo.
-            }
-        }
+        //        using var response = (HttpWebResponse)await request.GetResponseAsync();
+        //    }
+        //    catch { /* Silencioso */ }
+        //}
     }
 }
