@@ -70,12 +70,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatDateDisplay = (value) => {
         const raw = String(value ?? '').trim();
         if (!raw) return '';
-        const datePart = raw.split('T')[0];
-        const parts = datePart.split('-');
-        if (parts.length === 3) {
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        const onlyDate = raw
+            .replace(/\s+\d{1,2}:\d{2}:\d{2}(?:\s*[ap]\.?m\.?)?/i, '')
+            .replace(/\s+\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?/i, '')
+            .trim();
+
+        const isoCandidate = onlyDate.split('T')[0];
+        if (/^\d{4}-\d{2}-\d{2}$/.test(isoCandidate)) {
+            const [yyyy, mm, dd] = isoCandidate.split('-');
+            return `${dd}/${mm}/${yyyy}`;
         }
-        return datePart;
+
+        const slashDate = onlyDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+        if (slashDate) {
+            const dd = slashDate[1].padStart(2, '0');
+            const mm = slashDate[2].padStart(2, '0');
+            const yyyy = slashDate[3].length === 2 ? `20${slashDate[3]}` : slashDate[3];
+            return `${dd}/${mm}/${yyyy}`;
+        }
+
+        return onlyDate;
     };
 
     const normalizeDateInput = (value) => String(value ?? '').split('T')[0];
@@ -252,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateRowStatus = (rowEl, row) => {
         if (!rowEl) return;
         rowEl.classList.toggle('fila-pendiente', row.pendiente);
+        rowEl.classList.toggle('fila-modificada', row.pendiente);
         rowEl.classList.toggle('fila-error', row.estado === 'Error' || Boolean(row.mensajeError));
         rowEl.classList.toggle('fila-exito', row.estado === 'OK' && !row.pendiente && !row.mensajeError);
         rowEl.classList.toggle('fila-editando', Boolean(row.editando));
@@ -280,13 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             tr.dataset.index = String(index);
             tr.innerHTML = `
-                <td><input type="checkbox" class="form-check-input" data-field="seleccionado" ${row.seleccionado ? 'checked' : ''}></td>
+                <td class="sticky-col"><input type="checkbox" class="form-check-input" data-field="seleccionado" ${row.seleccionado ? 'checked' : ''}></td>
+                <td class="sticky-col-2">${row.tienda}</td>
                 <td>${row.docEntry}</td>
                 <td>${row.lineId}</td>
                 <td>${formatDateDisplay(row.fecFiltro)}</td>
                 <td>${row.numAtCard}</td>
                 <td>${row.concepto}</td>
-                <td>${row.tienda}</td>
                 <td>${renderSelectInline('U_MGS_CL_TIPGAE', row.U_MGS_CL_TIPGAE, state.tiposGae)}</td>
                 <td><input type="checkbox" class="form-check-input" data-field="U_MGS_CL_AUTORI" ${row.U_MGS_CL_AUTORI === 'Y' ? 'checked' : ''}></td>
                 <td>${renderSelectInline('U_MGS_CL_TIPGAS', row.U_MGS_CL_TIPGAS, state.tiposGasto)}</td>
@@ -584,8 +599,43 @@ document.addEventListener('DOMContentLoaded', () => {
             showAlert('No hay datos para exportar.', 'warning');
             return;
         }
-        const headers = ['Código interno', 'Línea', 'Fecha', 'N° Factura', 'Concepto', 'Tienda', 'GAE', 'Autorizado', 'Tipo de gasto', 'Motivo de gasto', 'Importe', 'Fecha PRM', 'Solicitado por', 'No válido', 'Estado', 'Mensaje'];
-        const rows = state.rows.map((row) => [row.docEntry, row.lineId, row.fecFiltro, row.numAtCard, row.concepto, row.tienda, row.U_MGS_CL_TIPGAE, row.U_MGS_CL_AUTORI, row.U_MGS_CL_TIPGAS, row.U_MGS_CL_TIPMOP, row.U_MGS_CL_IMPORT, row.U_MGS_CL_FEPRM, row.U_MGS_CL_SOLICI, row.U_MGS_CL_VALIDO, row.estado, row.mensajeError]);
+
+        const getSelectDescription = (rowEl, field, fallbackValue = '') => {
+            const select = rowEl?.querySelector(`select[data-field="${field}"]`);
+            if (!select) return fallbackValue;
+            const selectedOption = select.options[select.selectedIndex];
+            return selectedOption ? selectedOption.textContent.trim() : fallbackValue;
+        };
+
+        const getYnDescription = (value) => {
+            const normalized = normalizeYnValue(value);
+            if (normalized === 'Y') return 'Sí';
+            if (normalized === 'N') return 'No';
+            return '';
+        };
+
+        const headers = ['Tienda', 'Código interno', 'Línea', 'Fecha', 'N° Factura', 'Concepto', 'GAE', 'Autorizado', 'Tipo de gasto', 'Motivo de gasto', 'Importe', 'Fecha PRM', 'Solicitado por', 'No válido', 'Estado', 'Mensaje'];
+        const rows = state.rows.map((row, index) => {
+            const rowEl = elements.tablaBody.querySelector(`tr[data-index="${index}"]`);
+            return [
+                row.tienda,
+                row.docEntry,
+                row.lineId,
+                formatDateDisplay(row.fecFiltro),
+                row.numAtCard,
+                row.concepto,
+                getSelectDescription(rowEl, 'U_MGS_CL_TIPGAE', row.U_MGS_CL_TIPGAE),
+                getYnDescription(row.U_MGS_CL_AUTORI),
+                getSelectDescription(rowEl, 'U_MGS_CL_TIPGAS', row.U_MGS_CL_TIPGAS),
+                getSelectDescription(rowEl, 'U_MGS_CL_TIPMOP', row.U_MGS_CL_TIPMOP),
+                row.U_MGS_CL_IMPORT,
+                row.U_MGS_CL_FEPRM,
+                row.U_MGS_CL_SOLICI,
+                getYnDescription(row.U_MGS_CL_VALIDO),
+                row.estado,
+                row.mensajeError
+            ];
+        });
         const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
         const blob = new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
