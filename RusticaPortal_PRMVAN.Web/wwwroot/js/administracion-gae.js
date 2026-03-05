@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         colEstadoHeader: document.querySelector('#tablaGae thead .col-estado'),
         colErrorHeader: document.querySelector('#tablaGae thead .col-error'),
         tableScroll: document.getElementById('gaeTableScroll'),
-        topScroll: document.getElementById('gaeTopScroll'),
-        topScrollInner: document.getElementById('gaeTopScrollInner')
+        stickyScroll: document.getElementById('gaeStickyScrollbar'),
+        stickyScrollInner: document.getElementById('gaeStickyScrollbarInner')
     };
 
     const connectionMessage = 'No tiene conexión. Intente nuevamente.';
@@ -65,6 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return obj[key];
             }
         }
+        return '';
+    };
+
+
+    const normalizeYnValue = (value) => {
+        const normalized = String(value ?? '').trim().toUpperCase();
+        if (normalized === 'Y' || normalized === 'SI') return 'Y';
+        if (normalized === 'N' || normalized === 'NO') return 'N';
         return '';
     };
 
@@ -267,13 +275,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${row.concepto}</td>
                 <td>${row.tienda}</td>
                 <td>${renderSelectInline('U_MGS_CL_TIPGAE', row.U_MGS_CL_TIPGAE, state.tiposGae)}</td>
-                <td><input type="checkbox" class="form-check-input" data-field="U_MGS_CL_AUTORI" ${row.U_MGS_CL_AUTORI === 'SI' ? 'checked' : ''}></td>
+                <td><input type="checkbox" class="form-check-input" data-field="U_MGS_CL_AUTORI" ${row.U_MGS_CL_AUTORI === 'Y' ? 'checked' : ''}></td>
                 <td>${renderSelectInline('U_MGS_CL_TIPGAS', row.U_MGS_CL_TIPGAS, state.tiposGasto)}</td>
                 <td>${renderSelectInline('U_MGS_CL_TIPMOP', row.U_MGS_CL_TIPMOP, state.motivos)}</td>
                 <td><input type="number" step="0.01" class="form-control form-control-sm input-inline input-importe" data-field="U_MGS_CL_IMPORT" value="${row.U_MGS_CL_IMPORT}"></td>
                 <td><input type="date" class="form-control form-control-sm input-inline" data-field="U_MGS_CL_FEPRM" value="${row.U_MGS_CL_FEPRM}"></td>
                 <td>${row.U_MGS_CL_SOLICI}</td>
-                <td><input type="checkbox" class="form-check-input" data-field="U_MGS_CL_VALIDO" ${row.U_MGS_CL_VALIDO === 'SI' ? 'checked' : ''}></td>
+                <td><input type="checkbox" class="form-check-input" data-field="U_MGS_CL_VALIDO" ${row.U_MGS_CL_VALIDO === 'Y' ? 'checked' : ''}></td>
                 <td class="col-estado d-none"><span class="estado"></span></td>
                 <td class="col-error d-none"></td>
             `;
@@ -297,13 +305,13 @@ document.addEventListener('DOMContentLoaded', () => {
         concepto: String(getValue(item, ['Concepto', 'concepto'])),
         tienda: String(getValue(item, ['Tienda', 'tienda'])),
         U_MGS_CL_TIPGAE: String(getValue(item, ['U_MGS_CL_TIPGAE', 'u_MGS_CL_TIPGAE'])),
-        U_MGS_CL_AUTORI: ['SI', 'Y'].includes(String(getValue(item, ['U_MGS_CL_AUTORI', 'u_MGS_CL_AUTORI'])).toUpperCase()) ? 'SI' : 'NO',
+        U_MGS_CL_AUTORI: normalizeYnValue(getValue(item, ['U_MGS_CL_AUTORI', 'u_MGS_CL_AUTORI'])),
         U_MGS_CL_TIPGAS: String(getValue(item, ['U_MGS_CL_TIPGAS', 'u_MGS_CL_TIPGAS'])),
         U_MGS_CL_TIPMOP: String(getValue(item, ['U_MGS_CL_TIPMOP', 'u_MGS_CL_TIPMOP'])),
         U_MGS_CL_IMPORT: Number(getValue(item, ['U_MGS_CL_IMPORT', 'u_MGS_CL_IMPORT', 'importe']) || 0),
         U_MGS_CL_FEPRM: String(getValue(item, ['U_MGS_CL_FEPRM', 'u_MGS_CL_FEPRM'])).split('T')[0],
         U_MGS_CL_SOLICI: String(getValue(item, ['U_MGS_CL_SOLICI', 'u_MGS_CL_SOLICI'])),
-        U_MGS_CL_VALIDO: ['SI', 'Y'].includes(String(getValue(item, ['U_MGS_CL_VALIDO', 'u_MGS_CL_VALIDO'])).toUpperCase()) ? 'SI' : 'NO',
+        U_MGS_CL_VALIDO: normalizeYnValue(getValue(item, ['U_MGS_CL_VALIDO', 'u_MGS_CL_VALIDO'])),
         pendiente: String(getValue(item, ['Pendiente', 'pendiente'])) === 'SI',
         mensajeError: String(getValue(item, ['MensajeError', 'Message', 'message'])),
         estado: '',
@@ -458,13 +466,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     docNum: row.docNum || '',
                     numAtCard: row.numAtCard || '',
                     U_MGS_CL_TIPGAE: row.U_MGS_CL_TIPGAE,
-                    U_MGS_CL_AUTORI: row.U_MGS_CL_AUTORI,
+                    U_MGS_CL_AUTORI: normalizeYnValue(row.U_MGS_CL_AUTORI),
                     U_MGS_CL_TIPGAS: row.U_MGS_CL_TIPGAS,
                     U_MGS_CL_TIPMOP: row.U_MGS_CL_TIPMOP,
                     U_MGS_CL_IMPORT: row.U_MGS_CL_IMPORT,
                     U_MGS_CL_FEPRM: row.U_MGS_CL_FEPRM,
                     U_MGS_CL_SOLICI: row.U_MGS_CL_SOLICI,
-                    U_MGS_CL_VALIDO: row.U_MGS_CL_VALIDO
+                    U_MGS_CL_VALIDO: normalizeYnValue(row.U_MGS_CL_VALIDO)
                 }))
             };
 
@@ -575,27 +583,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const setupHorizontalScrollSync = () => {
-        if (!elements.tableScroll || !elements.topScroll || !elements.topScrollInner) return;
+        if (!elements.tableScroll || !elements.stickyScroll || !elements.stickyScrollInner) return;
 
         let syncing = false;
         const syncSize = () => {
             const table = document.getElementById('tablaGae');
             if (!table) return;
-            elements.topScrollInner.style.width = `${table.scrollWidth}px`;
-            elements.topScroll.classList.toggle('d-none', table.scrollWidth <= elements.tableScroll.clientWidth);
+            elements.stickyScrollInner.style.width = `${table.scrollWidth}px`;
+            elements.stickyScroll.classList.toggle('d-none', table.scrollWidth <= elements.tableScroll.clientWidth);
         };
 
-        elements.topScroll.addEventListener('scroll', () => {
+        elements.stickyScroll.addEventListener('scroll', () => {
             if (syncing) return;
             syncing = true;
-            elements.tableScroll.scrollLeft = elements.topScroll.scrollLeft;
+            elements.tableScroll.scrollLeft = elements.stickyScroll.scrollLeft;
             syncing = false;
         });
 
         elements.tableScroll.addEventListener('scroll', () => {
             if (syncing) return;
             syncing = true;
-            elements.topScroll.scrollLeft = elements.tableScroll.scrollLeft;
+            elements.stickyScroll.scrollLeft = elements.tableScroll.scrollLeft;
             syncing = false;
         });
 
@@ -781,7 +789,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        row[field] = target.type === 'checkbox' ? (target.checked ? 'SI' : 'NO') : target.value;
+        row[field] = target.type === 'checkbox'
+            ? (target.checked ? 'Y' : 'N')
+            : (field === 'U_MGS_CL_AUTORI' || field === 'U_MGS_CL_VALIDO' ? normalizeYnValue(target.value) : target.value);
         setPendiente(row);
         updateRowStatus(rowEl, row);
 
@@ -794,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cellInput = elements.tablaBody.querySelector(`tr[data-index="${index}"] [data-field="${field}"]`);
                 if (cellInput) {
                     if (cellInput.type === 'checkbox') {
-                        cellInput.checked = item[field] === 'SI';
+                        cellInput.checked = item[field] === 'Y';
                     } else {
                         cellInput.value = item[field];
                     }

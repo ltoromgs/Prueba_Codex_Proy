@@ -196,6 +196,9 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     continue;
                 }
 
+                var currentCfg = prep.Cfg;
+                var currentToken = prep.Token;
+
                 try
                 {
                     var objectGroups = companyGroup
@@ -207,28 +210,74 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                         var updates = objectGroup.ToList();
                         try
                         {
-                            if (IsNumericObjectType(objectGroup.Key.ObjectType))
-                            {
-                                var upsertResult = await UpsertGaeCabAndDetailForNumericObjectType(objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, updates, prep.Token, prep.Cfg);
-                                if (!upsertResult.ok)
-                                {
-                                    AppendErrorResults(results, updates, upsertResult.error);
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
-                                var route = $"{endpoint}({objectGroup.Key.DocEntry})";
-                                var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates);
-                                _logger.LogInformation("AdministracionGAE ActualizarTodo: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}, route={Route}", objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, endpoint, route);
-                                var patchResult = await PatchServiceLayer(route, payload, prep.Token, prep.Cfg);
+                            var success = false;
+                            var lastError = string.Empty;
 
-                                if (!patchResult.ok)
+                            for (var attempt = 0; attempt < 2; attempt++)
+                            {
+                                var sessionCheck = await EnsureServiceLayerSession(currentToken, currentCfg);
+                                if (!sessionCheck.ok)
                                 {
-                                    AppendErrorResults(results, updates, patchResult.error);
+                                    if (attempt == 0 && IsInvalidSessionError(sessionCheck.error))
+                                    {
+                                        var relogin = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
+                                        if (!relogin.Ok)
+                                        {
+                                            lastError = "Invalid session (relogin failed)";
+                                            break;
+                                        }
+
+                                        currentCfg = relogin.Cfg;
+                                        currentToken = relogin.Token;
+                                        continue;
+                                    }
+
+                                    lastError = IsInvalidSessionError(sessionCheck.error) ? "Invalid session (relogin failed)" : sessionCheck.error;
+                                    break;
+                                }
+
+                                (bool ok, string error) operationResult;
+                                if (IsNumericObjectType(objectGroup.Key.ObjectType))
+                                {
+                                    operationResult = await UpsertGaeCabAndDetailForNumericObjectType(objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, updates, currentToken, currentCfg);
+                                }
+                                else
+                                {
+                                    var endpoint = ResolveEndpoint(objectGroup.Key.ObjectType);
+                                    var route = $"{endpoint}({objectGroup.Key.DocEntry})";
+                                    var payload = await BuildPayloadByObjectType(objectGroup.Key.ObjectType, updates);
+                                    _logger.LogInformation("AdministracionGAE ActualizarTodo: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}, route={Route}", objectGroup.Key.ObjectType, objectGroup.Key.DocEntry, endpoint, route);
+                                    operationResult = await PatchServiceLayer(route, payload, currentToken, currentCfg);
+                                }
+
+                                if (operationResult.ok)
+                                {
+                                    success = true;
+                                    break;
+                                }
+
+                                if (attempt == 0 && IsInvalidSessionError(operationResult.error))
+                                {
+                                    var relogin = await _empresaRuntime.ResolveAndLoginAsync(companyGroup.Key.IdEmpresa);
+                                    if (!relogin.Ok)
+                                    {
+                                        lastError = "Invalid session (relogin failed)";
+                                        break;
+                                    }
+
+                                    currentCfg = relogin.Cfg;
+                                    currentToken = relogin.Token;
                                     continue;
                                 }
+
+                                lastError = IsInvalidSessionError(operationResult.error) ? "Invalid session (relogin failed)" : operationResult.error;
+                                break;
+                            }
+
+                            if (!success)
+                            {
+                                AppendErrorResults(results, updates, string.IsNullOrWhiteSpace(lastError) ? "Error al actualizar." : lastError);
+                                continue;
                             }
 
                             foreach (var line in updates)
@@ -256,7 +305,7 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 }
                 finally
                 {
-                    await LogoutServiceLayer(prep.Cfg, prep.Token);
+                    await LogoutServiceLayer(currentCfg, currentToken);
                 }
             }
 
@@ -319,18 +368,18 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     U_MGS_CL_TIPMOP = updates.FirstOrDefault()?.U_MGS_CL_TIPMOP,
                     U_MGS_CL_IMPORT = updates.FirstOrDefault()?.U_MGS_CL_IMPORT,
                     U_MGS_CL_FEPRM = updates.FirstOrDefault()?.U_MGS_CL_FEPRM,
-                    U_MGS_CL_VALIDO = updates.FirstOrDefault()?.U_MGS_CL_VALIDO,
-                    U_MGS_CL_AUTORI = updates.FirstOrDefault()?.U_MGS_CL_AUTORI,
+                    U_MGS_CL_VALIDO = NormalizeYnForSave(updates.FirstOrDefault()?.U_MGS_CL_VALIDO),
+                    U_MGS_CL_AUTORI = NormalizeYnForSave(updates.FirstOrDefault()?.U_MGS_CL_AUTORI),
                     MGS_CL_GASDETCollection = updates.Select(line => new
                     {
                         LineId = int.TryParse(line.LineId, out var lineId) ? lineId : 0,
                         line.U_MGS_CL_TIPGAE,
-                        line.U_MGS_CL_AUTORI,
+                        U_MGS_CL_AUTORI = NormalizeYnForSave(line.U_MGS_CL_AUTORI),
                         line.U_MGS_CL_TIPGAS,
                         line.U_MGS_CL_TIPMOP,
                         line.U_MGS_CL_IMPORT,
                         line.U_MGS_CL_FEPRM,
-                        line.U_MGS_CL_VALIDO
+                        U_MGS_CL_VALIDO = NormalizeYnForSave(line.U_MGS_CL_VALIDO)
                     }).ToList()
                 };
 
@@ -345,12 +394,12 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                 var headerPayload = new
                 {
                     U_MGS_CL_TIPGAE = updates.FirstOrDefault()?.U_MGS_CL_TIPGAE,
-                    U_MGS_CL_AUTORI = updates.FirstOrDefault()?.U_MGS_CL_AUTORI,
+                    U_MGS_CL_AUTORI = NormalizeYnForSave(updates.FirstOrDefault()?.U_MGS_CL_AUTORI),
                     U_MGS_CL_TIPGAS = updates.FirstOrDefault()?.U_MGS_CL_TIPGAS,
                     U_MGS_CL_TIPMOP = updates.FirstOrDefault()?.U_MGS_CL_TIPMOP,
                     U_MGS_CL_IMPORT = updates.FirstOrDefault()?.U_MGS_CL_IMPORT,
                     U_MGS_CL_FEPRM = updates.FirstOrDefault()?.U_MGS_CL_FEPRM,
-                    U_MGS_CL_VALIDO = updates.FirstOrDefault()?.U_MGS_CL_VALIDO
+                    U_MGS_CL_VALIDO = NormalizeYnForSave(updates.FirstOrDefault()?.U_MGS_CL_VALIDO)
                 };
 
                 return Task.FromResult(JsonConvert.SerializeObject(headerPayload, new JsonSerializerSettings
@@ -428,12 +477,12 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     detail["LineId"] = existingLineId;
 
                 detail["U_MGS_CL_TIPGAE"] = ToNullableToken(line.U_MGS_CL_TIPGAE);
-                detail["U_MGS_CL_AUTORI"] = ToNullableToken(line.U_MGS_CL_AUTORI?.Trim().ToUpper() == "SI" ? "Y" : (line.U_MGS_CL_AUTORI?.Trim().ToUpper() == "NO" ? "N" : line.U_MGS_CL_AUTORI));
+                detail["U_MGS_CL_AUTORI"] = ToNullableToken(NormalizeYnForSave(line.U_MGS_CL_AUTORI));
                 detail["U_MGS_CL_TIPGAS"] = ToNullableToken(line.U_MGS_CL_TIPGAS);
                 detail["U_MGS_CL_TIPMOP"] = ToNullableToken(line.U_MGS_CL_TIPMOP);
                 detail["U_MGS_CL_IMPORT"] = line.U_MGS_CL_IMPORT.HasValue ? JToken.FromObject(line.U_MGS_CL_IMPORT.Value) : null;
                 detail["U_MGS_CL_FEPRM"] = ToNullableToken(line.U_MGS_CL_FEPRM);
-                detail["U_MGS_CL_VALIDO"] = ToNullableToken(line.U_MGS_CL_VALIDO?.Trim().ToUpper() == "SI" ? "Y" : (line.U_MGS_CL_VALIDO?.Trim().ToUpper() == "NO" ? "N" : line.U_MGS_CL_VALIDO));
+                detail["U_MGS_CL_VALIDO"] = ToNullableToken(NormalizeYnForSave(line.U_MGS_CL_VALIDO));
                 detail["U_MGS_CL_SOLICI"] = ToNullableToken(line.U_MGS_CL_SOLICI);
             }
 
@@ -444,6 +493,29 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
 
             _logger.LogInformation("AdministracionGAE GAECAB upsert: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, endpoint={Endpoint}, Accion={Accion}, DocEntryUdo={DocEntryUdo}", objectType, docEntryOrigen, endpoint, wasCreated ? "Creado" : "Actualizado", gaeCabDocEntry);
             return await PatchServiceLayer($"{endpoint}({gaeCabDocEntry})", updatePayload, token, cfg);
+        }
+
+        private static string NormalizeYnForSave(string value)
+        {
+            var normalized = (value ?? string.Empty).Trim().ToUpperInvariant();
+            if (normalized == "Y" || normalized == "SI") return "Y";
+            if (normalized == "N" || normalized == "NO") return "N";
+            return string.Empty;
+        }
+
+        private static bool IsInvalidSessionError(string error)
+        {
+            if (string.IsNullOrWhiteSpace(error)) return false;
+            var value = error.Trim();
+            return value.Contains("Invalid session", StringComparison.OrdinalIgnoreCase)
+                || value.Contains("\"code\":301", StringComparison.OrdinalIgnoreCase)
+                || value.Contains("StatusCode: 401", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static async Task<(bool ok, string error)> EnsureServiceLayerSession(string token, EmpresaConfig cfg)
+        {
+            var ping = await GetServiceLayer("$metadata", token, cfg);
+            return ping.ok ? (true, string.Empty) : (false, ping.error);
         }
 
         private static JToken ToNullableToken(string value)
