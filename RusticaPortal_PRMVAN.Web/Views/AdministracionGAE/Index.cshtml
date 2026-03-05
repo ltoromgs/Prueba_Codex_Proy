@@ -124,11 +124,12 @@
                     </div>
                 </div>
 
-                <div id="gaeTopScroll" class="gae-top-scroll d-none">
-                    <div id="gaeTopScrollInner"></div>
-                </div>
-                <div id="gaeTableScroll" class="table-responsive gae-table-scroll">
-                    <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaGae" style="white-space:nowrap;">
+                <div class="table-scroll-wrapper">
+                    <div id="gaeStickyScrollbar" class="sticky-scrollbar d-none">
+                        <div id="gaeStickyScrollbarInner"></div>
+                    </div>
+                    <div id="gaeTableScroll" class="table-responsive gae-table-scroll table-scroll">
+                        <table class="table table-sm table-hover table-bordered mb-0 align-middle" id="tablaGae" style="white-space:nowrap;">
                         <thead class="table-light">
                             <tr>
                                 <th>Sel</th>
@@ -151,7 +152,8 @@
                             </tr>
                         </thead>
                         <tbody></tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-2 border-top">

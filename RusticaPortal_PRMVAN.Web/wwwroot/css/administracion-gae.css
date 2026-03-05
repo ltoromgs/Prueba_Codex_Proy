@@ -74,21 +74,45 @@
 }
 
 
-#administracion-gae-app .gae-top-scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 14px;
-    border-bottom: 1px solid #dee2e6;
+#administracion-gae-app .table-scroll-wrapper {
+    position: relative;
 }
 
-#administracion-gae-app .gae-top-scroll > div {
+#administracion-gae-app #tablaGae thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #ffffff;
+}
+
+#administracion-gae-app #tablaGae thead th.sticky-col-start {
+    z-index: 6;
+}
+
+#administracion-gae-app #tablaGae tbody td.sticky-col-start {
+    z-index: 2;
+}
+
+#administracion-gae-app .sticky-scrollbar {
+    position: sticky;
+    bottom: 0;
+    height: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid #dee2e6;
+    z-index: 10;
+}
+
+#administracion-gae-app .sticky-scrollbar > div {
     height: 1px;
 }
 
+#administracion-gae-app .table-scroll,
 #administracion-gae-app .gae-table-scroll {
     overflow-x: auto;
     overflow-y: auto;
-    max-height: calc(100vh - 360px);
+    max-height: calc(100vh - 300px);
 }
 
 #administracion-gae-app .fila-error {
