@@ -267,6 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rowEl) return;
         rowEl.classList.toggle('fila-pendiente', row.pendiente);
         rowEl.classList.toggle('fila-modificada', row.pendiente);
+        rowEl.classList.toggle('table-warning', row.pendiente);
         rowEl.classList.toggle('fila-error', row.estado === 'Error' || Boolean(row.mensajeError));
         rowEl.classList.toggle('fila-exito', row.estado === 'OK' && !row.pendiente && !row.mensajeError);
         rowEl.classList.toggle('fila-editando', Boolean(row.editando));
@@ -603,8 +604,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const getSelectDescription = (rowEl, field, fallbackValue = '') => {
             const select = rowEl?.querySelector(`select[data-field="${field}"]`);
             if (!select) return fallbackValue;
+            if (select.value === '') return '';
             const selectedOption = select.options[select.selectedIndex];
-            return selectedOption ? selectedOption.textContent.trim() : fallbackValue;
+            if (!selectedOption) return fallbackValue;
+            const text = selectedOption.textContent.trim();
+            return text === 'Seleccionar' ? '' : text;
         };
 
         const getYnDescription = (value) => {
