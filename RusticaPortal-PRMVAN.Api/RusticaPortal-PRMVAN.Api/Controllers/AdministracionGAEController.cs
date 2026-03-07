@@ -398,11 +398,17 @@ namespace RusticaPortal_PRMVAN.Api.Controllers
                     ? first.DocNum
                     : (!string.IsNullOrWhiteSpace(first?.NumAtCard) ? first.NumAtCard : docEntryOrigen);
 
+                _logger.LogInformation("AdministracionGAE Payload Numérico: ObjectType={ObjectType}, DocEntryOrigen={DocEntryOrigen}, DocNumVisual={DocNumVisual}, PrimerLineId={LineId}",
+                    objectType,
+                    docEntryOrigen,
+                    docNumber,
+                    first?.LineId);
+
                 var createPayload = JsonConvert.SerializeObject(new
                 {
+                    U_MGS_CL_DOCNUM = docNumber,
                     U_MGS_CL_DOCENT = docEntryOrigen,
                     U_MGS_CL_OBJTYP = objectType,
-                    U_MGS_CL_DOCNUM = docNumber
                 }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
                 var postResult = await PostServiceLayer(endpoint, createPayload, token, cfg);

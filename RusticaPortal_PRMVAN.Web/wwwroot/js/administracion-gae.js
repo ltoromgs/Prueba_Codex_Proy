@@ -52,9 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDescartar: document.getElementById('btnDescartar'),
         colEstadoHeader: document.querySelector('#tablaGae thead .col-estado'),
         colErrorHeader: document.querySelector('#tablaGae thead .col-error'),
-        tableScroll: document.getElementById('gaeTableScroll'),
-        stickyScroll: document.getElementById('gaeStickyScrollbar'),
-        stickyScrollInner: document.getElementById('gaeStickyScrollbarInner')
+        tableScroll: document.getElementById('gaeTableScroll')
     };
 
     const connectionMessage = 'No tiene conexión. Intente nuevamente.';
@@ -68,6 +66,33 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     };
 
+
+    const formatDateDisplay = (value) => {
+        const raw = String(value ?? '').trim();
+        if (!raw) return '';
+        const onlyDate = raw
+            .replace(/\s+\d{1,2}:\d{2}:\d{2}(?:\s*[ap]\.?m\.?)?/i, '')
+            .replace(/\s+\d{1,2}:\d{2}(?:\s*[ap]\.?m\.?)?/i, '')
+            .trim();
+
+        const isoCandidate = onlyDate.split('T')[0];
+        if (/^\d{4}-\d{2}-\d{2}$/.test(isoCandidate)) {
+            const [yyyy, mm, dd] = isoCandidate.split('-');
+            return `${dd}/${mm}/${yyyy}`;
+        }
+
+        const slashDate = onlyDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+        if (slashDate) {
+            const dd = slashDate[1].padStart(2, '0');
+            const mm = slashDate[2].padStart(2, '0');
+            const yyyy = slashDate[3].length === 2 ? `20${slashDate[3]}` : slashDate[3];
+            return `${dd}/${mm}/${yyyy}`;
+        }
+
+        return onlyDate;
+    };
+
+    const normalizeDateInput = (value) => String(value ?? '').split('T')[0];
 
     const normalizeYnValue = (value) => {
         const normalized = String(value ?? '').trim().toUpperCase();
@@ -241,7 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateRowStatus = (rowEl, row) => {
         if (!rowEl) return;
         rowEl.classList.toggle('fila-pendiente', row.pendiente);
+        rowEl.classList.toggle('fila-modificada', row.pendiente);
+        rowEl.classList.toggle('table-warning', row.pendiente);
         rowEl.classList.toggle('fila-error', row.estado === 'Error' || Boolean(row.mensajeError));
+        rowEl.classList.toggle('fila-exito', row.estado === 'OK' && !row.pendiente && !row.mensajeError);
+        rowEl.classList.toggle('fila-editando', Boolean(row.editando));
         const estadoEl = rowEl.querySelector('.estado');
         if (estadoEl) {
             estadoEl.textContent = row.estado || '';
@@ -267,13 +296,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             tr.dataset.index = String(index);
             tr.innerHTML = `
-                <td><input type="checkbox" class="form-check-input" data-field="seleccionado" ${row.seleccionado ? 'checked' : ''}></td>
+                <td class="sticky-col"><input type="checkbox" class="form-check-input" data-field="seleccionado" ${row.seleccionado ? 'checked' : ''}></td>
+                <td class="sticky-col-2">${row.tienda}</td>
                 <td>${row.docEntry}</td>
                 <td>${row.lineId}</td>
-                <td>${row.fecFiltro || ''}</td>
+                <td>${formatDateDisplay(row.fecFiltro)}</td>
                 <td>${row.numAtCard}</td>
                 <td>${row.concepto}</td>
-                <td>${row.tienda}</td>
                 <td>${renderSelectInline('U_MGS_CL_TIPGAE', row.U_MGS_CL_TIPGAE, state.tiposGae)}</td>
                 <td><input type="checkbox" class="form-check-input" data-field="U_MGS_CL_AUTORI" ${row.U_MGS_CL_AUTORI === 'Y' ? 'checked' : ''}></td>
                 <td>${renderSelectInline('U_MGS_CL_TIPGAS', row.U_MGS_CL_TIPGAS, state.tiposGasto)}</td>
@@ -300,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
         objectType: String(getValue(item, ['ObjectType', 'objectType'])),
         docEntry: String(getValue(item, ['DocEntry', 'docEntry'])),
         lineId: String(getValue(item, ['LineId', 'lineId', 'LineNum', 'lineNum'])),
-        fecFiltro: String(getValue(item, ['FecFiltro', 'fecFiltro'])),
+        fecFiltro: normalizeDateInput(getValue(item, ['FecFiltro', 'fecFiltro'])),
         numAtCard: String(getValue(item, ['NumAtCard', 'numAtCard'])),
         concepto: String(getValue(item, ['Concepto', 'concepto'])),
         tienda: String(getValue(item, ['Tienda', 'tienda'])),
@@ -309,13 +338,14 @@ document.addEventListener('DOMContentLoaded', () => {
         U_MGS_CL_TIPGAS: String(getValue(item, ['U_MGS_CL_TIPGAS', 'u_MGS_CL_TIPGAS'])),
         U_MGS_CL_TIPMOP: String(getValue(item, ['U_MGS_CL_TIPMOP', 'u_MGS_CL_TIPMOP'])),
         U_MGS_CL_IMPORT: Number(getValue(item, ['U_MGS_CL_IMPORT', 'u_MGS_CL_IMPORT', 'importe']) || 0),
-        U_MGS_CL_FEPRM: String(getValue(item, ['U_MGS_CL_FEPRM', 'u_MGS_CL_FEPRM'])).split('T')[0],
+        U_MGS_CL_FEPRM: normalizeDateInput(getValue(item, ['U_MGS_CL_FEPRM', 'u_MGS_CL_FEPRM'])),
         U_MGS_CL_SOLICI: String(getValue(item, ['U_MGS_CL_SOLICI', 'u_MGS_CL_SOLICI'])),
         U_MGS_CL_VALIDO: normalizeYnValue(getValue(item, ['U_MGS_CL_VALIDO', 'u_MGS_CL_VALIDO'])),
         pendiente: String(getValue(item, ['Pendiente', 'pendiente'])) === 'SI',
         mensajeError: String(getValue(item, ['MensajeError', 'Message', 'message'])),
         estado: '',
-        seleccionado: false
+        seleccionado: false,
+        editando: false
     });
 
     const recalcPending = () => {
@@ -547,14 +577,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!row.pendiente) row.mensajeError = '';
                 });
                 renderRows();
-                showAlert('Actualización realizada correctamente', 'success');
+                showAlert('<strong>Éxito:</strong> Actualización realizada correctamente', 'success');
                 state.page = 1;
                 await buscar();
                 return;
             }
 
             setErrorColumnsVisible(false);
-            showAlert('Actualización realizada correctamente', 'success');
+            state.rows.forEach((row) => { row.mensajeError = ''; });
+            showAlert('<strong>Éxito:</strong> Actualización realizada correctamente', 'success');
             state.page = 1;
             await buscar();
         } catch (error) {
@@ -569,10 +600,48 @@ document.addEventListener('DOMContentLoaded', () => {
             showAlert('No hay datos para exportar.', 'warning');
             return;
         }
-        const headers = ['Código interno', 'Línea', 'Fecha', 'N° Factura', 'Concepto', 'Tienda', 'GAE', 'Autorizado', 'Tipo de gasto', 'Motivo de gasto', 'Importe', 'Fecha PRM', 'Solicitado por', 'No válido', 'Estado', 'Mensaje'];
-        const rows = state.rows.map((row) => [row.docEntry, row.lineId, row.fecFiltro, row.numAtCard, row.concepto, row.tienda, row.U_MGS_CL_TIPGAE, row.U_MGS_CL_AUTORI, row.U_MGS_CL_TIPGAS, row.U_MGS_CL_TIPMOP, row.U_MGS_CL_IMPORT, row.U_MGS_CL_FEPRM, row.U_MGS_CL_SOLICI, row.U_MGS_CL_VALIDO, row.estado, row.mensajeError]);
+
+        const getSelectDescription = (rowEl, field, fallbackValue = '') => {
+            const select = rowEl?.querySelector(`select[data-field="${field}"]`);
+            if (!select) return fallbackValue;
+            if (select.value === '') return '';
+            const selectedOption = select.options[select.selectedIndex];
+            if (!selectedOption) return fallbackValue;
+            const text = selectedOption.textContent.trim();
+            return text === 'Seleccionar' ? '' : text;
+        };
+
+        const getYnDescription = (value) => {
+            const normalized = normalizeYnValue(value);
+            if (normalized === 'Y') return 'Sí';
+            if (normalized === 'N') return 'No';
+            return '';
+        };
+
+        const headers = ['Tienda', 'Código interno', 'Línea', 'Fecha', 'N° Factura', 'Concepto', 'GAE', 'Autorizado', 'Tipo de gasto', 'Motivo de gasto', 'Importe', 'Fecha PRM', 'Solicitado por', 'No válido', 'Estado', 'Mensaje'];
+        const rows = state.rows.map((row, index) => {
+            const rowEl = elements.tablaBody.querySelector(`tr[data-index="${index}"]`);
+            return [
+                row.tienda,
+                row.docEntry,
+                row.lineId,
+                formatDateDisplay(row.fecFiltro),
+                row.numAtCard,
+                row.concepto,
+                getSelectDescription(rowEl, 'U_MGS_CL_TIPGAE', row.U_MGS_CL_TIPGAE),
+                getYnDescription(row.U_MGS_CL_AUTORI),
+                getSelectDescription(rowEl, 'U_MGS_CL_TIPGAS', row.U_MGS_CL_TIPGAS),
+                getSelectDescription(rowEl, 'U_MGS_CL_TIPMOP', row.U_MGS_CL_TIPMOP),
+                row.U_MGS_CL_IMPORT,
+                row.U_MGS_CL_FEPRM,
+                row.U_MGS_CL_SOLICI,
+                getYnDescription(row.U_MGS_CL_VALIDO),
+                row.estado,
+                row.mensajeError
+            ];
+        });
         const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -581,37 +650,6 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(url);
     };
 
-
-    const setupHorizontalScrollSync = () => {
-        if (!elements.tableScroll || !elements.stickyScroll || !elements.stickyScrollInner) return;
-
-        let syncing = false;
-        const syncSize = () => {
-            const table = document.getElementById('tablaGae');
-            if (!table) return;
-            elements.stickyScrollInner.style.width = `${table.scrollWidth}px`;
-            elements.stickyScroll.classList.toggle('d-none', table.scrollWidth <= elements.tableScroll.clientWidth);
-        };
-
-        elements.stickyScroll.addEventListener('scroll', () => {
-            if (syncing) return;
-            syncing = true;
-            elements.tableScroll.scrollLeft = elements.stickyScroll.scrollLeft;
-            syncing = false;
-        });
-
-        elements.tableScroll.addEventListener('scroll', () => {
-            if (syncing) return;
-            syncing = true;
-            elements.stickyScroll.scrollLeft = elements.tableScroll.scrollLeft;
-            syncing = false;
-        });
-
-        window.addEventListener('resize', syncSize);
-        const observer = new MutationObserver(syncSize);
-        observer.observe(elements.tablaBody, { childList: true, subtree: true });
-        syncSize();
-    };
 
     const loadCatalogos = async () => {
         setLoading(true, 'Cargando catálogos...');
@@ -644,7 +682,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tryFilterAction = (onConfirm, onCancel) => confirmDiscard(onConfirm, onCancel);
 
-    setupHorizontalScrollSync();
 
     elements.btnDescartar.addEventListener('click', () => {
         handlePendingResult(true);
@@ -795,7 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setPendiente(row);
         updateRowStatus(rowEl, row);
 
-        const bulkFields = ['U_MGS_CL_AUTORI', 'U_MGS_CL_TIPGAS', 'U_MGS_CL_TIPMOP', 'U_MGS_CL_TIPGAE'];
+        const bulkFields = ['U_MGS_CL_AUTORI', 'U_MGS_CL_TIPGAS', 'U_MGS_CL_TIPMOP', 'U_MGS_CL_TIPGAE', 'U_MGS_CL_FEPRM'];
         if (row.seleccionado && bulkFields.includes(field)) {
             state.rows.forEach((item, index) => {
                 if (!item.seleccionado || index === idx) return;
@@ -812,6 +849,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateRowStatus(elements.tablaBody.querySelector(`tr[data-index="${index}"]`), item);
             });
         }
+    });
+
+
+    elements.tablaBody.addEventListener('focusin', (event) => {
+        const rowEl = event.target.closest('tr');
+        if (!rowEl) return;
+        const idx = Number(rowEl.dataset.index);
+        const row = state.rows[idx];
+        if (!row) return;
+        row.editando = true;
+        updateRowStatus(rowEl, row);
+    });
+
+    elements.tablaBody.addEventListener('focusout', (event) => {
+        const rowEl = event.target.closest('tr');
+        if (!rowEl) return;
+        const next = event.relatedTarget;
+        if (next && rowEl.contains(next)) return;
+        const idx = Number(rowEl.dataset.index);
+        const row = state.rows[idx];
+        if (!row) return;
+        row.editando = false;
+        updateRowStatus(rowEl, row);
     });
 
     document.addEventListener('click', (event) => {
