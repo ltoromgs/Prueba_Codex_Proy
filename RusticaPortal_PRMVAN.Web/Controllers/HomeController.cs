@@ -15,11 +15,17 @@ namespace RusticaPortal_PRMVAN.Web.Controllers
 
         public IActionResult Index()
         {
-            // SÛlo cargo el popup desde sesiÛn
+
+        [HttpGet]
+        public IActionResult PingSession()
+        {
+            return Ok();
+        }
+            // S√≥lo cargo el popup desde sesi√≥n
             var popup = HttpContext.Session.GetString("PopupImage");
             ViewBag.PopupImage = popup;
 
-            // Retorno la vista (el layout leer· ViewBag.MenuModel)
+            // Retorno la vista (el layout leer√° ViewBag.MenuModel)
             return View();
         }
     }

@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const connectionMessage = 'No tiene conexión. Intente nuevamente.';
+    const pendingStorageKey = 'gae_pendientes';
 
     const getValue = (obj, keys) => {
         for (const key of keys) {
@@ -128,6 +129,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const clearAlerts = () => {
         elements.alertContainer.innerHTML = '';
+    };
+
+    const getRowKey = (row) => [row.baseDatos || '', row.objectType || '', row.docEntry || '', row.lineId || ''].join('|');
+
+    const savePendingToLocalStorage = () => {
+        const pendientes = state.rows
+            .filter((row) => row.pendiente)
+            .map((row) => ({
+                key: getRowKey(row),
+                baseDatos: row.baseDatos,
+                objectType: row.objectType,
+                docEntry: row.docEntry,
+                lineId: row.lineId,
+                U_MGS_CL_TIPGAE: row.U_MGS_CL_TIPGAE,
+                U_MGS_CL_AUTORI: normalizeYnValue(row.U_MGS_CL_AUTORI),
+                U_MGS_CL_TIPGAS: row.U_MGS_CL_TIPGAS,
+                U_MGS_CL_TIPMOP: row.U_MGS_CL_TIPMOP,
+                U_MGS_CL_IMPORT: row.U_MGS_CL_IMPORT,
+                U_MGS_CL_FEPRM: row.U_MGS_CL_FEPRM,
+                U_MGS_CL_VALIDO: normalizeYnValue(row.U_MGS_CL_VALIDO)
+            }));
+
+        if (!pendientes.length) {
+            localStorage.removeItem(pendingStorageKey);
+            return;
+        }
+
+        localStorage.setItem(pendingStorageKey, JSON.stringify(pendientes));
+    };
+
+    const readPendingFromLocalStorage = () => {
+        const raw = localStorage.getItem(pendingStorageKey);
+        if (!raw) return [];
+
+        try {
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (_) {
+            return [];
+        }
+    };
+
+    const applyPendingFromLocalStorage = () => {
+        const pendientes = readPendingFromLocalStorage();
+        if (!pendientes.length || !state.rows.length) return 0;
+
+        const indexByKey = new Map();
+        state.rows.forEach((row, index) => {
+            indexByKey.set(getRowKey(row), index);
+            const shortKey = ['', row.objectType || '', row.docEntry || '', row.lineId || ''].join('|');
+            if (!indexByKey.has(shortKey)) indexByKey.set(shortKey, index);
+        });
+
+        let restored = 0;
+        pendientes.forEach((pendiente) => {
+            const key = pendiente.key || [pendiente.baseDatos || '', pendiente.objectType || '', pendiente.docEntry || '', pendiente.lineId || ''].join('|');
+            const idx = indexByKey.get(key)
+                ?? indexByKey.get(['', pendiente.objectType || '', pendiente.docEntry || '', pendiente.lineId || ''].join('|'));
+            if (idx == null) return;
+
+            const row = state.rows[idx];
+            row.U_MGS_CL_TIPGAE = pendiente.U_MGS_CL_TIPGAE ?? row.U_MGS_CL_TIPGAE;
+            row.U_MGS_CL_AUTORI = normalizeYnValue(pendiente.U_MGS_CL_AUTORI ?? row.U_MGS_CL_AUTORI);
+            row.U_MGS_CL_TIPGAS = pendiente.U_MGS_CL_TIPGAS ?? row.U_MGS_CL_TIPGAS;
+            row.U_MGS_CL_TIPMOP = pendiente.U_MGS_CL_TIPMOP ?? row.U_MGS_CL_TIPMOP;
+            row.U_MGS_CL_IMPORT = pendiente.U_MGS_CL_IMPORT ?? row.U_MGS_CL_IMPORT;
+            row.U_MGS_CL_FEPRM = pendiente.U_MGS_CL_FEPRM ?? row.U_MGS_CL_FEPRM;
+            row.U_MGS_CL_VALIDO = normalizeYnValue(pendiente.U_MGS_CL_VALIDO ?? row.U_MGS_CL_VALIDO);
+            row.mensajeError = '';
+            setPendiente(row);
+            restored += 1;
+        });
+
+        return restored;
+    };
+
+    const notifySuccess = (title, message) => {
+        if (window.Swal?.fire) {
+            window.Swal.fire(title, message, 'success');
+            return;
+        }
+        window.alert(`${title}: ${message}`);
+    };
+
+    const handleSessionExpired = (rawMessage) => {
+        const message = String(rawMessage || '').toLowerCase();
+        const isSessionError = message.includes('empresa no encontrada en sesión')
+            || message.includes('empresa no encontrada en sesion')
+            || message.includes('sesión')
+            || message.includes('sesion');
+
+        if (!isSessionError) return false;
+
+        savePendingToLocalStorage();
+        window.alert('Tu sesión ha expirado por inactividad. Tus cambios han sido guardados temporalmente. Serás redirigido al login.');
+        window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(window.location.pathname)}`;
+        return true;
     };
 
     const fetchJson = async (url, options = {}) => {
@@ -356,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const discardChanges = () => {
         state.rows = state.originalRows.map((row) => ({ ...row, seleccionado: false }));
         recalcPending();
+        savePendingToLocalStorage();
         renderRows();
     };
 
@@ -440,6 +539,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const errorMessage = `HTTP ${response.status} ${response.statusText} - ${mensaje || 'Sin detalle.'}`;
+                if (handleSessionExpired(mensaje)) {
+                    return;
+                }
                 console.error('GAE buscar error:', {
                     status: response.status,
                     statusText: response.statusText,
@@ -455,11 +557,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.estado = row.pendiente ? 'Pendiente' : (row.mensajeError ? 'Error' : 'OK');
                 return row;
             });
+            const restoredCount = applyPendingFromLocalStorage();
             state.originalRows = state.rows.map((row) => ({ ...row }));
             state.thereAreMoreRows = state.rows.length >= state.pageSize;
             recalcPending();
             renderRows();
             updatePageInfo();
+            if (restoredCount > 0) {
+                showAlert('Se han restaurado tus cambios pendientes de una sesión anterior.', 'info');
+                savePendingToLocalStorage();
+            }
         } catch (error) {
             console.error(error);
             showAlert('No tiene conexión. Intente nuevamente.', 'danger');
@@ -517,6 +624,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = String(getValue(response, ['content', 'Content'])).trim();
             const items = Array.isArray(getValue(response, ['items', 'Items'])) ? getValue(response, ['items', 'Items']) : [];
 
+            if (!registered && handleSessionExpired(`${message} ${content}`)) {
+                return;
+            }
+
             if (!registered) {
                 if (!items.length) {
                     showAlert(message || content || 'Error al actualizar', 'danger');
@@ -573,22 +684,40 @@ document.addEventListener('DOMContentLoaded', () => {
             if (registered && items.length === 0) {
                 setErrorColumnsVisible(false);
                 state.rows.forEach((row) => {
-                    row.estado = row.pendiente ? 'Pendiente' : 'OK';
-                    if (!row.pendiente) row.mensajeError = '';
+                    row.pendiente = false;
+                    row.seleccionado = false;
+                    row.estado = 'OK';
+                    row.mensajeError = '';
                 });
+                state.pendientes = 0;
+                updatePendingBadge();
+                localStorage.removeItem(pendingStorageKey);
                 renderRows();
-                showAlert('<strong>Éxito:</strong> Actualización realizada correctamente', 'success');
+                notifySuccess('Éxito', 'Actualización realizada correctamente');
                 state.page = 1;
                 await buscar();
                 return;
             }
 
             setErrorColumnsVisible(false);
-            state.rows.forEach((row) => { row.mensajeError = ''; });
-            showAlert('<strong>Éxito:</strong> Actualización realizada correctamente', 'success');
+            state.rows.forEach((row) => {
+                if (!row.pendiente) {
+                    row.seleccionado = false;
+                    row.mensajeError = '';
+                    row.estado = 'OK';
+                }
+            });
+            savePendingToLocalStorage();
+            if (!state.rows.some((row) => row.pendiente)) {
+                localStorage.removeItem(pendingStorageKey);
+            }
+            notifySuccess('Éxito', 'Actualización realizada correctamente');
             state.page = 1;
             await buscar();
         } catch (error) {
+            if (handleSessionExpired(error.message || '')) {
+                return;
+            }
             showAlert(error.message || connectionMessage, 'danger');
         } finally {
             setLoading(false);
@@ -849,6 +978,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateRowStatus(elements.tablaBody.querySelector(`tr[data-index="${index}"]`), item);
             });
         }
+
+        savePendingToLocalStorage();
     });
 
 
@@ -886,9 +1017,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('beforeunload', (event) => {
         if (!state.pendientes) return;
+        savePendingToLocalStorage();
         event.preventDefault();
         event.returnValue = 'Hay cambios pendientes. ¿Desea descartar los cambios?';
     });
+
+    setInterval(() => {
+        if (state.pendientes > 0) {
+            fetch('/Home/PingSession').catch(() => console.log('Ping failed'));
+        }
+    }, 900000);
 
     const initialRange = periodToRange(elements.filtroPeriodo.value);
     if (initialRange) {
